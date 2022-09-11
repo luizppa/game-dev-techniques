@@ -10,6 +10,7 @@ public class SurfaceManager : MonoBehaviour
   [SerializeField] float chunkDensity = 1f;
   [SerializeField][Range(0f, 1f)] float isoLevel = 0.5f;
   [SerializeField] int seed = 0;
+  [SerializeField] float elevation = 1f;
 
 
   [SerializeField] GameObject chunkPrefab = null;
@@ -18,6 +19,7 @@ public class SurfaceManager : MonoBehaviour
   private GameObject chunk = null;
   private float previousIsoLevel = 0f;
   private int previousSeed = 0;
+  private float previousH = 0f;
 
   void Start()
   {
@@ -37,10 +39,11 @@ public class SurfaceManager : MonoBehaviour
 
   void Update()
   {
-    if (previousIsoLevel != isoLevel || previousSeed != seed)
+    if (previousIsoLevel != isoLevel || previousSeed != seed || previousH != elevation)
     {
       previousIsoLevel = isoLevel;
       previousSeed = seed;
+      previousH = elevation;
       ReloadChunk();
     }
   }
@@ -90,5 +93,10 @@ public class SurfaceManager : MonoBehaviour
   public int getSeed()
   {
     return seed;
+  }
+
+  public float getElevation()
+  {
+    return elevation;
   }
 }
