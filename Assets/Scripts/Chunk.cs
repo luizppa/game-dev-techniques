@@ -21,7 +21,6 @@ public class Chunk : MonoBehaviour
 
   void Start()
   {
-    vertices = new Vertex[chunkWidth, chunkHeight, chunkDepth];
     surfaceManager = FindObjectOfType<SurfaceManager>();
     meshFilter = GetComponent<MeshFilter>();
     if (meshFilter == null)
@@ -64,10 +63,11 @@ public class Chunk : MonoBehaviour
 	 */
   private void DistributeVertices()
   {
-    int chunkSeed = (int)Mathf.Floor(seed * transform.position.magnitude);
-    Random.InitState(chunkSeed);
+    int chunkSeed = (int)Mathf.Floor(Mathf.Pow(seed, transform.position.magnitude));
+    Random.InitState(seed + chunkSeed);
     if (vertexPrefab != null)
     {
+      vertices = new Vertex[chunkWidth, chunkHeight, chunkDepth];
       for (int x = 0; x < chunkWidth; x++)
       {
         for (int y = 0; y < chunkHeight; y++)
@@ -75,9 +75,10 @@ public class Chunk : MonoBehaviour
           for (int z = 0; z < chunkDepth; z++)
           {
             Vector3Int position = new Vector3Int(x, y, z);
-            Vector3 transformPosition = new Vector3(x, y, z);
-            GameObject vertex = Instantiate(vertexPrefab, transformPosition * chunkDensity, Quaternion.identity, transform);
+            Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
+            GameObject vertex = Instantiate(vertexPrefab, transformPosition, Quaternion.identity, transform);
 
+            Debug.Log("Vertex: " + position);
             vertices[x, y, z] = vertex.GetComponent<Vertex>();
             vertices[x, y, z].SetValue(GenerateValue(position));
           }
@@ -112,18 +113,10 @@ public class Chunk : MonoBehaviour
     Mesh mesh = new Mesh();
     meshFilter.mesh = mesh;
     meshCollider.sharedMesh = mesh;
-    Vector3[] normals = mesh.normals;
+
     mesh.vertices = cubeVertices;
     mesh.triangles = triangles.ToArray();
-
-    // Vector2[] uv = null;
-    // uv = new Vector2[cubeVertices.Length];
-    // for (int i = 0; i < cubeVertices.Length - 2; i++)
-    // {
-    //   normals[i] = Vector3.Cross(cubeVertices[i + 1] - cubeVertices[i], cubeVertices[i + 2] - cubeVertices[i]);
-    //   uv[i] = new Vector2(cubeVertices[i].x, cubeVertices[i].z);
-    // }
-    // mesh.uv = uv;
+    mesh.RecalculateNormals();
   }
 
   // ====================== Utils ====================== //
