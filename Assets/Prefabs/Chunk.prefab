@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5699508934594323190}
   - component: {fileID: 5699508934594323185}
+  - component: {fileID: 7870066477126929722}
   m_Layer: 0
   m_Name: Chunk
   m_TagString: Untagged
@@ -45,3 +46,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   vertexPrefab: {fileID: 5362668367281665950, guid: e892086ed476b5241a2cf81849b5d3da, type: 3}
+--- !u!33 &7870066477126929722
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5699508934594323191}
+  m_Mesh: {fileID: 0}

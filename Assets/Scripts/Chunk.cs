@@ -13,14 +13,13 @@ public class Chunk : MonoBehaviour
   float isoLevel = 0.5f;
   int seed = 0;
 
-  private GameObject[,,] vertices = null;
+  private Vertex[,,] vertices = null;
 
   private SurfaceManager surfaceManager = null;
 
-  // Start is called before the first frame update
   void Start()
   {
-    vertices = new GameObject[chunkWidth, chunkHeight, chunkDepth];
+    vertices = new Vertex[chunkWidth, chunkHeight, chunkDepth];
     surfaceManager = FindObjectOfType<SurfaceManager>();
     GetConfig();
     GenerateChunk();
@@ -43,6 +42,7 @@ public class Chunk : MonoBehaviour
   {
     Random.InitState((int)Mathf.Floor(seed * transform.position.magnitude));
     DistributeVertices();
+    GenerateMesh();
   }
 
   private void DistributeVertices()
@@ -56,18 +56,49 @@ public class Chunk : MonoBehaviour
           for (int z = 0; z < chunkDepth; z++)
           {
             Vector3 position = new Vector3(x, y, z);
-            vertices[x, y, z] = Instantiate(vertexPrefab, position * chunkDensity, Quaternion.identity, transform);
-            vertices[x, y, z].GetComponent<Vertex>().SetValue(GenerateValue(position));
+            GameObject vertex = Instantiate(vertexPrefab, position * chunkDensity, Quaternion.identity, transform);
+
+            vertices[x, y, z] = vertex.GetComponent<Vertex>();
+            vertices[x, y, z].SetValue(GenerateValue(position));
           }
         }
       }
     }
   }
 
+  private void GenerateMesh()
+  {
+    for (int x = 0; x < chunkWidth - 1; x++)
+    {
+      for (int y = 0; y < chunkHeight - 1; y++)
+      {
+        for (int z = 0; z < chunkDepth - 1; z++)
+        {
+          int cubeIndex = GetCubeIndex(x, y, z);
+        }
+      }
+    }
+  }
+
+  private int GetCubeIndex(int x, int y, int z)
+  {
+    int cubeindex = 0;
+
+    if (vertices[x, y, z + 1].GetValue() > isoLevel) cubeindex |= 1;
+    if (vertices[x + 1, y, z + 1].GetValue() > isoLevel) cubeindex |= 2;
+    if (vertices[x + 1, y, z].GetValue() > isoLevel) cubeindex |= 4;
+    if (vertices[x, y, z].GetValue() > isoLevel) cubeindex |= 8;
+    if (vertices[x, y + 1, z + 1].GetValue() > isoLevel) cubeindex |= 16;
+    if (vertices[x + 1, y + 1, z + 1].GetValue() > isoLevel) cubeindex |= 32;
+    if (vertices[x + 1, y + 1, z].GetValue() > isoLevel) cubeindex |= 64;
+    if (vertices[x, y + 1, z].GetValue() > isoLevel) cubeindex |= 128;
+
+    return cubeindex;
+  }
+
   float GenerateValue(Vector3 position)
   {
     float value = Mathf.Clamp01(Random.Range(0f, (float)chunkHeight) / (1f + position.y));
-    // Debug.Log(position.y + ": " + value);
     return value;
   }
 

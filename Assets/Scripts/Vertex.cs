@@ -11,6 +11,11 @@ public class Vertex : MonoBehaviour
     this.value = value;
   }
 
+  public float GetValue()
+  {
+    return value;
+  }
+
   void OnDrawGizmosSelected()
   {
     Gizmos.color = new Color(value, value, value, 1f);
