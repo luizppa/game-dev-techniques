@@ -252,22 +252,22 @@ public class Chunk : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-    for (int x = 0; x < chunkWidth; x++)
-    {
-      for (int y = 0; y < chunkHeight; y++)
-      {
-        for (int z = 0; z < chunkDepth; z++)
-        {
-          Gizmos.color = Color.white;
-          Gizmos.DrawLine(new Vector3(0, y, z) * chunkDensity, new Vector3(chunkWidth - 1, y, z) * chunkDensity);
-          Gizmos.DrawLine(new Vector3(x, 0, z) * chunkDensity, new Vector3(x, chunkHeight - 1, z) * chunkDensity);
-          Gizmos.DrawLine(new Vector3(x, y, 0) * chunkDensity, new Vector3(x, y, chunkDepth - 1) * chunkDensity);
+    // for (int x = 0; x < chunkWidth; x++)
+    // {
+    //   for (int y = 0; y < chunkHeight; y++)
+    //   {
+    //     for (int z = 0; z < chunkDepth; z++)
+    //     {
+    //       Gizmos.color = Color.white;
+    //       Gizmos.DrawLine(new Vector3(0, y, z) * chunkDensity, new Vector3(chunkWidth - 1, y, z) * chunkDensity);
+    //       Gizmos.DrawLine(new Vector3(x, 0, z) * chunkDensity, new Vector3(x, chunkHeight - 1, z) * chunkDensity);
+    //       Gizmos.DrawLine(new Vector3(x, y, 0) * chunkDensity, new Vector3(x, y, chunkDepth - 1) * chunkDensity);
 
-          CubeVertex vertex = vertices[x, y, z];
-          Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
-          Gizmos.DrawSphere(vertex.GetPosition(), 0.03f);
-        }
-      }
-    }
+    //       CubeVertex vertex = vertices[x, y, z];
+    //       Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
+    //       Gizmos.DrawSphere(vertex.GetPosition(), 0.03f);
+    //     }
+    //   }
+    // }
   }
 }
