@@ -2,9 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Vertex : MonoBehaviour
+public class CubeVertex
 {
   private float value = 0f;
+  private Vector3 position = Vector3.zero;
+
+  public CubeVertex(float value, Vector3 position)
+  {
+    this.value = value;
+    this.position = position;
+  }
 
   public void SetValue(float value)
   {
@@ -16,9 +23,8 @@ public class Vertex : MonoBehaviour
     return value;
   }
 
-  void OnDrawGizmosSelected()
+  public Vector3 GetPosition()
   {
-    Gizmos.color = new Color(value, value, value, 1f);
-    Gizmos.DrawSphere(transform.position, 0.03f);
+    return position;
   }
 }

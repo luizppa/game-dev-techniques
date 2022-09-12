@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class Chunk : MonoBehaviour
 {
-  [SerializeField] private GameObject vertexPrefab = null;
-
   int chunkHeight = 10;
   int chunkWidth = 10;
   int chunkDepth = 10;
@@ -14,7 +12,7 @@ public class Chunk : MonoBehaviour
   int seed = 0;
   float elevation = 1f;
 
-  private Vertex[,,] vertices = null;
+  private CubeVertex[,,] vertices = null;
   private SurfaceManager surfaceManager = null;
   private MeshFilter meshFilter = null;
   private MeshCollider meshCollider = null;
@@ -65,23 +63,17 @@ public class Chunk : MonoBehaviour
   {
     int chunkSeed = (int)Mathf.Floor(Mathf.Pow(seed, transform.position.magnitude));
     Random.InitState(seed + chunkSeed);
-    if (vertexPrefab != null)
-    {
-      vertices = new Vertex[chunkWidth, chunkHeight, chunkDepth];
-      for (int x = 0; x < chunkWidth; x++)
-      {
-        for (int y = 0; y < chunkHeight; y++)
-        {
-          for (int z = 0; z < chunkDepth; z++)
-          {
-            Vector3Int position = new Vector3Int(x, y, z);
-            Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
-            GameObject vertex = Instantiate(vertexPrefab, transformPosition, Quaternion.identity, transform);
 
-            Debug.Log("Vertex: " + position);
-            vertices[x, y, z] = vertex.GetComponent<Vertex>();
-            vertices[x, y, z].SetValue(GenerateValue(position));
-          }
+    vertices = new CubeVertex[chunkWidth, chunkHeight, chunkDepth];
+    for (int x = 0; x < chunkWidth; x++)
+    {
+      for (int y = 0; y < chunkHeight; y++)
+      {
+        for (int z = 0; z < chunkDepth; z++)
+        {
+          Vector3Int position = new Vector3Int(x, y, z);
+          Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
+          vertices[x, y, z] = new CubeVertex(GenerateValue(position), transformPosition);
         }
       }
     }
@@ -129,21 +121,21 @@ public class Chunk : MonoBehaviour
   private Vector3 VertexInterp(Vector3Int position, int index1, int index2)
   {
 
-    Vertex vertex1 = GetVertex(position, index1);
-    Vertex vertex2 = GetVertex(position, index2);
+    CubeVertex vertex1 = GetVertex(position, index1);
+    CubeVertex vertex2 = GetVertex(position, index2);
 
     float v1 = vertex1.GetValue();
     float v2 = vertex2.GetValue();
 
     float lerpState = Mathf.InverseLerp(v1, v2, isoLevel);
 
-    Vector3 p1 = vertex1.transform.position;
-    Vector3 p2 = vertex2.transform.position;
+    Vector3 p1 = vertex1.GetPosition();
+    Vector3 p2 = vertex2.GetPosition();
 
     return Vector3.Lerp(p1, p2, lerpState);
   }
 
-  public Vertex GetVertex(Vector3Int position, int vertex)
+  public CubeVertex GetVertex(Vector3Int position, int vertex)
   {
     Vector3Int index = position + GetVertexOffset(vertex);
     return vertices[index.x, index.y, index.z];
@@ -220,11 +212,11 @@ public class Chunk : MonoBehaviour
   {
     int cubeIndex = GetCubeIndex(position);
     int edges = Tables.edgeTable[cubeIndex];
-    Vector3[] vertices = new Vector3[12];
+    Vector3[] cubeVertices = new Vector3[12];
 
     if (edges == 0)
     {
-      return vertices;
+      return cubeVertices;
     }
 
     for (int i = 0; i < 12; i++)
@@ -233,12 +225,11 @@ public class Chunk : MonoBehaviour
       if ((Tables.edgeTable[cubeIndex] & edgeCode) > 0)
       {
         int[] edgeVertices = GetEdgeVertices(i);
-        vertices[i] = VertexInterp(position, edgeVertices[0], edgeVertices[1]);
-        // Instantiate(vertexPrefab, vertices[i], Quaternion.identity, transform);
+        cubeVertices[i] = VertexInterp(position, edgeVertices[0], edgeVertices[1]);
       }
     }
 
-    return vertices;
+    return cubeVertices;
   }
 
   private List<int> GetTriangles(Vector3Int position, int offset)
@@ -261,16 +252,20 @@ public class Chunk : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-    Gizmos.color = Color.white;
     for (int x = 0; x < chunkWidth; x++)
     {
       for (int y = 0; y < chunkHeight; y++)
       {
         for (int z = 0; z < chunkDepth; z++)
         {
+          Gizmos.color = Color.white;
           Gizmos.DrawLine(new Vector3(0, y, z) * chunkDensity, new Vector3(chunkWidth - 1, y, z) * chunkDensity);
           Gizmos.DrawLine(new Vector3(x, 0, z) * chunkDensity, new Vector3(x, chunkHeight - 1, z) * chunkDensity);
           Gizmos.DrawLine(new Vector3(x, y, 0) * chunkDensity, new Vector3(x, y, chunkDepth - 1) * chunkDensity);
+
+          CubeVertex vertex = vertices[x, y, z];
+          Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
+          Gizmos.DrawSphere(vertex.GetPosition(), 0.03f);
         }
       }
     }
