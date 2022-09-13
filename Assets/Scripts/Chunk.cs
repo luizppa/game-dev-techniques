@@ -239,7 +239,7 @@ public class Chunk : MonoBehaviour
 
     for (int i = 0; Tables.triTable[cubeIndex, i] != -1; i += 3)
     {
-      Debug.Log("Triangle " + i + ": " + Tables.triTable[cubeIndex, i] + ", " + Tables.triTable[cubeIndex, i + 1] + ", " + Tables.triTable[cubeIndex, i + 2]);
+      // Debug.Log("Triangle " + i + ": " + Tables.triTable[cubeIndex, i] + ", " + Tables.triTable[cubeIndex, i + 1] + ", " + Tables.triTable[cubeIndex, i + 2]);
       triangles.Add(Tables.triTable[cubeIndex, i + 2] + offset);
       triangles.Add(Tables.triTable[cubeIndex, i + 1] + offset);
       triangles.Add(Tables.triTable[cubeIndex, i] + offset);

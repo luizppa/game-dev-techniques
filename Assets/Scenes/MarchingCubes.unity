@@ -627,7 +627,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 74, y: 24, z: 70}
+  m_LocalPosition: {x: 4, y: 24, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -648,8 +648,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showGizmos: 1
   editorPreview: 1
-  follow: {fileID: 1029298797}
-  lookAt: {fileID: 1029298797}
+  follow: {fileID: 1294274720}
+  lookAt: {fileID: 1294274720}
   topRing:
     radius: 1
     height: 3
@@ -673,7 +673,7 @@ MonoBehaviour:
   horizontalOffset: 0
   verticalTilt: 0
   verticalOffset: 0
-  useTargetNormal: 1
+  useTargetNormal: 0
   captureCursor: 1
   horizontalAxis: Mouse X
   horizontalSensitivity: 1
@@ -724,7 +724,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029298797}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 70, y: 24, z: 70}
+  m_LocalPosition: {x: 0, y: 24, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -920,7 +920,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1294274720}
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -1102,11 +1102,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: chunkDepth
-      value: 30
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: chunkWidth
-      value: 30
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: chunkHeight
@@ -1116,6 +1116,10 @@ PrefabInstance:
       propertyPath: chunkDensity
       value: 10
       objectReference: {fileID: 0}
+    - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
+      propertyPath: relevantPosition
+      value: 
+      objectReference: {fileID: 1029298798}
     - target: {fileID: 187988308634348395, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: m_Name
       value: Surface Manager
