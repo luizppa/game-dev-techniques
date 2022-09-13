@@ -5,7 +5,7 @@ using UnityEngine;
 public class SurfaceManager : MonoBehaviour
 {
   [SerializeField] int chunksPerDirection = 1;
-  [SerializeField] Transform relevantPosition = null;
+  [SerializeField] Transform playerPosition = null;
 
   [Header("Chunk Configuration")]
   [SerializeField] int chunkHeight = 10;
@@ -22,12 +22,10 @@ public class SurfaceManager : MonoBehaviour
   private GameObject[,] chunks = null;
   private float previousIsoLevel = 0f;
   private int previousSeed = 0;
-  private float previousH = 0f;
+  private float previousElevation = 0f;
 
-  private float chunkX = 0f;
-  private float previousChunkX = 0f;
-  private float chunkZ = 0f;
-  private float previousChunkZ = 0f;
+  private Vector2 centralPosition = new Vector2(0, 0);
+  private Vector2 previousCentralPosition;
 
   void Start()
   {
@@ -45,19 +43,11 @@ public class SurfaceManager : MonoBehaviour
 
   void Update()
   {
-    float playerX = relevantPosition.position.x;
-    float playerZ = relevantPosition.position.z;
-    chunkX = Mathf.Floor(playerX / (chunkWidth * chunkDensity));
-    chunkZ = Mathf.Floor(playerZ / (chunkDepth * chunkDensity));
 
-    if (previousIsoLevel != isoLevel || previousSeed != seed || previousH != elevation || previousChunkX != chunkX || previousChunkZ != chunkZ)
+    if (ShouldUpdate())
     {
-      previousIsoLevel = isoLevel;
-      previousSeed = seed;
-      previousH = elevation;
-      previousChunkX = chunkX;
-      previousChunkZ = chunkZ;
-      ReloadChunks();
+      UpdateProperties();
+      UpdateChunks();
     }
   }
 
@@ -65,53 +55,169 @@ public class SurfaceManager : MonoBehaviour
   {
     previousIsoLevel = isoLevel;
     previousSeed = seed;
+    previousElevation = elevation;
+
     int chunkCount = (chunksPerDirection * 2) + 1;
     chunks = new GameObject[chunkCount, chunkCount];
 
-    float playerX = relevantPosition.position.x;
-    float playerZ = relevantPosition.position.z;
-    chunkX = Mathf.Floor(playerX / (chunkWidth * chunkDensity));
-    chunkZ = Mathf.Floor(playerZ / (chunkDepth * chunkDensity));
-    previousChunkX = chunkX;
-    previousChunkZ = chunkZ;
+    float playerX = playerPosition.position.x;
+    float playerZ = playerPosition.position.z;
+    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkWidth * chunkDensity)), Mathf.Floor(playerZ / (chunkDepth * chunkDensity)));
+    previousCentralPosition = centralPosition;
+  }
+
+  private bool ShouldUpdate()
+  {
+    float playerX = playerPosition.position.x;
+    float playerZ = playerPosition.position.z;
+    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkWidth * chunkDensity)), Mathf.Floor(playerZ / (chunkDepth * chunkDensity)));
+
+    return centralPosition - previousCentralPosition != Vector2.zero || previousIsoLevel != isoLevel || previousSeed != seed || previousElevation != elevation;
+  }
+
+  private void UpdateProperties()
+  {
+    previousIsoLevel = isoLevel;
+    previousSeed = seed;
+    previousElevation = elevation;
   }
 
   private void CreateChunks()
   {
     if (chunkPrefab != null)
     {
-      CreateChunk(chunkX, chunkZ);
       for (int x = -chunksPerDirection; x <= chunksPerDirection; x++)
       {
         for (int z = -chunksPerDirection; z <= chunksPerDirection; z++)
         {
-          CreateChunk(chunkX + x, chunkZ + z);
+          if (chunks[chunksPerDirection + x, chunksPerDirection + z] == null)
+          {
+            chunks[chunksPerDirection + x, chunksPerDirection + z] = CreateChunk(centralPosition.x + x, centralPosition.y + z);
+          }
         }
       }
     }
   }
 
-  private void CreateChunk(float x, float z)
+  private void UpdateChunks()
+  {
+    if (centralPosition.x != previousCentralPosition.x)
+    {
+      ShiftChunkRow();
+    }
+
+    if (centralPosition.y != previousCentralPosition.y)
+    {
+      ShiftChunkColumn();
+    }
+    previousCentralPosition = centralPosition;
+    CreateChunks();
+  }
+
+  private void ShiftChunkRow()
+  {
+    int shiftValue = centralPosition.x > previousCentralPosition.x ? 1 : -1;
+
+    // Remove
+    int discardRow = shiftValue > 0 ? 0 : chunksPerDirection * 2;
+    for (int z = 0; z <= chunksPerDirection * 2; z++)
+    {
+      GameObject chunk = chunks[discardRow, z];
+      if (chunk != null)
+      {
+        Debug.Log("Destroying chunk " + chunk.name);
+        Destroy(chunk);
+      }
+    }
+
+    // Shift
+    if (shiftValue > 0)
+    {
+      for (int x = 0; x < chunksPerDirection * 2; x++)
+      {
+        for (int z = 0; z <= chunksPerDirection * 2; z++)
+        {
+          chunks[x, z] = chunks[x + 1, z];
+        }
+      }
+    }
+    else
+    {
+      for (int x = chunksPerDirection * 2; x > 0; x--)
+      {
+        for (int z = 0; z <= chunksPerDirection * 2; z++)
+        {
+          chunks[x, z] = chunks[x - 1, z];
+        }
+      }
+    }
+
+    // Set null
+    int nullRow = shiftValue > 0 ? chunksPerDirection * 2 : 0;
+    for (int z = 0; z <= chunksPerDirection * 2; z++)
+    {
+      chunks[nullRow, z] = null;
+    }
+  }
+
+
+
+  private void ShiftChunkColumn()
+  {
+    int shiftValue = centralPosition.y > previousCentralPosition.y ? 1 : -1;
+
+    // Remove
+    int discardColumn = shiftValue > 0 ? 0 : chunksPerDirection * 2;
+    for (int x = 0; x <= chunksPerDirection * 2; x++)
+    {
+      GameObject chunk = chunks[x, discardColumn];
+      if (chunk != null)
+      {
+        Debug.Log("Destroying chunk " + chunk.name);
+        Destroy(chunk);
+      }
+    }
+
+    // Shift
+    if (shiftValue > 0)
+    {
+      for (int x = 0; x <= chunksPerDirection * 2; x++)
+      {
+        for (int z = 0; z < chunksPerDirection * 2; z++)
+        {
+          chunks[x, z] = chunks[x, z + 1];
+        }
+      }
+    }
+    else
+    {
+      for (int x = 0; x <= chunksPerDirection * 2; x++)
+      {
+        for (int z = chunksPerDirection * 2; z > 0; z--)
+        {
+          chunks[x, z] = chunks[x, z - 1];
+        }
+      }
+    }
+
+    // Set null
+    int nullColumn = shiftValue > 0 ? chunksPerDirection * 2 : 0;
+    for (int x = 0; x <= chunksPerDirection * 2; x++)
+    {
+      chunks[x, nullColumn] = null;
+    }
+  }
+
+  private GameObject CreateChunk(float x, float z)
   {
     if (chunkPrefab != null)
     {
       GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * chunkWidth * chunkDensity, 0f, z * chunkDepth * chunkDensity), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
-      chunks.Add(chunk);
+      Debug.Log("Created chunk " + chunk.name);
+      return chunk;
     }
-  }
-
-  private void ReloadChunks()
-  {
-    // Debug.Log(chunks.Count);
-    foreach (GameObject chunk in chunks)
-    {
-      Debug.Log("Destroying chunk " + chunk.name);
-      Destroy(chunk);
-    }
-    chunks.Clear();
-    // Debug.Log(chunks.Count);
-    CreateChunks();
+    return null;
   }
 
   public int getChunkHeight()
