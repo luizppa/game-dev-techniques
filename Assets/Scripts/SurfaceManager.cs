@@ -125,7 +125,6 @@ public class SurfaceManager : MonoBehaviour
       GameObject chunk = chunks[discardRow, z];
       if (chunk != null)
       {
-        // Debug.Log("Destroying chunk " + chunk.name);
         Destroy(chunk);
       }
     }
@@ -173,7 +172,6 @@ public class SurfaceManager : MonoBehaviour
       GameObject chunk = chunks[x, discardColumn];
       if (chunk != null)
       {
-        // Debug.Log("Destroying chunk " + chunk.name);
         Destroy(chunk);
       }
     }
@@ -214,7 +212,6 @@ public class SurfaceManager : MonoBehaviour
     {
       GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkWidth - 1) * chunkDensity, 0f, z * (chunkDepth - 1) * chunkDensity), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
-      Debug.Log("Created chunk " + chunk.name);
       return chunk;
     }
     return null;

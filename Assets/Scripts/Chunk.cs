@@ -15,7 +15,6 @@ public class Chunk : MonoBehaviour
   private CubeVertex[,,] vertices = null;
   private SurfaceManager surfaceManager = null;
   private MeshFilter meshFilter = null;
-  private MeshCollider meshCollider = null;
 
   void Start()
   {
@@ -24,11 +23,6 @@ public class Chunk : MonoBehaviour
     if (meshFilter == null)
     {
       meshFilter = gameObject.AddComponent<MeshFilter>();
-    }
-    meshCollider = GetComponent<MeshCollider>();
-    if (meshCollider == null)
-    {
-      meshCollider = gameObject.AddComponent<MeshCollider>();
     }
     GetConfig();
     GenerateChunk();
@@ -61,7 +55,7 @@ public class Chunk : MonoBehaviour
 	 */
   private void DistributeVertices()
   {
-    int chunkSeed = (int)Mathf.Floor(Mathf.Pow(seed, transform.position.magnitude));
+    int chunkSeed = (int)Mathf.Floor(Mathf.Pow(seed * (transform.position.x * transform.position.z), transform.position.magnitude));
     Random.InitState(seed + chunkSeed);
 
     vertices = new CubeVertex[chunkWidth, chunkHeight, chunkDepth];
@@ -73,14 +67,7 @@ public class Chunk : MonoBehaviour
         {
           Vector3Int position = new Vector3Int(x, y, z);
           Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
-          if (x == 0 || z == 0 || x == chunkWidth - 1 || z == chunkDepth - 1)
-          {
-            vertices[x, y, z] = new CubeVertex((chunkHeight / (1 + y)) / chunkHeight, transformPosition);
-          }
-          else
-          {
-            vertices[x, y, z] = new CubeVertex(GenerateValue(position), transformPosition);
-          }
+          vertices[x, y, z] = new CubeVertex(GenerateValue(position), transformPosition);
         }
       }
     }
@@ -111,7 +98,6 @@ public class Chunk : MonoBehaviour
 
     Mesh mesh = new Mesh();
     meshFilter.mesh = mesh;
-    meshCollider.sharedMesh = mesh;
 
     mesh.vertices = cubeVertices;
     mesh.triangles = triangles.ToArray();
@@ -194,6 +180,14 @@ public class Chunk : MonoBehaviour
 
   float GenerateValue(Vector3Int position)
   {
+    if (position.y == 0)
+    {
+      return 1f;
+    }
+    if (position.x == 0 || position.z == 0 || position.x == chunkWidth - 1 || position.z == chunkDepth - 1)
+    {
+      return 1 / (1 + position.y);
+    }
     float height = position.y;
 
     float expectedValue = 1 / Mathf.Exp(height);
@@ -246,7 +240,6 @@ public class Chunk : MonoBehaviour
 
     for (int i = 0; Tables.triTable[cubeIndex, i] != -1; i += 3)
     {
-      // Debug.Log("Triangle " + i + ": " + Tables.triTable[cubeIndex, i] + ", " + Tables.triTable[cubeIndex, i + 1] + ", " + Tables.triTable[cubeIndex, i + 2]);
       triangles.Add(Tables.triTable[cubeIndex, i + 2] + offset);
       triangles.Add(Tables.triTable[cubeIndex, i + 1] + offset);
       triangles.Add(Tables.triTable[cubeIndex, i] + offset);
@@ -259,22 +252,17 @@ public class Chunk : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-    // for (int x = 0; x < chunkWidth; x++)
-    // {
-    //   for (int y = 0; y < chunkHeight; y++)
-    //   {
-    //     for (int z = 0; z < chunkDepth; z++)
-    //     {
-    //       Gizmos.color = Color.white;
-    //       Gizmos.DrawLine(new Vector3(0, y, z) * chunkDensity, new Vector3(chunkWidth - 1, y, z) * chunkDensity);
-    //       Gizmos.DrawLine(new Vector3(x, 0, z) * chunkDensity, new Vector3(x, chunkHeight - 1, z) * chunkDensity);
-    //       Gizmos.DrawLine(new Vector3(x, y, 0) * chunkDensity, new Vector3(x, y, chunkDepth - 1) * chunkDensity);
-
-    //       CubeVertex vertex = vertices[x, y, z];
-    //       Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
-    //       Gizmos.DrawSphere(vertex.GetPosition(), 0.03f);
-    //     }
-    //   }
-    // }
+    for (int x = 0; x < chunkWidth; x++)
+    {
+      for (int y = 0; y < chunkHeight; y++)
+      {
+        for (int z = 0; z < chunkDepth; z++)
+        {
+          CubeVertex vertex = vertices[x, y, z];
+          Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
+          Gizmos.DrawSphere(vertex.GetPosition() + transform.position, 0.03f * chunkDensity);
+        }
+      }
+    }
   }
 }

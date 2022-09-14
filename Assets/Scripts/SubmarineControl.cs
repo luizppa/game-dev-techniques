@@ -7,17 +7,21 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] string horizontalAxis = "Horizontal";
   [SerializeField] string verticalAxis = "Vertical";
   private Camera gameCamera = null;
+  private Rigidbody rb = null;
 
-  // Start is called before the first frame update
   void Start()
   {
     gameCamera = Camera.main;
+    rb = GetComponent<Rigidbody>();
   }
 
-  // Update is called once per frame
-  void Update()
+  void FixedUpdate()
   {
     Move();
+  }
+
+  void Update()
+  {
     Rotate();
   }
 
@@ -27,7 +31,7 @@ public class SubmarineControl : MonoBehaviour
     direction = ProjectionOnGroundPlane(direction) + (Vector3.up * Input.GetAxis("Ascend"));
     if (direction.magnitude > 0f)
     {
-      transform.Translate(direction.normalized * Time.deltaTime * 5f, Space.World);
+      rb.MovePosition(transform.position + direction.normalized * Time.deltaTime * 5f);
     }
   }
 
@@ -37,7 +41,7 @@ public class SubmarineControl : MonoBehaviour
     direction = ProjectionOnGroundPlane(direction);
     if (direction.magnitude > 0.1f)
     {
-      transform.rotation = Quaternion.LookRotation(direction);
+      transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(-90, 90, 90);
     }
   }
 
