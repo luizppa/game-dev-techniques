@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -55,9 +56,6 @@ public class Chunk : MonoBehaviour
 	 */
   private void DistributeVertices()
   {
-    int chunkSeed = (int)Mathf.Floor(Mathf.Pow(seed * (transform.position.x * transform.position.z), transform.position.magnitude));
-    Random.InitState(seed + chunkSeed);
-
     vertices = new CubeVertex[chunkWidth, chunkHeight, chunkDepth];
     for (int x = 0; x < chunkWidth; x++)
     {
@@ -191,7 +189,7 @@ public class Chunk : MonoBehaviour
     float height = position.y;
 
     float expectedValue = 1 / Mathf.Exp(height);
-    float value = Random.Range(expectedValue / 2, 3 * expectedValue / 2) * Random.Range(0f, elevation);
+    float value = UnityEngine.Random.Range(expectedValue / 2, 3 * expectedValue / 2) * UnityEngine.Random.Range(0f, elevation);
     return value;
   }
 

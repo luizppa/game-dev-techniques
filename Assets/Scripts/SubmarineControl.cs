@@ -6,13 +6,13 @@ public class SubmarineControl : MonoBehaviour
 {
   [SerializeField] string horizontalAxis = "Horizontal";
   [SerializeField] string verticalAxis = "Vertical";
+  [SerializeField] ParticleSystem waterParticles = null;
+
   private Camera gameCamera = null;
-  private Rigidbody rb = null;
 
   void Start()
   {
     gameCamera = Camera.main;
-    rb = GetComponent<Rigidbody>();
   }
 
   void FixedUpdate()
@@ -31,7 +31,15 @@ public class SubmarineControl : MonoBehaviour
     direction = ProjectionOnGroundPlane(direction) + (Vector3.up * Input.GetAxis("Ascend"));
     if (direction.magnitude > 0f)
     {
-      rb.MovePosition(transform.position + direction.normalized * Time.deltaTime * 5f);
+      if (waterParticles.isPlaying == false)
+      {
+        waterParticles.Play();
+      }
+      transform.Translate(direction.normalized * Time.deltaTime * 5f, Space.World);
+    }
+    else if (waterParticles.isPlaying == true && direction.magnitude == 0f)
+    {
+      waterParticles.Stop();
     }
   }
 
@@ -41,7 +49,7 @@ public class SubmarineControl : MonoBehaviour
     direction = ProjectionOnGroundPlane(direction);
     if (direction.magnitude > 0.1f)
     {
-      transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(-90, 90, 90);
+      transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(90, 0, 0);
     }
   }
 
