@@ -7,6 +7,7 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] string horizontalAxis = "Horizontal";
   [SerializeField] string verticalAxis = "Vertical";
   [SerializeField] ParticleSystem waterParticles = null;
+  [SerializeField] Rotate engineRotation = null;
 
   private Camera gameCamera = null;
 
