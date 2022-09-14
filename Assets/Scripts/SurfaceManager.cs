@@ -125,7 +125,7 @@ public class SurfaceManager : MonoBehaviour
       GameObject chunk = chunks[discardRow, z];
       if (chunk != null)
       {
-        Debug.Log("Destroying chunk " + chunk.name);
+        // Debug.Log("Destroying chunk " + chunk.name);
         Destroy(chunk);
       }
     }
@@ -173,7 +173,7 @@ public class SurfaceManager : MonoBehaviour
       GameObject chunk = chunks[x, discardColumn];
       if (chunk != null)
       {
-        Debug.Log("Destroying chunk " + chunk.name);
+        // Debug.Log("Destroying chunk " + chunk.name);
         Destroy(chunk);
       }
     }
