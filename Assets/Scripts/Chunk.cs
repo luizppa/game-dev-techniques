@@ -73,7 +73,14 @@ public class Chunk : MonoBehaviour
         {
           Vector3Int position = new Vector3Int(x, y, z);
           Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
-          vertices[x, y, z] = new CubeVertex(GenerateValue(position), transformPosition);
+          if (x == 0 || z == 0 || x == chunkWidth - 1 || z == chunkDepth - 1)
+          {
+            vertices[x, y, z] = new CubeVertex((chunkHeight / (1 + y)) / chunkHeight, transformPosition);
+          }
+          else
+          {
+            vertices[x, y, z] = new CubeVertex(GenerateValue(position), transformPosition);
+          }
         }
       }
     }

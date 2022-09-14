@@ -212,7 +212,7 @@ public class SurfaceManager : MonoBehaviour
   {
     if (chunkPrefab != null)
     {
-      GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * chunkWidth * chunkDensity, 0f, z * chunkDepth * chunkDensity), Quaternion.identity);
+      GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkWidth - 1) * chunkDensity, 0f, z * (chunkDepth - 1) * chunkDensity), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
       Debug.Log("Created chunk " + chunk.name);
       return chunk;
