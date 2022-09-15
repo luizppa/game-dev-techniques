@@ -32,7 +32,7 @@ There are 256 possible formations for a cube (however, some of them are symmetri
 
 ### Implementation
 
-My implementation of this algorithm is based on [this video by Sebastian Leage](https://youtu.be/M3iI2l0ltbE). His implementation used compute shaders to make the mesh generation parallel, thus, giving him the possibilty to have more polygons beeing generated without heavy impact on performance. For now, my implementation is written in C# and runs on the CPU, so it is not parallelized, but I plan to do so in the future. I tried not to look at his code, which is also available on Github in order not to be biased in any way during may implementation.
+My implementation of this algorithm is based on [this video by Sebastian League](https://youtu.be/M3iI2l0ltbE). His implementation used compute shaders to make the mesh generation parallel, thus, giving him the possibilty to have more polygons beeing generated without heavy impact on performance. For now, my implementation is written in C# and runs on the CPU, so it is not parallelized, but I plan to do so in the future. I tried not to look at his code, which is also available on Github in order not to be biased in any way during may implementation.
 
 ### Result
 
