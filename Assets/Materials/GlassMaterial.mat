@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GlassMaterial
-  m_Shader: {fileID: 4800000, guid: 77f6ad3facd3ee44fada48db5ede01db, type: 3}
+  m_Shader: {fileID: 4800000, guid: 72e52f44fd02eae47bae0b2691050793, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4

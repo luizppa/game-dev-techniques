@@ -65,7 +65,8 @@ public class Chunk : MonoBehaviour
         {
           Vector3Int position = new Vector3Int(x, y, z);
           Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
-          vertices[x, y, z] = new CubeVertex(GenerateValue(position), transformPosition);
+          Vector3 worldPosition = transform.position + transformPosition;
+          vertices[x, y, z] = new CubeVertex(GenerateValue(position, transformPosition, worldPosition), transformPosition);
         }
       }
     }
@@ -176,8 +177,13 @@ public class Chunk : MonoBehaviour
     return vertices;
   }
 
-  float GenerateValue(Vector3Int position)
+  float GenerateValue(Vector3Int position, Vector3 objectPosition, Vector3 worldPosition)
   {
+    // float value = 1 - (objectPosition.y / (chunkHeight * chunkDensity));
+    // // value += Mathf.PerlinNoise(worldPosition.x * 2, worldPosition.z * 2);
+    // // value /= 2;
+    // Debug.Log(value);
+    // return value;
     if (position.y == 0)
     {
       return 1f;
