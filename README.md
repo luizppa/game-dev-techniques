@@ -18,6 +18,10 @@ Whithout further ado, let's get to the projects!
 
 ## Marching Cubes
 
+<p align="center">
+  <img src="Docs\marching-cubes-screen-title.png"/>
+</p>
+
 [Marching Cubes](https://en.wikipedia.org/wiki/Marching_cubes) is a procedural polygonization algorithm that will generate natural looking meshes based on a grid of points. It is a very popular technique used in many applications, such as terrain generation, fluid simulation, voxel rendering and many others. The technique was first described by William E. Lorensen and H. E. Cline in 1987.
 
 The algorithm works by creating a tridimensional grid of points, where each point has a value (often reffered at as "density") that indicates wheter the points is located at the interior or the exterior of the mesh. The code slides (marches) a cube through the grid and creates polygons by interpolition of the position of adjacent points. The polygons are then connected to form a mesh.
@@ -37,6 +41,13 @@ My implementation of this algorithm is based on [this video by Sebastian League]
 ### Result
 
 You can check out a video of the result [here](https://www.youtube.com/watch?v=SCsOzZVZ7ic)
+
+<p align="center">
+  <img width="45%" src="Docs\marching-cubes-screen-capture-2.png"/>
+  <img width="45%" src="Docs\marching-cubes-screen-capture-3.png"/>
+  <img width="45%" src="Docs\marching-cubes-screen-capture-4.png"/>
+  <img width="45%" src="Docs\marching-cubes-screen-capture-5.png"/>
+</p>
 
 ### Credits
 
