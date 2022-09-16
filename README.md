@@ -36,7 +36,11 @@ There are 256 possible formations for a cube (however, some of them are symmetri
 
 ### Implementation
 
-My implementation of this algorithm is based on [this video by Sebastian League](https://youtu.be/M3iI2l0ltbE). His implementation used compute shaders to make the mesh generation parallel, thus, giving him the possibilty to have more polygons beeing generated without heavy impact on performance. For now, my implementation is written in C# and runs on the CPU, so it is not parallelized, but I plan to do so in the future. I tried not to look at his code, which is also available on Github in order not to be biased in any way during may implementation.
+My implementation of this algorithm was inspired by [this video by Sebastian League](https://youtu.be/M3iI2l0ltbE). His implementation used compute shaders to make the mesh generation parallel, thus, it is able to have more polygons beeing generated without heaving great impact on performance. For now, my implementation is written in C# and runs on the CPU, so it is not parallelized, but I plan to do so in the future. I tried not to look at his code, which is also available on Github in order not to be biased in any way during my implementation.
+
+The example presented on the `MarchingCubes.unity` scene has two main mono behavior classes: the surface manager and the chunk. The surface manager is responsible for creating, deleting and updating the chunks according to the position of the player. The chunk is responsible for generating the mesh and updating it when necessary.
+
+Each chunk generates the values for the points in his grids and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now there is only the possibility to generate values for the points based on an RNG but along with the compute shader I plan to implement a noise map based approach.
 
 ### Result
 
