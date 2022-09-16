@@ -27,7 +27,7 @@ Whithout further ado, let's get to the projects!
 The algorithm works by creating a tridimensional grid of points, where each point has a value (often reffered at as "density") that indicates wheter the points is located at the interior or the exterior of the mesh. The code slides (marches) a cube through the grid and creates polygons by interpolition of the position of adjacent points. The polygons are then connected to form a mesh.
 
 <p align="center">
-  <img src="Docs\marching_cube.png"/>
+  <img src="./Docs/marching_cube.png"/>
   <br>
   Image from <a href="http://shamshad-npti.github.io/implicit/curve/2016/01/10/Marching-Cube/">Shamshad Alam's blog</a>
 </p>
