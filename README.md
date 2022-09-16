@@ -16,7 +16,14 @@ I would also recommend you to check out this other creators who does not (necess
 
 Whithout further ado, let's get to the projects!
 
-## Marching Cubes
+- [Game Development Techniques](#game-development-techniques)
+  - [🚤 Marching Cubes](#-marching-cubes)
+    - [Implementation](#implementation)
+    - [Result](#result)
+    - [Learining resources](#learining-resources)
+    - [Credits](#credits)
+
+## 🚤 Marching Cubes
 
 <p align="center">
   <img src="./Docs/marching-cubes-screen-title.png"/>
