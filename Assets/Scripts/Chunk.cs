@@ -179,11 +179,18 @@ public class Chunk : MonoBehaviour
 
   float GenerateValue(Vector3Int position, Vector3 objectPosition, Vector3 worldPosition)
   {
-    // float value = 1 - (objectPosition.y / (chunkHeight * chunkDensity));
-    // // value += Mathf.PerlinNoise(worldPosition.x * 2, worldPosition.z * 2);
-    // // value /= 2;
-    // Debug.Log(value);
-    // return value;
+    // Perlin noise based ⬇️
+
+    // float highPerlinFrequency = 0.04f;
+    // float lowPerlinFrequency = 0.5f;
+
+    // float value = 1 - ((objectPosition.y + elevation) / (chunkHeight * chunkDensity));
+    // value += Mathf.PerlinNoise(worldPosition.x * highPerlinFrequency, worldPosition.z * highPerlinFrequency) * .5f;
+    // value += Mathf.PerlinNoise(worldPosition.x * lowPerlinFrequency, worldPosition.z * lowPerlinFrequency) * 5f;
+    // value = value / 6.5f;
+
+    // RNG based ⬇️
+
     if (position.y == 0)
     {
       return 1f;
@@ -196,6 +203,8 @@ public class Chunk : MonoBehaviour
 
     float expectedValue = 1 / Mathf.Exp(height);
     float value = UnityEngine.Random.Range(expectedValue / 2, 3 * expectedValue / 2) * UnityEngine.Random.Range(0f, elevation);
+
+    // Debug.Log(value);
     return value;
   }
 
