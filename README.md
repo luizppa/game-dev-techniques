@@ -40,7 +40,7 @@ My implementation of this algorithm was inspired by [this video by Sebastian Lea
 
 The example presented on the `MarchingCubes.unity` scene has two main mono behavior classes: the surface manager and the chunk. The surface manager is responsible for creating, deleting and updating the chunks according to the position of the player. The chunk is responsible for generating the mesh and updating it when necessary.
 
-Each chunk generates the values for the points in his grids and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now there is only the possibility to generate values for the points based on an RNG but along with the compute shader I plan to implement a noise map based approach.
+Each chunk generates the values for the points in his grids and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now there is only one way to generate values for the points which is a RNG based strategy, but along with the compute shader I plan to implement a noise map based approach.
 
 ### Result
 
