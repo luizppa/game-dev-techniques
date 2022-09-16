@@ -53,15 +53,13 @@ You can check out a video of the result [here](https://www.youtube.com/watch?v=S
   <img width="45%" src="./Docs/marching-cubes-screen-capture-5.png"/>
 </p>
 
-### Credits
+### Learining resources
 
-Learining resources:
 * [Polygonising a scalar field](http://paulbourke.net/geometry/polygonise/)
 * [Generating Complex Procedural Terrains Using the GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu)
 * [Marching Cubes: a High Resolution 3D Surface Costruction Algorithm](https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf) (the original papper for the algorithm)
 
-Assets:
-* Music
-  * DSTechnician - [Gateway](https://pixabay.com/music/ambient-gateway-110018/)
-* Sound effects
-  * Fission9 - [Underwater Ambience](https://pixabay.com/sound-effects/underwater-ambience-6201/)
+### Credits
+
+* Music: [Gateway](https://pixabay.com/music/ambient-gateway-110018/) by DSTechnician
+* Sound effects: [Underwater Ambience](https://pixabay.com/sound-effects/underwater-ambience-6201/) by Fission9
