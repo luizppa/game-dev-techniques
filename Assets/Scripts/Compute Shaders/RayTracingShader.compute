@@ -30,6 +30,7 @@ struct RayHit
 	float3 position;
 	float distance;
 	float3 normal;
+	float3 specular;
 };
 
 float3 cartesianToPolar(float3 cartesian)
@@ -70,25 +71,27 @@ Ray CreateCameraRay(float2 uv)
 RayHit CreateRayHit()
 {
 	RayHit hit;
+	hit.specular = float3(0.0f, 0.0f, 0.0f);
 	hit.position = float3(0.0f, 0.0f, 0.0f);
 	hit.distance = 1.#INF;
 	hit.normal = float3(0.0f, 0.0f, 0.0f);
 	return hit;
 }
 
-void IntersectGroundPlane(Ray ray, inout RayHit bestHit)
+void IntersectGroundPlane(Ray ray, inout RayHit bestHit, float3 specular)
 {
 	// Calculate distance along the ray where the ground plane is intersected
-    float t = -ray.origin.y / ray.direction.y;
-    if (t > 0 && t < bestHit.distance)
-    {
-        bestHit.distance = t;
-        bestHit.position = ray.origin + t * ray.direction;
-        bestHit.normal = float3(0.0f, 1.0f, 0.0f);
-    }
+	float t = -ray.origin.y / ray.direction.y;
+	if (t > 0 && t < bestHit.distance)
+	{
+		bestHit.specular = specular;
+		bestHit.distance = t;
+		bestHit.position = ray.origin + t * ray.direction;
+		bestHit.normal = float3(0.0f, 1.0f, 0.0f);
+	}
 }
 
-void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere)
+void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere, float3 specular)
 {
 	// Calculate distance along the ray where the sphere is intersected
 	float3 d = ray.origin - sphere.xyz;
@@ -100,6 +103,7 @@ void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere)
 	float t = p1 - p2 > 0 ? p1 - p2 : p1 + p2;
 	if (t > 0 && t < bestHit.distance)
 	{
+		bestHit.specular = specular;
 		bestHit.distance = t;
 		bestHit.position = ray.origin + t * ray.direction;
 		bestHit.normal = normalize(bestHit.position - sphere.xyz);
@@ -109,9 +113,10 @@ void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere)
 RayHit Trace(Ray ray)
 {
 	RayHit bestHit = CreateRayHit();
-	IntersectGroundPlane(ray, bestHit);
-	IntersectSphere(ray, bestHit, float4(0, 0.5f, 1, 0.25f));
-	IntersectSphere(ray, bestHit, float4(1, 0.5f, 1, 0.25f));
+	IntersectGroundPlane(ray, bestHit, float3(0.8f, 0.8f, 0.8f));
+	IntersectSphere(ray, bestHit, float4(0, 0.5f, 1, 0.25f), float3(0.6f, 0.6f, 0.6f));
+	IntersectSphere(ray, bestHit, float4(1, 0.5f, 1, 0.25f), float3(0.6f, 0.3f, 0.1f));
+	IntersectSphere(ray, bestHit, float4(-1, 0.5f, 1, 0.25f), float3(0.2f, 0.2f, 0.8f));
 	return bestHit;
 }
 
@@ -120,12 +125,10 @@ float3 Shade(inout Ray ray, RayHit hit)
 	if (hit.distance < 1.#INF)
 	{
 		if(_UseRayTracing){
-			float3 specular = float3(0.6f, 0.6f, 0.6f);
-
 			// Reflect the ray and multiply energy with specular reflection
 			ray.origin = hit.position + hit.normal * 0.001f;
 			ray.direction = reflect(ray.direction, hit.normal);
-			ray.energy *= specular;
+			ray.energy *= hit.specular;
 
 			// Return nothing
 			return float3(0.0f, 0.0f, 0.0f);

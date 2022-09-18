@@ -9,17 +9,23 @@ public class RayTracingMaster : MonoBehaviour
   [SerializeField] Texture2D skyboxTexture = null;
   [SerializeField] Color solidSkyboxColor = Color.black;
 
-  [Header("Anti-Aliasing")]
-  [SerializeField] bool antiAliasing = false;
+  [Header("Anti Aliasing")]
+  [SerializeField] bool useAntiAliasing = false;
   [SerializeField][Range(0f, 1f)] float antiAliasingIntensity = .8f;
 
   [Header("Ray Tracing")]
-  [SerializeField] bool rayTracing = true;
+  [SerializeField] bool useRayTracing = true;
   [SerializeField] int maxBounces = 8;
 
   private Camera _camera;
   private RenderTexture _target;
+
+  // Reference values
   private Color previousSkyboxColor;
+  private bool previousUseAntiAliasing;
+  private float previousAntiAliasingIntensity;
+  private bool previousUseRayTracing;
+  private int previousMaxBounces;
 
   // Anti-aliasing
   private uint currentSample = 0;
@@ -33,7 +39,7 @@ public class RayTracingMaster : MonoBehaviour
 
   void Start()
   {
-    previousSkyboxColor = solidSkyboxColor;
+    UpdateReferenceValues();
   }
 
   void Update()
@@ -43,15 +49,31 @@ public class RayTracingMaster : MonoBehaviour
       UpdateSkybox();
     }
 
-    if (transform.hasChanged)
+    if (transform.hasChanged || ShouldUpdate())
     {
       currentSample = 0;
+      UpdateReferenceValues();
       transform.hasChanged = false;
     }
   }
 
+  private bool ShouldUpdate()
+  {
+    return useRayTracing != previousUseRayTracing || maxBounces != previousMaxBounces || useAntiAliasing != previousUseAntiAliasing || antiAliasingIntensity != previousAntiAliasingIntensity;
+  }
+
+  private void UpdateReferenceValues()
+  {
+    previousSkyboxColor = solidSkyboxColor;
+    previousUseAntiAliasing = useAntiAliasing;
+    previousAntiAliasingIntensity = antiAliasingIntensity;
+    previousUseRayTracing = useRayTracing;
+    previousMaxBounces = maxBounces;
+  }
+
   private void UpdateSkybox()
   {
+    currentSample = 0;
     previousSkyboxColor = solidSkyboxColor;
     skyboxTexture = new Texture2D(Screen.width, Screen.height);
     Color[] pixels = Enumerable.Repeat(solidSkyboxColor, Screen.width * Screen.height).ToArray();
@@ -105,7 +127,7 @@ public class RayTracingMaster : MonoBehaviour
 
   private void SetShaderParameters()
   {
-    if (antiAliasing)
+    if (useAntiAliasing)
     {
       rayTracingShader.SetVector("_PixelOffset", new Vector2(Random.value, Random.value) * antiAliasingIntensity);
     }
@@ -117,6 +139,6 @@ public class RayTracingMaster : MonoBehaviour
     rayTracingShader.SetMatrix("_CameraInverseProjection", _camera.projectionMatrix.inverse);
     rayTracingShader.SetTexture(0, "_SkyboxTexture", skyboxTexture);
     rayTracingShader.SetInt("_MaxBounces", maxBounces);
-    rayTracingShader.SetBool("_UseRayTracing", rayTracing);
+    rayTracingShader.SetBool("_UseRayTracing", useRayTracing);
   }
 }
