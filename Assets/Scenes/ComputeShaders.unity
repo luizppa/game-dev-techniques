@@ -315,7 +315,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayTracingShader: {fileID: 7200000, guid: 2af02c38db537ab43bb06869ac0255f8, type: 3}
-  skyboxTexture: {fileID: 2800000, guid: 89878140665978f4f9f27f55a61fb12d, type: 3}
+  skyboxTexture: {fileID: 2800000, guid: 97c83ef8555216848ba4f98a7496a917, type: 3}
   solidSkyboxColor: {r: 0.13113315, g: 0.039666664, b: 0.255, a: 1}
   useAntiAliasing: 1
   antiAliasingIntensity: 1
