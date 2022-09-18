@@ -23,6 +23,7 @@ public class RayTracingMaster : MonoBehaviour
 
   // Reference values
   private Color previousSkyboxColor;
+  private Texture2D previousSkyboxTexture;
   private bool previousUseAntiAliasing;
   private float previousAntiAliasingIntensity;
   private bool previousUseRayTracing;
@@ -46,7 +47,7 @@ public class RayTracingMaster : MonoBehaviour
 
   void Update()
   {
-    if (skyboxTexture == null || solidSkyboxColor != previousSkyboxColor)
+    if (skyboxTexture == null || solidSkyboxColor != previousSkyboxColor || skyboxTexture != previousSkyboxTexture)
     {
       UpdateSkybox();
     }
@@ -67,7 +68,6 @@ public class RayTracingMaster : MonoBehaviour
 
   private void UpdateReferenceValues()
   {
-    previousSkyboxColor = solidSkyboxColor;
     previousUseAntiAliasing = useAntiAliasing;
     previousAntiAliasingIntensity = antiAliasingIntensity;
     previousUseRayTracing = useRayTracing;
@@ -76,12 +76,16 @@ public class RayTracingMaster : MonoBehaviour
 
   private void UpdateSkybox()
   {
-    currentSample = 0;
+    if (skyboxTexture == null)
+    {
+      skyboxTexture = new Texture2D(Screen.width, Screen.height);
+      Color[] pixels = Enumerable.Repeat(solidSkyboxColor, Screen.width * Screen.height).ToArray();
+      skyboxTexture.SetPixels(pixels);
+      skyboxTexture.Apply();
+    }
     previousSkyboxColor = solidSkyboxColor;
-    skyboxTexture = new Texture2D(Screen.width, Screen.height);
-    Color[] pixels = Enumerable.Repeat(solidSkyboxColor, Screen.width * Screen.height).ToArray();
-    skyboxTexture.SetPixels(pixels);
-    skyboxTexture.Apply();
+    previousSkyboxTexture = skyboxTexture;
+    currentSample = 0;
   }
 
   private void OnRenderImage(RenderTexture source, RenderTexture destination)

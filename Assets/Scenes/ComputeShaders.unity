@@ -295,7 +295,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1851701200}
   m_LocalRotation: {x: 0.14078686, y: -0, z: -0, w: 0.99003994}
-  m_LocalPosition: {x: 0, y: 1.22, z: -0.77}
+  m_LocalPosition: {x: 0, y: 1.32, z: -1.12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -315,9 +315,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rayTracingShader: {fileID: 7200000, guid: 2af02c38db537ab43bb06869ac0255f8, type: 3}
-  skyboxTexture: {fileID: 2800000, guid: 1c688e8b14fd6ee4d8443f69b0a74dd4, type: 3}
+  skyboxTexture: {fileID: 2800000, guid: 89878140665978f4f9f27f55a61fb12d, type: 3}
   solidSkyboxColor: {r: 0.13113315, g: 0.039666664, b: 0.255, a: 1}
-  antiAliasing: 1
+  useAntiAliasing: 1
   antiAliasingIntensity: 1
-  rayTracing: 1
+  useRayTracing: 1
   maxBounces: 8
