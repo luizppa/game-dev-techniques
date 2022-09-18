@@ -18,6 +18,7 @@ public class RayTracingMaster : MonoBehaviour
   [SerializeField] int maxBounces = 8;
 
   private Camera _camera;
+  private Light _directionalLight;
   private RenderTexture _target;
 
   // Reference values
@@ -34,6 +35,7 @@ public class RayTracingMaster : MonoBehaviour
 
   void Awake()
   {
+    _directionalLight = FindObjectsOfType<Light>().First(l => l.type == LightType.Directional);
     _camera = GetComponent<Camera>();
   }
 
@@ -49,11 +51,12 @@ public class RayTracingMaster : MonoBehaviour
       UpdateSkybox();
     }
 
-    if (transform.hasChanged || ShouldUpdate())
+    if (transform.hasChanged || _directionalLight.transform.hasChanged || ShouldUpdate())
     {
       currentSample = 0;
       UpdateReferenceValues();
       transform.hasChanged = false;
+      _directionalLight.transform.hasChanged = false;
     }
   }
 
@@ -135,6 +138,8 @@ public class RayTracingMaster : MonoBehaviour
     {
       rayTracingShader.SetVector("_PixelOffset", new Vector2(0.5f, 0.5f));
     }
+    Vector3 l = _directionalLight.transform.forward;
+    rayTracingShader.SetVector("_DirectionalLight", new Vector4(l.x, l.y, l.z, _directionalLight.intensity));
     rayTracingShader.SetMatrix("_CameraToWorld", _camera.cameraToWorldMatrix);
     rayTracingShader.SetMatrix("_CameraInverseProjection", _camera.projectionMatrix.inverse);
     rayTracingShader.SetTexture(0, "_SkyboxTexture", skyboxTexture);

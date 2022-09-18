@@ -4,8 +4,13 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 RWTexture2D<float4> Result;
+
+// Transform matrices
 float4x4 _CameraToWorld;
 float4x4 _CameraInverseProjection;
+
+// Light
+float4 _DirectionalLight;
 
 // Anti-aliasing
 float2 _PixelOffset;
@@ -31,6 +36,7 @@ struct RayHit
 	float distance;
 	float3 normal;
 	float3 specular;
+	float3 albedo;
 };
 
 float3 cartesianToPolar(float3 cartesian)
@@ -75,10 +81,11 @@ RayHit CreateRayHit()
 	hit.position = float3(0.0f, 0.0f, 0.0f);
 	hit.distance = 1.#INF;
 	hit.normal = float3(0.0f, 0.0f, 0.0f);
+	hit.albedo = float3(0.0f, 0.0f, 0.0f);
 	return hit;
 }
 
-void IntersectGroundPlane(Ray ray, inout RayHit bestHit, float3 specular)
+void IntersectGroundPlane(Ray ray, inout RayHit bestHit, float3 specular, float3 albedo)
 {
 	// Calculate distance along the ray where the ground plane is intersected
 	float t = -ray.origin.y / ray.direction.y;
@@ -88,10 +95,11 @@ void IntersectGroundPlane(Ray ray, inout RayHit bestHit, float3 specular)
 		bestHit.distance = t;
 		bestHit.position = ray.origin + t * ray.direction;
 		bestHit.normal = float3(0.0f, 1.0f, 0.0f);
+		bestHit.albedo = albedo;
 	}
 }
 
-void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere, float3 specular)
+void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere, float3 specular, float3 albedo)
 {
 	// Calculate distance along the ray where the sphere is intersected
 	float3 d = ray.origin - sphere.xyz;
@@ -107,16 +115,17 @@ void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere, float3 specul
 		bestHit.distance = t;
 		bestHit.position = ray.origin + t * ray.direction;
 		bestHit.normal = normalize(bestHit.position - sphere.xyz);
+		bestHit.albedo = albedo;
 	}
 }
 
 RayHit Trace(Ray ray)
 {
 	RayHit bestHit = CreateRayHit();
-	IntersectGroundPlane(ray, bestHit, float3(0.8f, 0.8f, 0.8f));
-	IntersectSphere(ray, bestHit, float4(0, 0.5f, 1, 0.25f), float3(0.6f, 0.6f, 0.6f));
-	IntersectSphere(ray, bestHit, float4(1, 0.5f, 1, 0.25f), float3(0.6f, 0.3f, 0.1f));
-	IntersectSphere(ray, bestHit, float4(-1, 0.5f, 1, 0.25f), float3(0.2f, 0.2f, 0.8f));
+	IntersectGroundPlane(ray, bestHit, float3(0.0f, 0.0f, 0.0f), float3(0.1f, 0.6f, 0.2f));
+	IntersectSphere(ray, bestHit, float4(0, 0.5f, 1, 0.25f), float3(0.6f, 0.6f, 0.6f), float3(0,0,0));
+	IntersectSphere(ray, bestHit, float4(1, 0.5f, 1, 0.25f), float3(0.6f, 0.3f, 0.1f), float3(0,0,0));
+	IntersectSphere(ray, bestHit, float4(-1, 0.5f, 1, 0.25f), float3(0.2f, 0.2f, 0.8f), float3(0,0,0));
 	return bestHit;
 }
 
@@ -125,13 +134,25 @@ float3 Shade(inout Ray ray, RayHit hit)
 	if (hit.distance < 1.#INF)
 	{
 		if(_UseRayTracing){
+			float3 albedo = float3(0.8f, 0.8f, 0.8f);
+
 			// Reflect the ray and multiply energy with specular reflection
 			ray.origin = hit.position + hit.normal * 0.001f;
 			ray.direction = reflect(ray.direction, hit.normal);
 			ray.energy *= hit.specular;
 
-			// Return nothing
-			return float3(0.0f, 0.0f, 0.0f);
+			// return float3(0.0f, 0.0f, 0.0f);
+			// // If the surface is in shadow, return nothing
+			bool shadow = false;
+			Ray shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -1 * _DirectionalLight.xyz);
+			RayHit shadowHit = Trace(shadowRay);
+			if (shadowHit.distance != 1.#INF)
+			{
+					return float3(0.0f, 0.0f, 0.0f);
+			}
+
+			// // Return the albedo of the hit
+			return saturate(dot(hit.normal, _DirectionalLight.xyz) * -1) * _DirectionalLight.w * hit.albedo;
 		}
 		else
 		{
