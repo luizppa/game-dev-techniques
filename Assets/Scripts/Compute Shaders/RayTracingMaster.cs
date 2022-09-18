@@ -4,11 +4,27 @@ using UnityEngine;
 public class RayTracingMaster : MonoBehaviour
 {
   [SerializeField] ComputeShader rayTracingShader = null;
+
+  [Header("Skybox")]
   [SerializeField] Texture2D skyboxTexture = null;
   [SerializeField] Color solidSkyboxColor = Color.black;
 
+  [Header("Anti-Aliasing")]
+  [SerializeField] bool antiAliasing = false;
+  [SerializeField][Range(0f, 1f)] float antiAliasingIntensity = .8f;
+
+  [Header("Ray Tracing")]
+  [SerializeField] bool rayTracing = true;
+  [SerializeField] int maxBounces = 8;
+
   private Camera _camera;
   private RenderTexture _target;
+  private Color previousSkyboxColor;
+
+  // Anti-aliasing
+  private uint currentSample = 0;
+  private Material addMaterial;
+
 
   void Awake()
   {
@@ -17,13 +33,30 @@ public class RayTracingMaster : MonoBehaviour
 
   void Start()
   {
-    if (skyboxTexture == null)
+    previousSkyboxColor = solidSkyboxColor;
+  }
+
+  void Update()
+  {
+    if (skyboxTexture == null || solidSkyboxColor != previousSkyboxColor)
     {
-      skyboxTexture = new Texture2D(Screen.width, Screen.height);
-      Color[] pixels = Enumerable.Repeat(solidSkyboxColor, Screen.width * Screen.height).ToArray();
-      skyboxTexture.SetPixels(pixels);
-      skyboxTexture.Apply();
+      UpdateSkybox();
     }
+
+    if (transform.hasChanged)
+    {
+      currentSample = 0;
+      transform.hasChanged = false;
+    }
+  }
+
+  private void UpdateSkybox()
+  {
+    previousSkyboxColor = solidSkyboxColor;
+    skyboxTexture = new Texture2D(Screen.width, Screen.height);
+    Color[] pixels = Enumerable.Repeat(solidSkyboxColor, Screen.width * Screen.height).ToArray();
+    skyboxTexture.SetPixels(pixels);
+    skyboxTexture.Apply();
   }
 
   private void OnRenderImage(RenderTexture source, RenderTexture destination)
@@ -44,7 +77,13 @@ public class RayTracingMaster : MonoBehaviour
     rayTracingShader.Dispatch(0, threadGroupsX, threadGroupsY, 1);
 
     // Blit the result texture to the screen
-    Graphics.Blit(_target, destination);
+    if (addMaterial == null)
+    {
+      addMaterial = new Material(Shader.Find("Hidden/AddShader"));
+    }
+    addMaterial.SetFloat("_Sample", currentSample);
+    Graphics.Blit(_target, destination, addMaterial);
+    currentSample++;
   }
 
   private void InitRenderTexture()
@@ -66,8 +105,18 @@ public class RayTracingMaster : MonoBehaviour
 
   private void SetShaderParameters()
   {
+    if (antiAliasing)
+    {
+      rayTracingShader.SetVector("_PixelOffset", new Vector2(Random.value, Random.value) * antiAliasingIntensity);
+    }
+    else
+    {
+      rayTracingShader.SetVector("_PixelOffset", new Vector2(0.5f, 0.5f));
+    }
     rayTracingShader.SetMatrix("_CameraToWorld", _camera.cameraToWorldMatrix);
     rayTracingShader.SetMatrix("_CameraInverseProjection", _camera.projectionMatrix.inverse);
     rayTracingShader.SetTexture(0, "_SkyboxTexture", skyboxTexture);
+    rayTracingShader.SetInt("_MaxBounces", maxBounces);
+    rayTracingShader.SetBool("_UseRayTracing", rayTracing);
   }
 }
