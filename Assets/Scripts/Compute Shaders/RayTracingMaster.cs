@@ -33,11 +33,22 @@ public class RayTracingMaster : MonoBehaviour
   private uint currentSample = 0;
   private Material addMaterial;
 
+  // Entities
+  private RayTracingSphere[] spheres;
+  private ComputeBuffer sphereBuffer;
+
 
   void Awake()
   {
     _directionalLight = FindObjectsOfType<Light>().First(l => l.type == LightType.Directional);
     _camera = GetComponent<Camera>();
+    GetEntities();
+  }
+
+  private void OnEnable()
+  {
+    currentSample = 0;
+    SetUpScene();
   }
 
   void Start()
@@ -59,6 +70,27 @@ public class RayTracingMaster : MonoBehaviour
       transform.hasChanged = false;
       _directionalLight.transform.hasChanged = false;
     }
+  }
+
+  void OnDisable()
+  {
+    sphereBuffer?.Release();
+  }
+
+  private void SetUpScene()
+  {
+    Sphere[] spheresData = new Sphere[spheres.Length];
+    for (int i = 0; i < spheres.Length; i++)
+    {
+      spheresData[i] = spheres[i].GetSphere();
+    }
+    sphereBuffer = new ComputeBuffer(spheres.Length, 40);
+    sphereBuffer.SetData(spheresData);
+  }
+
+  private void GetEntities()
+  {
+    spheres = FindObjectsOfType<RayTracingSphere>();
   }
 
   private bool ShouldUpdate()
@@ -149,5 +181,6 @@ public class RayTracingMaster : MonoBehaviour
     rayTracingShader.SetTexture(0, "_SkyboxTexture", skyboxTexture);
     rayTracingShader.SetInt("_MaxBounces", maxBounces);
     rayTracingShader.SetBool("_UseRayTracing", useRayTracing);
+    rayTracingShader.SetBuffer(0, "_Spheres", sphereBuffer);
   }
 }

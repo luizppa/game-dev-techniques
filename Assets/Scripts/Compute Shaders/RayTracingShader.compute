@@ -1,27 +1,13 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
-
-// Transform matrices
-float4x4 _CameraToWorld;
-float4x4 _CameraInverseProjection;
-
-// Light
-float4 _DirectionalLight;
-
-// Anti-aliasing
-float2 _PixelOffset;
-
-// Ray tracing
-bool _UseRayTracing;
-int _MaxBounces;
-
-Texture2D<float4> _SkyboxTexture;
-SamplerState sampler_SkyboxTexture;
-static const float PI = 3.14159265f;
+struct Sphere
+{
+    float3 position;
+    float radius;
+    float3 albedo;
+    float3 specular;
+};
 
 struct Ray
 {
@@ -39,7 +25,30 @@ struct RayHit
 	float3 albedo;
 };
 
-float3 cartesianToPolar(float3 cartesian)
+RWTexture2D<float4> Result;
+
+// Transform matrices
+float4x4 _CameraToWorld;
+float4x4 _CameraInverseProjection;
+
+// Light
+float4 _DirectionalLight;
+
+// Anti-aliasing
+float2 _PixelOffset;
+
+// Ray tracing
+bool _UseRayTracing;
+int _MaxBounces;
+
+// Entities
+StructuredBuffer<Sphere> _Spheres;
+
+Texture2D<float4> _SkyboxTexture;
+SamplerState sampler_SkyboxTexture;
+static const float PI = 3.14159265f;
+
+float3 CartesianToPolar(float3 cartesian)
 {
 	float3 polar;
 	float theta = acos(cartesian.y) / -PI;
@@ -99,33 +108,40 @@ void IntersectGroundPlane(Ray ray, inout RayHit bestHit, float3 specular, float3
 	}
 }
 
-void IntersectSphere(Ray ray, inout RayHit bestHit, float4 sphere, float3 specular, float3 albedo)
+void IntersectSphere(Ray ray, inout RayHit bestHit, Sphere sphere)
 {
 	// Calculate distance along the ray where the sphere is intersected
-	float3 d = ray.origin - sphere.xyz;
+	float3 d = ray.origin - sphere.position;
 	float p1 = -dot(ray.direction, d);
-	float p2sqr = p1 * p1 - dot(d, d) + sphere.w * sphere.w;
+	float p2sqr = p1 * p1 - dot(d, d) + sphere.radius * sphere.radius;
 	if (p2sqr < 0)
-			return;
+	{
+		return;
+	}
 	float p2 = sqrt(p2sqr);
 	float t = p1 - p2 > 0 ? p1 - p2 : p1 + p2;
 	if (t > 0 && t < bestHit.distance)
 	{
-		bestHit.specular = specular;
+		bestHit.specular = sphere.specular;
 		bestHit.distance = t;
 		bestHit.position = ray.origin + t * ray.direction;
-		bestHit.normal = normalize(bestHit.position - sphere.xyz);
-		bestHit.albedo = albedo;
+		bestHit.normal = normalize(bestHit.position - sphere.position);
+		bestHit.albedo = sphere.albedo;
 	}
 }
 
 RayHit Trace(Ray ray)
 {
 	RayHit bestHit = CreateRayHit();
-	IntersectGroundPlane(ray, bestHit, float3(0.6f, 0.6f, 0.6f), float3(0.0f, 0.0f, 0.0f));
-	IntersectSphere(ray, bestHit, float4(0, 0.5f, 1, 0.25f), float3(0.6f, 0.6f, 0.6f), float3(0,0,0));
-	IntersectSphere(ray, bestHit, float4(1, 0.5f, 1, 0.25f), float3(0.6f, 0.3f, 0.1f), float3(0,0,0));
-	IntersectSphere(ray, bestHit, float4(-1, 0.5f, 1, 0.25f), float3(0.2f, 0.2f, 0.8f), float3(0,0,0));
+	IntersectGroundPlane(ray, bestHit, float3(0.2f, 0.2f, 0.2f), float3(0.1f, 0.1f, 0.1f));
+
+	uint numSpheres, stride;
+	_Spheres.GetDimensions(numSpheres, stride);
+	for (uint i = 0; i < numSpheres; i++)
+	{
+		IntersectSphere(ray, bestHit, _Spheres[i]);
+	}
+
 	return bestHit;
 }
 
@@ -142,7 +158,7 @@ float3 Shade(inout Ray ray, RayHit hit)
 			ray.energy *= hit.specular;
 
 			// return float3(0.0f, 0.0f, 0.0f);
-			// // If the surface is in shadow, return nothing
+			// If the surface is in shadow, return nothing
 			bool shadow = false;
 			Ray shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -1 * _DirectionalLight.xyz);
 			RayHit shadowHit = Trace(shadowRay);
@@ -151,7 +167,7 @@ float3 Shade(inout Ray ray, RayHit hit)
 					return float3(0.0f, 0.0f, 0.0f);
 			}
 
-			// // Return the albedo of the hit
+			// Return the albedo of the hit
 			return saturate(dot(hit.normal, _DirectionalLight.xyz) * -1) * _DirectionalLight.w * hit.albedo;
 		}
 		else
@@ -166,7 +182,7 @@ float3 Shade(inout Ray ray, RayHit hit)
 		ray.energy = 0.0f;
 
 		// Sample the skybox and write it
-		float2 uv = cartesianToPolar(ray.direction).xy;
+		float2 uv = CartesianToPolar(ray.direction).xy;
 		return _SkyboxTexture.SampleLevel(sampler_SkyboxTexture, uv, 0).xyz;
 	}
 }
