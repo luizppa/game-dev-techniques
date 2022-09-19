@@ -147,20 +147,20 @@ RayHit Trace(Ray ray)
 
 float3 Shade(inout Ray ray, RayHit hit)
 {
+	// Small epsilon to avoid nasty self-intersections
+	float epsilon = 0.001f;
+	
 	if (hit.distance < 1.#INF)
 	{
 		if(_UseRayTracing){
-			float3 albedo = float3(0.8f, 0.8f, 0.8f);
-
 			// Reflect the ray and multiply energy with specular reflection
-			ray.origin = hit.position + hit.normal * 0.001f;
+			ray.origin = hit.position + hit.normal * epsilon;
 			ray.direction = reflect(ray.direction, hit.normal);
 			ray.energy *= hit.specular;
 
-			// return float3(0.0f, 0.0f, 0.0f);
 			// If the surface is in shadow, return nothing
 			bool shadow = false;
-			Ray shadowRay = CreateRay(hit.position + hit.normal * 0.001f, -1 * _DirectionalLight.xyz);
+			Ray shadowRay = CreateRay(hit.position + hit.normal * epsilon, -1 * _DirectionalLight.xyz);
 			RayHit shadowHit = Trace(shadowRay);
 			if (shadowHit.distance != 1.#INF)
 			{
@@ -172,8 +172,8 @@ float3 Shade(inout Ray ray, RayHit hit)
 		}
 		else
 		{
-			// Return the normal
-			return hit.normal * 0.5f + 0.5f;
+			// Return the albedo channel
+			return hit.albedo;
 		}
 	}
 	else

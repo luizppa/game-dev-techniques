@@ -32,4 +32,14 @@ public class RayTracingSphere : MonoBehaviour
       specular = new Vector3(specular.r, specular.g, specular.b)
     };
   }
+
+  public bool ShouldUpdate()
+  {
+    if (transform.hasChanged)
+    {
+      transform.hasChanged = false;
+      return true;
+    }
+    return false;
+  }
 }
