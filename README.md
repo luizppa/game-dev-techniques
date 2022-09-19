@@ -85,6 +85,16 @@ Unity supports a few languages for compute shader implementation, among them are
 
 ### Implementation
 
-For this project, I based myself on [this article](http://blog.three-eyed-games.com/2018/05/03/gpu-ray-tracing-in-unity-part-1/) which explains how to implement a simple ray tracer in Unity using compute shaders. The article is very well written and easy to follow, so I will not go into much detail here, but you should definetly check it out if you are interested in this topic.
+For this project, I based myself on the article "GPU Ray Tracing in Unity" by [David Kuri](http://three-eyed-games.com/author/daerst/), you can check out [part one](http://blog.three-eyed-games.com/2018/05/03/gpu-ray-tracing-in-unity-part-1/), [part two](http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/) and [part three](http://three-eyed-games.com/2019/03/18/gpu-path-tracing-in-unity-part-3/) which explains how to implement a ray tracer in Unity using compute shaders. The article is very well written and easy to follow, so I will not go into much detail here, but you should definetly check it out if you are interested in this topic.
+
+By the time I am writting this, I have only gone through the first part of the article and perhaps that is all I will cover, but in any case, I will make sure to update this section with more information as I progress.
+
+The basic idea is to simulate rays bouncing around the scene and calculating the color of each pixel based on the surfaces the ray for that pixel hits. In real life, light rays are shot from light sources and travel in a similar way until they reach a spectator's eye, but in a computer we can't really do that because we would have to simulate so many light rays that it would be nearly impossible to do it in real time. Fortunately, we don't have to, as [Helmholtz reciprocity principle](https://en.wikipedia.org/wiki/Helmholtz_reciprocity) notes that the light that reaches our eyes is the same light that was emitted by the light source. This means that we can simulate the light by shooting rays the other way around, from the spectator's eye to the light source, this way we avoid having to calculate rays that would never reach the camera anyways.
+
+The way light bounces of objects depends on their material properties, on this project, we will be focusing on two of them: albedo and specular reflections. The albedo channel of the material determines the color of the object, while the specular channel determines how much light is reflected by the object (well, technically, the albedo value also determines light reflection, but in a different way). On the screenshot bellow, you can see how the leftmost sphere reflects all colors of light roughly equally, while the middle sphere reflects mostly blue light, this is due to their specular values. You can also see that the sphere on the right has a very low specular value, this means that it will hardly reflect any specular light, but it will reflect a lot of diffuse light, which is the light that is reflected by the albedo channel.
+
+<p align="center">
+  <img src="./Docs/ray-tracing-screen-capture-2.png"/>
+</p>
 
 <p align="center">🚧 Under construction 🚧</p>
