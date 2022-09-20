@@ -46,7 +46,26 @@ StructuredBuffer<Sphere> _Spheres;
 
 Texture2D<float4> _SkyboxTexture;
 SamplerState sampler_SkyboxTexture;
+float2 _Pixel;
+float _Seed;
 static const float PI = 3.14159265f;
+
+float rand()
+{
+    float result = frac(sin(_Seed / 100.0f * dot(_Pixel, float2(12.9898f, 78.233f))) * 43758.5453f);
+    _Seed += 1.0f;
+    return result;
+}
+
+float sdot(float3 x, float3 y, float f = 1.0f)
+{
+    return saturate(dot(x, y) * f);
+}
+
+float energy(float3 color)
+{
+    return dot(color, 1.0f / 3.0f);
+}
 
 float3 CartesianToPolar(float3 cartesian)
 {
@@ -58,6 +77,33 @@ float3 CartesianToPolar(float3 cartesian)
 	polar.y = theta;
 
 	return polar;
+}
+
+float3x3 GetTangentSpace(float3 normal)
+{
+	// Choose a helper vector for the cross product
+	float3 helper = float3(1, 0, 0);
+	if (abs(normal.x) > 0.99f)
+	{
+		helper = float3(0, 0, 1);
+	}
+
+	// Generate vectors
+	float3 tangent = normalize(cross(normal, helper));
+	float3 binormal = normalize(cross(normal, tangent));
+	return float3x3(tangent, binormal, normal);
+}
+
+float3 SampleHemisphere(float3 normal)
+{
+    // Uniformly sample hemisphere direction
+    float cosTheta = rand();
+    float sinTheta = sqrt(max(0.0f, 1.0f - cosTheta * cosTheta));
+    float phi = 2 * PI * rand();
+    float3 tangentSpaceDir = float3(cos(phi) * sinTheta, sin(phi) * sinTheta, cosTheta);
+
+    // Transform direction to world space
+    return mul(tangentSpaceDir, GetTangentSpace(normal));
 }
 
 Ray CreateRay(float3 origin, float3 direction)
@@ -133,7 +179,7 @@ void IntersectSphere(Ray ray, inout RayHit bestHit, Sphere sphere)
 RayHit Trace(Ray ray)
 {
 	RayHit bestHit = CreateRayHit();
-	IntersectGroundPlane(ray, bestHit, float3(0.2f, 0.2f, 0.2f), float3(0.1f, 0.1f, 0.1f));
+	IntersectGroundPlane(ray, bestHit, float3(0.0f, 0.0f, 0.0f), float3(0.45f, 0.4f, 0.4f));
 
 	uint numSpheres, stride;
 	_Spheres.GetDimensions(numSpheres, stride);
@@ -149,26 +195,34 @@ float3 Shade(inout Ray ray, RayHit hit)
 {
 	// Small epsilon to avoid nasty self-intersections
 	float epsilon = 0.001f;
+	float alpha = 10.0f;
 	
 	if (hit.distance < 1.#INF)
 	{
 		if(_UseRayTracing){
-			// Reflect the ray and multiply energy with specular reflection
-			ray.origin = hit.position + hit.normal * epsilon;
-			ray.direction = reflect(ray.direction, hit.normal);
-			ray.energy *= hit.specular;
 
-			// If the surface is in shadow, return nothing
-			bool shadow = false;
-			Ray shadowRay = CreateRay(hit.position + hit.normal * epsilon, -1 * _DirectionalLight.xyz);
-			RayHit shadowHit = Trace(shadowRay);
-			if (shadowHit.distance != 1.#INF)
+			hit.albedo = min(1.0f - hit.specular, hit.albedo);
+			float specChance = energy(hit.specular);
+			float diffChance = energy(hit.albedo);
+			float sum = specChance + diffChance;
+			specChance /= sum;
+			diffChance /= sum;
+
+			if (rand() < specChance)
 			{
-					return float3(0.0f, 0.0f, 0.0f);
+				// Specular reflection
+				ray.origin = hit.position + hit.normal * 0.001f;
+				ray.direction = reflect(ray.direction, hit.normal);
+				ray.energy *= (1.0f / specChance) * hit.specular * sdot(hit.normal, ray.direction);
 			}
-
-			// Return the albedo of the hit
-			return saturate(dot(hit.normal, _DirectionalLight.xyz) * -1) * _DirectionalLight.w * hit.albedo;
+			else
+			{
+				// Diffuse reflection
+				ray.origin = hit.position + hit.normal * 0.001f;
+				ray.direction = SampleHemisphere(hit.normal);
+				ray.energy *= (1.0f / diffChance) * 2 * hit.albedo * sdot(hit.normal, ray.direction);
+			}
+			return float3(0.0f, 0.0f, 0.0f);
 		}
 		else
 		{
@@ -190,6 +244,8 @@ float3 Shade(inout Ray ray, RayHit hit)
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
+	_Pixel = id.xy;
+
 	// Get the dimensions of the RenderTexture
 	uint width, height;
 	Result.GetDimensions(width, height);
