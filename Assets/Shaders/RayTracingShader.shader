@@ -4,6 +4,8 @@ Shader "Unlit/RayTracingShader"
     {
         _Albedo ("Albedo", Color) = (0,0,0,1)
         _Specular ("Specular", Color) = (0,0,0,1)
+        _Smoothness ("Smoothness", Range(0,1)) = 0.5
+        _Emission ("Emission", Color) = (0,0,0,1)
     }
     SubShader
     {

@@ -129,7 +129,7 @@ public class RayTracingMaster : MonoBehaviour
     {
       sphereBuffer.Release();
     }
-    sphereBuffer = new ComputeBuffer(spheres.Length, 40);
+    sphereBuffer = new ComputeBuffer(spheres.Length, 56);
     sphereBuffer.SetData(spheresData);
   }
 
