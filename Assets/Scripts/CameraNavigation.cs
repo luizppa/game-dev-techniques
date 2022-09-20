@@ -9,6 +9,8 @@ public class CameraNavigation : MonoBehaviour
 
   void Start()
   {
+    angleX = transform.eulerAngles.y;
+    angleY = transform.eulerAngles.x;
     Cursor.lockState = CursorLockMode.Locked;
   }
 
