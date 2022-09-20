@@ -75,8 +75,8 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _Albedo: {r: 0, g: 0, b: 0, a: 1}
+    - _Albedo: {r: 0.5050389, g: 0.23113209, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _Specular: {r: 0.3, g: 0.1, b: 0.6, a: 1}
+    - _Specular: {r: 0.1182784, g: 0.048059814, b: 0.2264151, a: 1}
   m_BuildTextureStacks: []
