@@ -1,0 +1,33 @@
+// Each #kernel tells which function to compile; you can have many kernels
+#pragma kernel CSMain
+
+// Create a RenderTexture with enableRandomWrite flag and set it
+// with cs.SetTexture
+RWTexture2D<float4> Result;
+RWTexture3D<float3> _DensityVol;
+uint _VoxelsPerBlock;
+
+struct GeneratedVertex {
+	float3 wsPosition;
+	float3 wsNormal;
+};
+
+float3 CalculateNormal(float3 a, float3 b, float3 c) {
+	float3 u = b - a;
+	float3 v = c - a;
+	return normalize(cross(u, v));
+}
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+	GeneratedVertex v1, v2, v3;
+	v1.wsPosition = float3(1, 0, 0);
+	v2.wsPosition = float3(0, 1, 0);
+	v3.wsPosition = float3(0, 0, 1);
+
+	float normal = CalculateNormal(v1.wsPosition, v2.wsPosition, v3.wsPosition);
+	v1.wsNormal = normal;
+	v2.wsNormal = normal;
+	v3.wsNormal = normal;
+}

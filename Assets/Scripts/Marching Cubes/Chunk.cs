@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Chunk : MonoBehaviour
 {
+  [SerializeField] ComputeShader meshGenerator = null;
+
   int chunkHeight = 10;
   int chunkWidth = 10;
   int chunkDepth = 10;
@@ -16,6 +18,7 @@ public class Chunk : MonoBehaviour
   private CubeVertex[,,] vertices = null;
   private SurfaceManager surfaceManager = null;
   private MeshFilter meshFilter = null;
+  private RenderTexture target = null;
 
   void Start()
   {
@@ -27,6 +30,7 @@ public class Chunk : MonoBehaviour
     }
     GetConfig();
     GenerateChunk();
+    // meshGenerator.Dispatch(0, 8, 8, 1);
   }
 
   private void GetConfig()
@@ -277,5 +281,20 @@ public class Chunk : MonoBehaviour
         }
       }
     }
+  }
+
+  private void InitRenderTexture()
+  {
+    if (target == null)
+    {
+      target = new RenderTexture(chunkWidth, chunkDepth, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
+      target.enableRandomWrite = true;
+      target.Create();
+    }
+  }
+
+  private void SetShaderParameters()
+  {
+    meshGenerator.SetTexture(0, "Result", target);
   }
 }

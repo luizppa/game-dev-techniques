@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SurfaceManager : MonoBehaviour
 {
@@ -43,8 +44,11 @@ public class SurfaceManager : MonoBehaviour
 
   void Update()
   {
-
-    if (ShouldUpdate())
+    if (SceneManager.GetActiveScene().name != "MarchingCubes")
+    {
+      Destroy(gameObject);
+    }
+    else if (ShouldUpdate())
     {
       UpdateProperties();
       UpdateChunks();

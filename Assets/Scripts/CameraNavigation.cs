@@ -11,13 +11,16 @@ public class CameraNavigation : MonoBehaviour
   {
     angleX = transform.eulerAngles.y;
     angleY = transform.eulerAngles.x;
-    Cursor.lockState = CursorLockMode.Locked;
   }
 
   void Update()
   {
-    Rotate();
-    Move();
+    if (Time.timeScale > 0)
+    {
+      Cursor.lockState = CursorLockMode.Locked;
+      Rotate();
+      Move();
+    }
   }
 
   private void Rotate()
