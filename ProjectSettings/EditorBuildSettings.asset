@@ -4,5 +4,17 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/Menu.unity
+    guid: c9e897bd230ed7748903e8acfe419ca8
+  - enabled: 1
+    path: Assets/Scenes/SelectProjectScene.unity
+    guid: 95e8b1260759452468aeaac315603b36
+  - enabled: 1
+    path: Assets/Scenes/MarchingCubes.unity
+    guid: 9fc0d4010bbf28b4594072e72b8655ab
+  - enabled: 1
+    path: Assets/Scenes/ComputeShaders.unity
+    guid: 85a4088c8fd0a8248bc9659991a24cc0
   m_configObjects: {}
