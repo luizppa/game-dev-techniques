@@ -1,16 +1,40 @@
 // Each #kernel tells which function to compile; you can have many kernels
-#pragma kernel CSMain
+#pragma kernel DistributeDensity
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
-RWTexture2D<float4> Result;
-RWTexture3D<float3> _DensityVol;
-uint _VoxelsPerBlock;
+static const int threads = 8;
 
-struct GeneratedVertex {
-	float3 wsPosition;
-	float3 wsNormal;
+struct Triangle {
+	float3 a;
+	float3 b;
+	float3 c;
 };
+
+Triangle CreateTriangle(float3 a, float3 b, float3 c) {
+	Triangle tri;
+	tri.a = float3(0, 0, 0);
+	tri.b = float3(1, 0, 0);
+	tri.c = float3(0, 1, 0);
+	return tri;
+}
+
+RWStructuredBuffer<float> _ChunkVertices;
+AppendStructuredBuffer<int> _GeneratedTriangles;
+
+float3 _ChunkPosition;
+uint _ChunkSize;
+
+uint PositionToBufferIndex(uint3 id){
+	return id.x + (id.y * _ChunkSize) + (id.z * _ChunkSize * _ChunkSize);
+}
+
+uint3 BufferIndexToPosition(uint idx){
+	int x = idx % _ChunkSize;
+	int y = ((idx - x) / _ChunkSize) % _ChunkSize;
+	int z = ((((idx - x) / _ChunkSize) - y) / _ChunkSize) % _ChunkSize;
+	return int3(x, y, z);
+}
 
 float3 CalculateNormal(float3 a, float3 b, float3 c) {
 	float3 u = b - a;
@@ -18,16 +42,21 @@ float3 CalculateNormal(float3 a, float3 b, float3 c) {
 	return normalize(cross(u, v));
 }
 
-[numthreads(8,8,1)]
-void CSMain (uint3 id : SV_DispatchThreadID)
+float CalculateDensity(uint3 id)
 {
-	GeneratedVertex v1, v2, v3;
-	v1.wsPosition = float3(1, 0, 0);
-	v2.wsPosition = float3(0, 1, 0);
-	v3.wsPosition = float3(0, 0, 1);
+	float3 wsPosition = _ChunkPosition + float3(id.x, id.y, id.z);
+	float density = 0;
+	density += 1 - wsPosition.y; 
+	return density;
+}
 
-	float normal = CalculateNormal(v1.wsPosition, v2.wsPosition, v3.wsPosition);
-	v1.wsNormal = normal;
-	v2.wsNormal = normal;
-	v3.wsNormal = normal;
+[numthreads(threads, threads, threads)]
+void DistributeDensity (uint3 id : SV_DispatchThreadID)
+{
+	if(id.x >= _ChunkSize || id.y >= _ChunkSize || id.z >= _ChunkSize){
+		return;
+	}
+
+	uint idx = PositionToBufferIndex(id);
+	_ChunkVertices[idx] = CalculateDensity(id);
 }
