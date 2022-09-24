@@ -3,22 +3,34 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+public enum GenerationTechology
+{
+  CPU,
+  GPU
+}
+
 public class SurfaceManager : MonoBehaviour
 {
   [SerializeField] int chunksPerDirection = 1;
   [SerializeField] Transform playerPosition = null;
 
   [Header("Chunk Configuration")]
-  [SerializeField] int chunkHeight = 10;
-  [SerializeField] int chunkWidth = 10;
-  [SerializeField] int chunkDepth = 10;
+  [SerializeField] int chunkSize = 8;
   [SerializeField] float chunkDensity = 1f;
   [SerializeField][Range(0f, 1f)] float isoLevel = 0.5f;
   [SerializeField] int seed = 0;
   [SerializeField] float elevation = 1f;
 
-  [SerializeField] GameObject chunkPrefab = null;
+  [Header("Generation Technology")]
+  [SerializeField] GenerationTechology generationTechnology = GenerationTechology.CPU;
+  [SerializeField] GameObject CPUChunkPrefab = null;
+  [SerializeField] GameObject GPUChunkPrefab = null;
 
+  [Header("Noise Configuration")]
+  [SerializeField] int noiseLevels = 2;
+  [SerializeField] float noiseComplexityIncrease = 2f;
+  [SerializeField] Vector2Int noiseResolution = new Vector2Int(256, 256);
+  public List<Texture2D> noiseMaps = new List<Texture2D>();
 
   private GameObject[,] chunks = null;
   private float previousIsoLevel = 0f;
@@ -27,6 +39,11 @@ public class SurfaceManager : MonoBehaviour
 
   private Vector2 centralPosition = new Vector2(0, 0);
   private Vector2 previousCentralPosition;
+
+  void Awake()
+  {
+    GenerateNoiseMaps();
+  }
 
   void Start()
   {
@@ -38,6 +55,7 @@ public class SurfaceManager : MonoBehaviour
     {
       DontDestroyOnLoad(gameObject);
     }
+    GenerateNoiseMaps();
     InitializeProperties();
     CreateChunks();
   }
@@ -55,6 +73,34 @@ public class SurfaceManager : MonoBehaviour
     }
   }
 
+  void GenerateNoiseMaps()
+  {
+    noiseMaps.Clear();
+    for (int i = 0; i < noiseLevels; i++)
+    {
+      float scale = Mathf.Pow(noiseComplexityIncrease, i);
+      Texture2D noiseMap = new Texture2D(noiseResolution.x, noiseResolution.y);
+      for (int x = 0; x < noiseResolution.x; x++)
+      {
+        for (int y = 0; y < noiseResolution.y; y++)
+        {
+          noiseMap.SetPixel(x, y, CalculateNoiseColor(x, y, scale));
+        }
+      }
+      noiseMap.Apply();
+      noiseMaps.Add(noiseMap);
+    }
+  }
+
+  private Color CalculateNoiseColor(int x, int y, float scale)
+  {
+    float xCord = (float)x / noiseResolution.x * scale;
+    float yCord = (float)y / noiseResolution.y * scale;
+
+    float sample = Mathf.PerlinNoise(seed + xCord, seed + yCord);
+    return new Color(sample, sample, sample);
+  }
+
   void InitializeProperties()
   {
     previousIsoLevel = isoLevel;
@@ -66,7 +112,7 @@ public class SurfaceManager : MonoBehaviour
 
     float playerX = playerPosition.position.x;
     float playerZ = playerPosition.position.z;
-    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkWidth * chunkDensity)), Mathf.Floor(playerZ / (chunkDepth * chunkDensity)));
+    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkSize * chunkDensity)), Mathf.Floor(playerZ / (chunkSize * chunkDensity)));
     previousCentralPosition = centralPosition;
   }
 
@@ -74,7 +120,7 @@ public class SurfaceManager : MonoBehaviour
   {
     float playerX = playerPosition.position.x;
     float playerZ = playerPosition.position.z;
-    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkWidth * chunkDensity)), Mathf.Floor(playerZ / (chunkDepth * chunkDensity)));
+    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkSize * chunkDensity)), Mathf.Floor(playerZ / (chunkSize * chunkDensity)));
 
     return centralPosition - previousCentralPosition != Vector2.zero || previousIsoLevel != isoLevel || previousSeed != seed || previousElevation != elevation;
   }
@@ -88,6 +134,7 @@ public class SurfaceManager : MonoBehaviour
 
   private void CreateChunks()
   {
+    GameObject chunkPrefab = GetPrefab();
     if (chunkPrefab != null)
     {
       for (int x = -chunksPerDirection; x <= chunksPerDirection; x++)
@@ -96,7 +143,7 @@ public class SurfaceManager : MonoBehaviour
         {
           if (chunks[chunksPerDirection + x, chunksPerDirection + z] == null)
           {
-            chunks[chunksPerDirection + x, chunksPerDirection + z] = CreateChunk(centralPosition.x + x, centralPosition.y + z);
+            chunks[chunksPerDirection + x, chunksPerDirection + z] = CreateChunk(chunkPrefab, centralPosition.x + x, centralPosition.y + z);
           }
         }
       }
@@ -210,48 +257,55 @@ public class SurfaceManager : MonoBehaviour
     }
   }
 
-  private GameObject CreateChunk(float x, float z)
+  private GameObject CreateChunk(GameObject chunkPrefab, float x, float z)
   {
     if (chunkPrefab != null)
     {
-      GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkWidth - 1) * chunkDensity, 0f, z * (chunkDepth - 1) * chunkDensity), Quaternion.identity);
+      GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkSize - 1) * chunkDensity, 0f, z * (chunkSize - 1) * chunkDensity), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
       return chunk;
     }
     return null;
   }
 
-  public int getChunkHeight()
+  private GameObject GetPrefab()
   {
-    return chunkHeight;
+    if (generationTechnology == GenerationTechology.CPU)
+    {
+      return CPUChunkPrefab;
+    }
+    else
+    {
+      return GPUChunkPrefab;
+    }
   }
 
-  public int getChunkWidth()
+  public Texture2D GetNoiseMaps()
   {
-    return chunkWidth;
+    return noiseMaps;
   }
 
-  public int getChunkDepth()
+  public int GetChunkSize()
   {
-    return chunkDepth;
+    return chunkSize;
   }
 
-  public float getChunkDensity()
+  public float GetChunkDensity()
   {
     return chunkDensity;
   }
 
-  public float getIsoLevel()
+  public float GetIsoLevel()
   {
     return isoLevel;
   }
 
-  public int getSeed()
+  public int GetSeed()
   {
     return seed;
   }
 
-  public float getElevation()
+  public float GetElevation()
   {
     return elevation;
   }

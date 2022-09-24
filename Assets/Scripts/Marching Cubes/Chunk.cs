@@ -6,9 +6,7 @@ using UnityEngine;
 public class Chunk : MonoBehaviour
 {
 
-  int chunkHeight = 10;
-  int chunkWidth = 10;
-  int chunkDepth = 10;
+  int chunkSize = 8;
   float chunkDensity = 1f;
   float isoLevel = 0.5f;
   int seed = 0;
@@ -34,13 +32,11 @@ public class Chunk : MonoBehaviour
   {
     if (surfaceManager != null)
     {
-      chunkHeight = surfaceManager.getChunkHeight();
-      chunkWidth = surfaceManager.getChunkWidth();
-      chunkDepth = surfaceManager.getChunkDepth();
-      chunkDensity = surfaceManager.getChunkDensity();
-      isoLevel = surfaceManager.getIsoLevel();
-      seed = surfaceManager.getSeed();
-      elevation = surfaceManager.getElevation();
+      chunkSize = surfaceManager.GetChunkSize();
+      chunkDensity = surfaceManager.GetChunkDensity();
+      isoLevel = surfaceManager.GetIsoLevel();
+      seed = surfaceManager.GetSeed();
+      elevation = surfaceManager.GetElevation();
     }
   }
 
@@ -57,12 +53,12 @@ public class Chunk : MonoBehaviour
 	 */
   private void DistributeVertices()
   {
-    vertices = new CubeVertex[chunkWidth, chunkHeight, chunkDepth];
-    for (int x = 0; x < chunkWidth; x++)
+    vertices = new CubeVertex[chunkSize, chunkSize, chunkSize];
+    for (int x = 0; x < chunkSize; x++)
     {
-      for (int y = 0; y < chunkHeight; y++)
+      for (int y = 0; y < chunkSize; y++)
       {
-        for (int z = 0; z < chunkDepth; z++)
+        for (int z = 0; z < chunkSize; z++)
         {
           Vector3Int position = new Vector3Int(x, y, z);
           Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
@@ -81,11 +77,11 @@ public class Chunk : MonoBehaviour
     Vector3[] cubeVertices = new Vector3[0];
     List<int> triangles = new List<int>();
 
-    for (int x = 0; x < chunkWidth - 1; x++)
+    for (int x = 0; x < chunkSize - 1; x++)
     {
-      for (int y = 0; y < chunkHeight - 1; y++)
+      for (int y = 0; y < chunkSize - 1; y++)
       {
-        for (int z = 0; z < chunkDepth - 1; z++)
+        for (int z = 0; z < chunkSize - 1; z++)
         {
           int offset = cubeVertices.Length;
           Vector3Int position = new Vector3Int(x, y, z);
@@ -196,7 +192,7 @@ public class Chunk : MonoBehaviour
     {
       return 1f;
     }
-    if (position.x == 0 || position.z == 0 || position.x == chunkWidth - 1 || position.z == chunkDepth - 1)
+    if (position.x == 0 || position.z == 0 || position.x == chunkSize - 1 || position.z == chunkSize - 1)
     {
       return 1 / (1 + position.y);
     }
@@ -266,11 +262,11 @@ public class Chunk : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-    for (int x = 0; x < chunkWidth; x++)
+    for (int x = 0; x < chunkSize; x++)
     {
-      for (int y = 0; y < chunkHeight; y++)
+      for (int y = 0; y < chunkSize; y++)
       {
-        for (int z = 0; z < chunkDepth; z++)
+        for (int z = 0; z < chunkSize; z++)
         {
           CubeVertex vertex = vertices[x, y, z];
           Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
