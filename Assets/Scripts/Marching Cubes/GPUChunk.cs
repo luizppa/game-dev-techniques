@@ -31,6 +31,7 @@ public class GPUChunk : MonoBehaviour
   {
     surfaceManager = FindObjectOfType<SurfaceManager>();
     vertices = new float[chunkSize * chunkSize * chunkSize];
+    GetConfig();
     Generate();
   }
 
@@ -57,8 +58,9 @@ public class GPUChunk : MonoBehaviour
     int numThreads = Mathf.CeilToInt(chunkSize / (float)threadsCount);
 
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
-    meshGenerator.SetInt("_ChunkSize", chunkSize);
+    meshGenerator.SetTexture(kernel, "_NoiseMap", noiseMaps[0]);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
+    meshGenerator.SetInt("_ChunkSize", chunkSize);
     meshGenerator.Dispatch(kernel, numThreads, numThreads, numThreads);
 
     verticesBuffer.GetData(vertices);
