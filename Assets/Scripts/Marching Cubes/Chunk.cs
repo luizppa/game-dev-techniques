@@ -233,7 +233,7 @@ public class Chunk : MonoBehaviour
     for (int i = 0; i < 12; i++)
     {
       int edgeCode = 1 << i;
-      if ((Tables.edgeTable[cubeIndex] & edgeCode) > 0)
+      if ((edges & edgeCode) > 0)
       {
         int[] edgeVertices = GetEdgeVertices(i);
         cubeVertices[i] = VertexInterp(position, edgeVertices[0], edgeVertices[1]);

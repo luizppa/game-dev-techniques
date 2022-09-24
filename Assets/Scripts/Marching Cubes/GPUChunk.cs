@@ -18,11 +18,17 @@ public class GPUChunk : MonoBehaviour
 
   // Mesh
   private float[] vertices = null;
+  private Triangle[] triangles = null;
 
   // Configs
   private int chunkSize = 4;
   private int seed = 42;
+  private float isoLevel = 0.5f;
   private List<Texture2D> noiseMaps = new List<Texture2D>();
+
+  // Bounds
+  private int voxelsNumber = 0;
+  private int maxTrianglesNumber = 0;
 
   // Managers
   private SurfaceManager surfaceManager = null;
@@ -32,6 +38,11 @@ public class GPUChunk : MonoBehaviour
     surfaceManager = FindObjectOfType<SurfaceManager>();
     vertices = new float[chunkSize * chunkSize * chunkSize];
     GetConfig();
+
+    voxelsNumber = chunkSize * chunkSize * chunkSize;
+    maxTrianglesNumber = voxelsNumber * 5;
+    triangles = new Triangle[maxTrianglesNumber];
+
     Generate();
   }
 
@@ -55,16 +66,46 @@ public class GPUChunk : MonoBehaviour
     ComputeBuffer verticesBuffer = new ComputeBuffer(vertices.Length, sizeof(float));
 
     int kernel = meshGenerator.FindKernel("DistributeDensity");
-    int numThreads = Mathf.CeilToInt(chunkSize / (float)threadsCount);
+    int numThreadsPerGroup = Mathf.CeilToInt(chunkSize / (float)threadsCount);
 
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
     meshGenerator.SetTexture(kernel, "_NoiseMap", noiseMaps[0]);
+    meshGenerator.SetFloat("_IsoLevel", isoLevel);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
     meshGenerator.SetInt("_ChunkSize", chunkSize);
-    meshGenerator.Dispatch(kernel, numThreads, numThreads, numThreads);
+    meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
 
     verticesBuffer.GetData(vertices);
     verticesBuffer.Release();
+  }
+
+  void GenerateMesh()
+  {
+    ComputeBuffer trianglesBudffer = new ComputeBuffer(triangles.Length, sizeof(float) * 9, ComputeBufferType.Append);
+    ComputeBuffer trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+    ComputeBuffer verticesBuffer = new ComputeBuffer(vertices.Length, sizeof(float));
+
+    int kernel = meshGenerator.FindKernel("GenerateMesh");
+    int numThreadsPerGroup = Mathf.CeilToInt(chunkSize - 1 / (float)threadsCount);
+
+    meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
+    meshGenerator.SetFloat("_IsoLevel", isoLevel);
+    meshGenerator.SetVector("_ChunkPosition", transform.position);
+    meshGenerator.SetInt("_ChunkSize", chunkSize);
+
+    trianglesBudffer.SetCounterValue(0);
+    meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
+
+    ComputeBuffer.CopyCount(trianglesBudffer, trianglesCountBuffer, 0);
+    int[] trianglesCount = new int[1];
+    trianglesCountBuffer.GetData(trianglesCount);
+
+    Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
+    trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
+    for (int i = 0; i < generatedTriangles.Length; i++)
+    {
+
+    }
   }
 
   void OnDrawGizmos()

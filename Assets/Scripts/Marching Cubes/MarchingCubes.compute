@@ -1,8 +1,9 @@
 #include "UnityCG.cginc"
-#include "Tables.compute"
+#include "/Include/Tables.compute"
 
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel DistributeDensity
+#pragma kernel GenerateMesh
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -23,11 +24,15 @@ Triangle CreateTriangle(float3 a, float3 b, float3 c) {
 }
 
 RWStructuredBuffer<float> _ChunkVertices;
+AppendStructuredBuffer<Triangle> _ChunkTriangles;
 Texture2D<float4> _NoiseMap;
 SamplerState TrilinearRepeat;
 
 float3 _ChunkPosition;
 uint _ChunkSize;
+float _IsoLevel;
+
+// ====================== Utils ====================== //
 
 uint PositionToBufferIndex(uint3 id){
 	return id.x + (id.y * _ChunkSize) + (id.z * _ChunkSize * _ChunkSize);
@@ -40,11 +45,35 @@ uint3 BufferIndexToPosition(uint idx){
 	return int3(x, y, z);
 }
 
+uint3 GetVertexOffset(uint vertexId){
+	if(vertexId < 8) return offsetForVertex[vertexId];
+	else return uint3(0, 0, 0);
+}
+
+uint2 GetVerticesForEdge(uint edgeId){
+	if(edgeId < 12) return verticesForEdge[edgeId];
+	else return uint2(0, 0);
+}
+
 float3 CalculateNormal(float3 a, float3 b, float3 c) {
 	float3 u = b - a;
 	float3 v = c - a;
 	return normalize(cross(u, v));
 }
+
+float3 Interpolate(uint3 a, uint3 b) {
+	float densityA = _ChunkVertices[PositionToBufferIndex(a)];
+	float densityB = _ChunkVertices[PositionToBufferIndex(b)];
+
+	float t = (_IsoLevel - densityA) / (densityB - densityA);
+	float x = a.x + t * (b.x - a.x);
+	float y = a.y + t * (b.y - a.y);
+	float z = a.z + t * (b.z - a.z);
+
+	return float3(x, y, z);
+}
+
+// ====================== Density ====================== //
 
 float CalculateDensity(uint3 id)
 {
@@ -53,6 +82,23 @@ float CalculateDensity(uint3 id)
 	// density += _NoiseMap.SampleLevel(TrilinearRepeat, wsPosition, 0).x;
 	return density;
 }
+
+// ====================== Marching Cubes ====================== //
+
+uint GetCubeIndex(uint3 cubeOrigin)
+{
+	uint cubeIndex = 0;
+	for (uint i = 0; i < 8; i++)
+	{
+		uint3 vertex = cubeOrigin + GetVertexOffset(i);
+		float idx = PositionToBufferIndex(vertex);
+		float density = _ChunkVertices[idx];
+		if (density > _IsoLevel) cubeIndex |= (1 << i);
+	}
+	return cubeIndex;
+}
+
+// ====================== Kernels ====================== //
 
 [numthreads(threads, threads, threads)]
 void DistributeDensity (uint3 id : SV_DispatchThreadID)
@@ -63,4 +109,42 @@ void DistributeDensity (uint3 id : SV_DispatchThreadID)
 
 	uint idx = PositionToBufferIndex(id);
 	_ChunkVertices[idx] = CalculateDensity(id);
+}
+
+[numthreads(threads, threads, threads)]
+void GenerateMesh (uint3 id : SV_DispatchThreadID)
+{
+	uint i;
+	uint cubesPerAxis = _ChunkSize - 1;
+	if(id.x >= cubesPerAxis || id.y >= cubesPerAxis || id.z >= cubesPerAxis){
+		return;
+	}
+
+	uint cubeIndex = GetCubeIndex(id);
+	if (cubeIndex == 0 || cubeIndex == 255) return;
+
+	int edgesIndices = edgeTable[cubeIndex];
+	int triangles[16] = triTable[cubeIndex];
+
+	float3 edges[12];
+	for (i = 0; i < 12; i++)
+	{
+		int edgeCode = 1 << i;
+
+		if((edgesIndices & edgeCode) == 0) continue;
+
+		uint2 edgeVertices = GetVerticesForEdge(i);
+		uint3 a = id + GetVertexOffset(edgeVertices.x);
+		uint3 b = id + GetVertexOffset(edgeVertices.y);
+		edges[i] = _ChunkPosition + Interpolate(a, b);
+	}
+
+	for(i = 0; triangles[i] != -1; i += 3){
+		Triangle tri = CreateTriangle(
+			edges[triangles[i]],
+			edges[triangles[i + 1]],
+			edges[triangles[i + 2]]
+		);
+		_ChunkTriangles.Append(tri);
+	}
 }
