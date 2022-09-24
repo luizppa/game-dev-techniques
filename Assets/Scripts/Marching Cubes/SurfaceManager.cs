@@ -280,7 +280,7 @@ public class SurfaceManager : MonoBehaviour
     }
   }
 
-  public Texture2D GetNoiseMaps()
+  public List<Texture2D> GetNoiseMaps()
   {
     return noiseMaps;
   }
