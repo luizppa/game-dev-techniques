@@ -15,14 +15,6 @@ struct Triangle {
 	float3 c;
 };
 
-Triangle CreateTriangle(float3 a, float3 b, float3 c) {
-	Triangle tri;
-	tri.a = float3(0, 0, 0);
-	tri.b = float3(1, 0, 0);
-	tri.c = float3(0, 1, 0);
-	return tri;
-}
-
 RWStructuredBuffer<float> _ChunkVertices;
 AppendStructuredBuffer<Triangle> _ChunkTriangles;
 Texture2D<float4> _NoiseMap;
@@ -32,49 +24,66 @@ float3 _ChunkPosition;
 uint _ChunkSize;
 float _IsoLevel;
 
+// ====================== Constructors ====================== //
+
+Triangle CreateTriangle(float3 a, float3 b, float3 c) {
+	Triangle tri;
+	tri.a = a;
+	tri.b = b;
+	tri.c = c;
+	return tri;
+}
+
 // ====================== Utils ====================== //
 
+/**
+ * Gets the index of vertex ate (x, y, z)
+ * in _ChunkVertices
+*/
 uint PositionToBufferIndex(uint3 id){
 	return id.x + (id.y * _ChunkSize) + (id.z * _ChunkSize * _ChunkSize);
 }
 
-uint3 BufferIndexToPosition(uint idx){
-	int x = idx % _ChunkSize;
-	int y = ((idx - x) / _ChunkSize) % _ChunkSize;
-	int z = ((((idx - x) / _ChunkSize) - y) / _ChunkSize) % _ChunkSize;
-	return int3(x, y, z);
-}
-
+/**
+ * Get the position of the vertex with
+ * index "vertexId" on the voxel
+ * with origin at (0, 0, 0)
+*/
 uint3 GetVertexOffset(uint vertexId){
 	if(vertexId < 8) return offsetForVertex[vertexId];
 	else return uint3(0, 0, 0);
 }
 
+/**
+ * Get the id of the vertices that
+ * make up the edge "edgeId" on the voxel
+*/
 uint2 GetVerticesForEdge(uint edgeId){
 	if(edgeId < 12) return verticesForEdge[edgeId];
 	else return uint2(0, 0);
 }
 
-float3 CalculateNormal(float3 a, float3 b, float3 c) {
-	float3 u = b - a;
-	float3 v = c - a;
-	return normalize(cross(u, v));
+/**
+ * Inverse linear interpolation
+*/
+float InverseLerp(float a, float b, float v){
+	return clamp((v - a) / (b - a), 0, 1);
 }
 
-float3 Interpolate(uint3 a, uint3 b) {
-	float densityA = _ChunkVertices[PositionToBufferIndex(a)];
-	float densityB = _ChunkVertices[PositionToBufferIndex(b)];
-
-	float t = (_IsoLevel - densityA) / (densityB - densityA);
-	float x = a.x + t * (b.x - a.x);
-	float y = a.y + t * (b.y - a.y);
-	float z = a.z + t * (b.z - a.z);
-
-	return float3(x, y, z);
+/**
+ * Linear interpolation of vectors
+*/
+float3 LerpPosition(float3 a, float3 b, float t){
+	return ((1 - t) * a) + (b * t);
 }
 
 // ====================== Density ====================== //
 
+/**
+ * Returns the density value of
+ * the vertex at (x, y, z) on the chunk
+ * at position _ChunkPosition
+*/
 float CalculateDensity(uint3 id)
 {
 	float3 wsPosition = _ChunkPosition + float3(id.x, id.y, id.z);
@@ -85,6 +94,10 @@ float CalculateDensity(uint3 id)
 
 // ====================== Marching Cubes ====================== //
 
+/**
+ * Returns the index of voxel that corresponds
+ * to the cube at "cubeOrigin" on the edge table
+*/
 uint GetCubeIndex(uint3 cubeOrigin)
 {
 	uint cubeIndex = 0;
@@ -93,9 +106,63 @@ uint GetCubeIndex(uint3 cubeOrigin)
 		uint3 vertex = cubeOrigin + GetVertexOffset(i);
 		float idx = PositionToBufferIndex(vertex);
 		float density = _ChunkVertices[idx];
-		if (density > _IsoLevel) cubeIndex |= (1 << i);
+		if (density < _IsoLevel) cubeIndex |= (1 << i);
 	}
 	return cubeIndex;
+}
+
+/**
+ * Linear interpolation vertices
+*/
+float3 Interpolate(float3 a, float3 b, float densityA, float densityB) {
+	float3 t = InverseLerp(densityA, densityB, _IsoLevel);
+
+	return LerpPosition(a, b, t);
+}
+
+/**
+ * Generates the vertices for the of
+ * the voxel "cubeIndex" at position "_ChunkPosition + id"
+*/
+void GetVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 generatedVertices[12]){
+	int voxelIndex = edgeTable[cubeIndex];
+
+	for (int i = 0; i < 12; i++)
+	{
+		uint edgeCode = 1 << i;
+
+		// If true, there is a vertex to be
+		// generated on edge i
+		if((voxelIndex & edgeCode) > 0) {
+			uint2 edgeVertices = GetVerticesForEdge(i);
+			uint3 a = id + GetVertexOffset(edgeVertices.x);
+			uint3 b = id + GetVertexOffset(edgeVertices.y);
+
+			float3 aWorldPos = a;
+			float3 bWorldPos = b;
+
+			float densityA = _ChunkVertices[PositionToBufferIndex(a)];
+			float densityB = _ChunkVertices[PositionToBufferIndex(b)];
+			generatedVertices[i] = Interpolate(aWorldPos, bWorldPos, densityA, densityB);
+		}
+	}
+}
+ 
+/**
+ * Generates the triangles for the voxel
+ * "cubeIndex" at position "_ChunkPosition + id"
+*/
+void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
+	int triangles[16] = triTable[cubeIndex];
+
+	for(int i = 0; triangles[i] != -1; i += 3){
+		Triangle tri = CreateTriangle(
+			generatedVertices[triangles[i]],
+			generatedVertices[triangles[i + 1]],
+			generatedVertices[triangles[i + 2]]
+		);
+		_ChunkTriangles.Append(tri);
+	}
 }
 
 // ====================== Kernels ====================== //
@@ -114,7 +181,6 @@ void DistributeDensity (uint3 id : SV_DispatchThreadID)
 [numthreads(threads, threads, threads)]
 void GenerateMesh (uint3 id : SV_DispatchThreadID)
 {
-	uint i;
 	uint cubesPerAxis = _ChunkSize - 1;
 	if(id.x >= cubesPerAxis || id.y >= cubesPerAxis || id.z >= cubesPerAxis){
 		return;
@@ -123,28 +189,8 @@ void GenerateMesh (uint3 id : SV_DispatchThreadID)
 	uint cubeIndex = GetCubeIndex(id);
 	if (cubeIndex == 0 || cubeIndex == 255) return;
 
-	int edgesIndices = edgeTable[cubeIndex];
-	int triangles[16] = triTable[cubeIndex];
 
-	float3 edges[12];
-	for (i = 0; i < 12; i++)
-	{
-		int edgeCode = 1 << i;
-
-		if((edgesIndices & edgeCode) == 0) continue;
-
-		uint2 edgeVertices = GetVerticesForEdge(i);
-		uint3 a = id + GetVertexOffset(edgeVertices.x);
-		uint3 b = id + GetVertexOffset(edgeVertices.y);
-		edges[i] = _ChunkPosition + Interpolate(a, b);
-	}
-
-	for(i = 0; triangles[i] != -1; i += 3){
-		Triangle tri = CreateTriangle(
-			edges[triangles[i]],
-			edges[triangles[i + 1]],
-			edges[triangles[i + 2]]
-		);
-		_ChunkTriangles.Append(tri);
-	}
+	float3 generatedVertices[12];
+	GetVoxelGeneratedVertices(id, cubeIndex, generatedVertices);
+	GenerateVoxelTriangles(cubeIndex, generatedVertices);
 }

@@ -5,11 +5,13 @@ using UnityEngine;
 
 struct Triangle
 {
-  Vector3 vertexC;
-  Vector3 vertexB;
-  Vector3 vertexA;
+  public Vector3 a;
+  public Vector3 b;
+  public Vector3 c;
 };
 
+[RequireComponent(typeof(MeshFilter))]
+[RequireComponent(typeof(MeshRenderer))]
 public class GPUChunk : MonoBehaviour
 {
   // Compute shader
@@ -30,12 +32,15 @@ public class GPUChunk : MonoBehaviour
   private int voxelsNumber = 0;
   private int maxTrianglesNumber = 0;
 
-  // Managers
+  // Refferences
   private SurfaceManager surfaceManager = null;
+  private MeshFilter meshFilter = null;
 
   void Start()
   {
     surfaceManager = FindObjectOfType<SurfaceManager>();
+    meshFilter = GetComponent<MeshFilter>();
+
     vertices = new float[chunkSize * chunkSize * chunkSize];
     GetConfig();
 
@@ -59,6 +64,7 @@ public class GPUChunk : MonoBehaviour
   void Generate()
   {
     GenerateDensity();
+    GenerateMesh();
   }
 
   void GenerateDensity()
@@ -89,6 +95,7 @@ public class GPUChunk : MonoBehaviour
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize - 1 / (float)threadsCount);
 
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
+    meshGenerator.SetBuffer(kernel, "_ChunkTriangles", trianglesBudffer);
     meshGenerator.SetFloat("_IsoLevel", isoLevel);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
     meshGenerator.SetInt("_ChunkSize", chunkSize);
@@ -101,11 +108,33 @@ public class GPUChunk : MonoBehaviour
     trianglesCountBuffer.GetData(trianglesCount);
 
     Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
-    trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
-    for (int i = 0; i < generatedTriangles.Length; i++)
-    {
+    int[] meshTriangles = new int[trianglesCount[0] * 3];
+    Vector3[] meshVertices = new Vector3[trianglesCount[0] * 3];
+    Debug.Log("Generated " + trianglesCount[0] + " triangles");
 
+    trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
+    for (int i = 0; i < trianglesCount[0]; i++)
+    {
+      Triangle tri = generatedTriangles[i];
+      int baseIndex = i * 3;
+      meshVertices[baseIndex] = tri.a;
+      meshVertices[baseIndex + 1] = tri.b;
+      meshVertices[baseIndex + 2] = tri.c;
+
+      meshTriangles[baseIndex] = baseIndex;
+      meshTriangles[baseIndex + 1] = baseIndex + 1;
+      meshTriangles[baseIndex + 2] = baseIndex + 2;
     }
+
+    Mesh mesh = new Mesh();
+    mesh.vertices = meshVertices;
+    mesh.triangles = meshTriangles;
+    mesh.RecalculateNormals();
+    meshFilter.mesh = mesh;
+
+    trianglesBudffer.Release();
+    trianglesCountBuffer.Release();
+    verticesBuffer.Release();
   }
 
   void OnDrawGizmos()
