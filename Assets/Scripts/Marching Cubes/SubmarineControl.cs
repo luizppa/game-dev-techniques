@@ -8,11 +8,13 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] string verticalAxis = "Vertical";
   [SerializeField] ParticleSystem waterParticles = null;
 
-  private Camera gameCamera = null;
+  [SerializeField] Camera thirdPersonCamera = null;
+  [SerializeField] Camera firstPersonCamera = null;
+  private bool firstPerson = false;
 
   void Start()
   {
-    gameCamera = Camera.main;
+    firstPersonCamera.enabled = false;
   }
 
   void FixedUpdate()
@@ -22,6 +24,7 @@ public class SubmarineControl : MonoBehaviour
 
   void Update()
   {
+    ToggleView();
     Rotate();
   }
 
@@ -45,7 +48,7 @@ public class SubmarineControl : MonoBehaviour
 
   void Rotate()
   {
-    Vector3 direction = GetMoveDirection();
+    Vector3 direction = GetLookDirection();
     direction = ProjectionOnGroundPlane(direction);
     if (direction.magnitude > 0.1f)
     {
@@ -53,9 +56,38 @@ public class SubmarineControl : MonoBehaviour
     }
   }
 
+  void ToggleView()
+  {
+    if (Input.GetKeyDown(KeyCode.V))
+    {
+      firstPerson = !firstPerson;
+      if (firstPerson)
+      {
+        firstPersonCamera.enabled = true;
+        thirdPersonCamera.enabled = false;
+      }
+      else
+      {
+        thirdPersonCamera.enabled = true;
+        firstPersonCamera.enabled = false;
+      }
+    }
+  }
+
   private Vector3 GetMoveDirection()
   {
-    Vector3 direction = (gameCamera.transform.right * Input.GetAxis(horizontalAxis)) + (gameCamera.transform.forward * Input.GetAxis(verticalAxis));
+    Vector3 direction = (thirdPersonCamera.transform.right * Input.GetAxis(horizontalAxis)) + (thirdPersonCamera.transform.forward * Input.GetAxis(verticalAxis));
+    if (direction.magnitude <= 0.1f)
+    {
+      return Vector3.zero;
+    }
+    return direction;
+  }
+
+  private Vector3 GetLookDirection()
+  {
+    Vector3 right = thirdPersonCamera.transform.right;
+    Vector3 direction = (right * Input.GetAxis(horizontalAxis)) + (thirdPersonCamera.transform.forward * Input.GetAxis(verticalAxis));
     if (direction.magnitude <= 0.1f)
     {
       return Vector3.zero;
