@@ -90,13 +90,25 @@ float3 LerpPosition(float3 a, float3 b, float t){
 */
 float CalculateDensity(uint3 id) 
 {
-	float3 samplePosition = _ChunkPosition + float3(id.x + 1, id.y + 1, id.z + 1);
+	if(id.y >= _ChunkSize - 1) return _IsoLevel - 1;
 
-	float density = (-1.0 * id.y) + 1.0;
+	float3 chunkSpace = float3(id);
+	float3 worldSpace = _ChunkPosition + chunkSpace;
+	float density = -chunkSpace.y + 1.0;
+
+	float3 warp = _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.xz * 0.002, 0).xyz;
+	warp += _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.xy * 0.001, 0).xyz;
+	warp += _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.zy * 0.001, 0).xyz;
+	float3 wrappedWorldSpace = worldSpace + (warp * 8.0);
 	
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, samplePosition.xz * .001, 0).x * 32.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, samplePosition.xz * .01, 0) * 8;
-	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, samplePosition.xz * .1, 0).r * 1;
+	// Octaves
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .001, 0).x * 32.0;
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .01, 0).x * 8.0;
+	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .1, 0).x * 1.0;
+	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .5, 0).x * 0.5;
+
+	float hardFloor = _ChunkSize * .5;
+	density += saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize; 
 
 	return density;
 }
