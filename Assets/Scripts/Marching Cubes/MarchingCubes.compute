@@ -18,7 +18,9 @@ struct Triangle {
 
 RWStructuredBuffer<float> _ChunkVertices;
 AppendStructuredBuffer<Triangle> _ChunkTriangles;
-Texture2D<float4> _NoiseMap;
+Texture2D<float4> _NoiseMapVol1;
+Texture2D<float4> _NoiseMapVol2;
+Texture2D<float4> _NoiseMapVol3;
 SamplerState TrilinearRepeat;
 
 float3 _ChunkPosition;
@@ -91,8 +93,10 @@ float CalculateDensity(uint3 id)
 	float3 wsPosition = _ChunkPosition + float3(id.x, id.y, id.z);
 	// if(wsPosition.y >= (float)_ChunkSize/(float)2) return 0;
 	// return 1;
-	float density = 1 - (wsPosition.y / _ChunkSize);
-	// density += _NoiseMap.SampleLevel(TrilinearRepeat, wsPosition, 0).x;
+	float density = 1 - (wsPosition.y / (float)_ChunkSize);
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wsPosition.xz * .01, 0).x * .2;
+	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wsPosition.xz * .05, 0).x * .1;
+	density += _NoiseMapVol3.SampleLevel(TrilinearRepeat, wsPosition.xz * .1, 0).x * .05;
 	return density;
 }
 

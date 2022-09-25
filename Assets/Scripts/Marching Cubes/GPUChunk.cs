@@ -106,7 +106,9 @@ public class GPUChunk : MonoBehaviour
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize / (float)threadsCount);
 
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
-    meshGenerator.SetTexture(kernel, "_NoiseMap", noiseMaps[0]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol1", noiseMaps[0]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol2", noiseMaps[1]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol3", noiseMaps[2]);
     meshGenerator.SetFloat("_IsoLevel", isoLevel);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
     meshGenerator.SetInt("_ChunkSize", chunkSize);
@@ -173,7 +175,7 @@ public class GPUChunk : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-    if (Application.isPlaying && vertices != null)
+    if (Application.isPlaying && vertices != null && chunkSize < 16)
     {
       for (int x = 0; x < chunkSize; x++)
       {

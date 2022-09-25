@@ -17,7 +17,7 @@ public class SurfaceManager : MonoBehaviour
   [Header("Chunk Configuration")]
   [SerializeField] int chunkSize = 8;
   [SerializeField] float chunkDensity = 1f;
-  [SerializeField][Range(0f, 1f)] float isoLevel = 0.5f;
+  [SerializeField] float isoLevel = 0.5f;
   [SerializeField] int seed = 0;
   [SerializeField] float elevation = 1f;
 
