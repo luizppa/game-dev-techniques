@@ -44,19 +44,21 @@ There are 256 possible formations for a cube (however, some of them are symmetri
 
 ### Implementation
 
-My implementation of this algorithm was inspired by [this video by Sebastian League](https://youtu.be/M3iI2l0ltbE). His implementation used compute shaders to make the mesh generation parallel, thus, it is able to have more polygons beeing generated without heaving great impact on performance. For now, my implementation is written in C# and runs on the CPU, so it is not parallelized, but I plan to do so in the future. I tried not to look at his code, which is also available on Github in order not to be biased in any way during my implementation.
+My implementation of this algorithm was inspired by [this video by Sebastian League](https://youtu.be/M3iI2l0ltbE). The first version of my code used CPU generated chunks, unlike Sebastian's implementation which used compute shaders to make the mesh generation parallel, thus, it was able to have more polygons beeing generated without heaving great impact on performance. Eventually I also got my implementation to use compute shaders and I will put a side-by-side comparison down bellow. I tried not to look at his code, which is also available on Github in order not to be biased in any way during my implementation, however there were some moments when I used his source code as a reference (for instance, when trying to figure out how the heck was I supposed to know how many triangles my shader had generated).
 
-The example presented on the `MarchingCubes.unity` scene has two main mono behavior classes: the surface manager and the chunk. The surface manager is responsible for creating, deleting and updating the chunks according to the position of the player. The chunk is responsible for generating the mesh and updating it when necessary.
+The example presented on the `MarchingCubes.unity` scene has three main mono behavior classes: the surface manager and the CPU and GPU chunks. The surface manager is responsible for creating, deleting and updating the chunks according to the position of the player. The chunk is responsible for generating the mesh and updating it when necessary.
 
-Each chunk generates the values for the points in his grids and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now there is only one way to generate values for the points which is a RNG based strategy, but along with the compute shader I plan to implement a noise map based approach.
+The surface manager is a singleton that is associated with a prefab where you can manage the mesh settings like chunk size, chunk resolution, number of chunks per batch and whatnot. The surface is also where you select whether you want to use the CPU or GPU implementation.
 
-You can check out a video of the result [here](https://www.youtube.com/watch?v=SCsOzZVZ7ic)
+Each chunk generates the values for the points in his grid and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now the meshes are generated with RNG for the CPU implementation and with noise maps for the GPU implementation, you will probably notice that the noise map based generation gives us much more organic looking meshes.
+
+You can check out a video of the result [here](https://www.youtube.com/watch?v=SCsOzZVZ7ic), however on this particular video I had not yet implemented the GPU version, so the environment is very low poly and artificial looking. On the screen shots below you can see the difference between the CPU (left) and GPU (right) implementations.
 
 <p align="center">
   <img width="45%" src="./Docs/marching-cubes-screen-capture-2.png"/>
-  <img width="45%" src="./Docs/marching-cubes-screen-capture-3.png"/>
+  <img width="45%" src="./Docs/marching-cubes-screen-capture-9.png"/>
   <img width="45%" src="./Docs/marching-cubes-screen-capture-4.png"/>
-  <img width="45%" src="./Docs/marching-cubes-screen-capture-5.png"/>
+  <img width="45%" src="./Docs/marching-cubes-screen-capture-11.png"/>
 </p>
 
 ### Learining resources
@@ -78,7 +80,7 @@ You can check out a video of the result [here](https://www.youtube.com/watch?v=S
 
 Compute shaders are a way to write programs that run on the GPU instead of the CPU. They can drastically increase the performance of many applications, especially those that contains heavy operations that can be parallelized. They are most commonly used for rendering, mesh generation and physics simulations, but there are plenty of ther scenarios where one could use them.
 
-Unity supports a few languages for compute shader implementation, among them are [HLSL](https://learn.microsoft.com/pt-br/windows/win32/direct3dhlsl/dx-graphics-hlsl) and GLSL. On your C# code you can provide data for the shader scripts and read back the results, this powerfull feature will allow you to send in information from the objects in your scene, as well as things like transformation matrices and configuration parameters. This will be usefull for the Marching Cubes project, where I will use compute shaders to parallelize the mesh generation.
+Unity supports a few languages for compute shader implementation, among them are [HLSL](https://learn.microsoft.com/pt-br/windows/win32/direct3dhlsl/dx-graphics-hlsl) and GLSL. On your C# code you can provide data for the shader scripts and read back the results, this powerfull feature will allow you to send in information from the objects in your scene, as well as things like transformation matrices and configuration parameters.
 
 For now we will try to implement a ray tracer, the basic idea is to simulate rays bouncing around the scene and calculating the color of each pixel based on the surfaces the ray for that pixel hits. In real life, light rays are shot from light sources and travel in a similar way until they reach a spectator's eye, but in a computer we can't really do that because we would have to simulate so many light rays that it would be nearly impossible to do it in real time. Fortunately, we don't have to, as [Helmholtz reciprocity principle](https://en.wikipedia.org/wiki/Helmholtz_reciprocity) notes that the light that reaches our eyes is the same light that was emitted by the light source. This means that we can simulate the light by shooting rays the other way around, from the spectator's eye to the light source, this way we avoid having to calculate rays that would never reach the camera anyways.
 
