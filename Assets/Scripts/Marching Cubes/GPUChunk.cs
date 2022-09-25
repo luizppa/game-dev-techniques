@@ -8,6 +8,7 @@ struct Triangle
   public Vector3 a;
   public Vector3 b;
   public Vector3 c;
+  public Vector3 padding;
 };
 
 [RequireComponent(typeof(MeshFilter))]
@@ -30,35 +31,64 @@ public class GPUChunk : MonoBehaviour
 
   // Bounds
   private int voxelsNumber = 0;
+  private int verticesNumber = 0;
   private int maxTrianglesNumber = 0;
 
   // Refferences
   private SurfaceManager surfaceManager = null;
   private MeshFilter meshFilter = null;
 
+  // Buffers
+  ComputeBuffer trianglesBudffer = null;
+  ComputeBuffer trianglesCountBuffer = null;
+  ComputeBuffer verticesBuffer = null;
+
   void Start()
   {
-    surfaceManager = FindObjectOfType<SurfaceManager>();
-    meshFilter = GetComponent<MeshFilter>();
-
-    vertices = new float[chunkSize * chunkSize * chunkSize];
     GetConfig();
-
-    voxelsNumber = chunkSize * chunkSize * chunkSize;
-    maxTrianglesNumber = voxelsNumber * 5;
-    triangles = new Triangle[maxTrianglesNumber];
-
+    InitializeProperties();
+    InitializaBuffers();
     Generate();
+  }
+
+  void OnDisable()
+  {
+    ReleaseBuffers();
   }
 
   private void GetConfig()
   {
+    surfaceManager = FindObjectOfType<SurfaceManager>();
     if (surfaceManager != null)
     {
       chunkSize = surfaceManager.GetChunkSize();
       seed = surfaceManager.GetSeed();
       noiseMaps = surfaceManager.GetNoiseMaps();
     }
+  }
+
+  private void InitializeProperties()
+  {
+    meshFilter = GetComponent<MeshFilter>();
+    voxelsNumber = (chunkSize - 1) * (chunkSize - 1) * (chunkSize - 1);
+    verticesNumber = chunkSize * chunkSize * chunkSize;
+    maxTrianglesNumber = voxelsNumber * 5;
+    vertices = new float[verticesNumber];
+    triangles = new Triangle[maxTrianglesNumber];
+  }
+
+  private void InitializaBuffers()
+  {
+    trianglesBudffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 12, ComputeBufferType.Append);
+    trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+    verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
+  }
+
+  private void ReleaseBuffers()
+  {
+    trianglesBudffer.Release();
+    trianglesCountBuffer.Release();
+    verticesBuffer.Release();
   }
 
   void Generate()
@@ -69,7 +99,8 @@ public class GPUChunk : MonoBehaviour
 
   void GenerateDensity()
   {
-    ComputeBuffer verticesBuffer = new ComputeBuffer(vertices.Length, sizeof(float));
+    int verticesNumber = chunkSize * chunkSize * chunkSize;
+    // ComputeBuffer verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
 
     int kernel = meshGenerator.FindKernel("DistributeDensity");
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize / (float)threadsCount);
@@ -82,25 +113,27 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
 
     verticesBuffer.GetData(vertices);
-    verticesBuffer.Release();
+
+    // verticesBuffer.Release();
   }
 
   void GenerateMesh()
   {
-    ComputeBuffer trianglesBudffer = new ComputeBuffer(triangles.Length, sizeof(float) * 9, ComputeBufferType.Append);
-    ComputeBuffer trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
-    ComputeBuffer verticesBuffer = new ComputeBuffer(vertices.Length, sizeof(float));
+    // trianglesBudffer = new ComputeBuffer(triangles.Length, sizeof(float) * 12, ComputeBufferType.Append);
+    // trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+    // verticesBuffer = new ComputeBuffer(vertices.Length, sizeof(float));
+    verticesBuffer.SetData(vertices);
 
     int kernel = meshGenerator.FindKernel("GenerateMesh");
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize - 1 / (float)threadsCount);
 
+    trianglesBudffer.SetCounterValue(0);
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
     meshGenerator.SetBuffer(kernel, "_ChunkTriangles", trianglesBudffer);
     meshGenerator.SetFloat("_IsoLevel", isoLevel);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
     meshGenerator.SetInt("_ChunkSize", chunkSize);
 
-    trianglesBudffer.SetCounterValue(0);
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
 
     ComputeBuffer.CopyCount(trianglesBudffer, trianglesCountBuffer, 0);
@@ -132,12 +165,13 @@ public class GPUChunk : MonoBehaviour
     mesh.RecalculateNormals();
     meshFilter.mesh = mesh;
 
-    trianglesBudffer.Release();
-    trianglesCountBuffer.Release();
-    verticesBuffer.Release();
+    // trianglesBudffer.Release();
+    // trianglesCountBuffer.Release();
+    // verticesBuffer.Release();
   }
 
-  void OnDrawGizmos()
+
+  void OnDrawGizmosSelected()
   {
     if (Application.isPlaying && vertices != null)
     {

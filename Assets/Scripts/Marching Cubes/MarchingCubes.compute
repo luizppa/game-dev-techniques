@@ -13,6 +13,7 @@ struct Triangle {
 	float3 a;
 	float3 b;
 	float3 c;
+	float3 padding;
 };
 
 RWStructuredBuffer<float> _ChunkVertices;
@@ -31,6 +32,7 @@ Triangle CreateTriangle(float3 a, float3 b, float3 c) {
 	tri.a = a;
 	tri.b = b;
 	tri.c = c;
+	tri.padding = float3(0, 0, 0);
 	return tri;
 }
 
@@ -87,6 +89,8 @@ float3 LerpPosition(float3 a, float3 b, float t){
 float CalculateDensity(uint3 id)
 {
 	float3 wsPosition = _ChunkPosition + float3(id.x, id.y, id.z);
+	// if(wsPosition.y >= (float)_ChunkSize/(float)2) return 0;
+	// return 1;
 	float density = 1 - (wsPosition.y / _ChunkSize);
 	// density += _NoiseMap.SampleLevel(TrilinearRepeat, wsPosition, 0).x;
 	return density;
@@ -98,15 +102,15 @@ float CalculateDensity(uint3 id)
  * Returns the index of voxel that corresponds
  * to the cube at "cubeOrigin" on the edge table
 */
-uint GetCubeIndex(uint3 cubeOrigin)
+int GetCubeIndex(uint3 cubeOrigin)
 {
-	uint cubeIndex = 0;
-	for (uint i = 0; i < 8; i++)
+	int cubeIndex = 0;
+	for (int i = 0; i < 8; i++)
 	{
 		uint3 vertex = cubeOrigin + GetVertexOffset(i);
-		float idx = PositionToBufferIndex(vertex);
+		uint idx = PositionToBufferIndex(vertex);
 		float density = _ChunkVertices[idx];
-		if (density < _IsoLevel) cubeIndex |= (1 << i);
+		if (density >= _IsoLevel) cubeIndex |= (1 << i);
 	}
 	return cubeIndex;
 }
@@ -124,7 +128,7 @@ float3 Interpolate(float3 a, float3 b, float densityA, float densityB) {
  * Generates the vertices for the of
  * the voxel "cubeIndex" at position "_ChunkPosition + id"
 */
-void GetVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 generatedVertices[12]){
+void CalculateVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 generatedVertices[12]){
 	int voxelIndex = edgeTable[cubeIndex];
 
 	for (int i = 0; i < 12; i++)
@@ -147,7 +151,7 @@ void GetVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 generatedVe
 		}
 	}
 }
- 
+
 /**
  * Generates the triangles for the voxel
  * "cubeIndex" at position "_ChunkPosition + id"
@@ -156,12 +160,11 @@ void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
 	int triangles[16] = triTable[cubeIndex];
 
 	for(int i = 0; triangles[i] != -1; i += 3){
-		Triangle tri = CreateTriangle(
-			generatedVertices[triangles[i]],
+		_ChunkTriangles.Append(CreateTriangle(
+			generatedVertices[triangles[i + 2]],
 			generatedVertices[triangles[i + 1]],
-			generatedVertices[triangles[i + 2]]
-		);
-		_ChunkTriangles.Append(tri);
+			generatedVertices[triangles[i]]
+		));
 	}
 }
 
@@ -186,11 +189,10 @@ void GenerateMesh (uint3 id : SV_DispatchThreadID)
 		return;
 	}
 
-	uint cubeIndex = GetCubeIndex(id);
+	int cubeIndex = GetCubeIndex(id);
 	if (cubeIndex == 0 || cubeIndex == 255) return;
 
-
 	float3 generatedVertices[12];
-	GetVoxelGeneratedVertices(id, cubeIndex, generatedVertices);
+	CalculateVoxelGeneratedVertices(id, cubeIndex, generatedVertices);
 	GenerateVoxelTriangles(cubeIndex, generatedVertices);
 }
