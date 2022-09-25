@@ -115,15 +115,10 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
 
     verticesBuffer.GetData(vertices);
-
-    // verticesBuffer.Release();
   }
 
   void GenerateMesh()
   {
-    // trianglesBudffer = new ComputeBuffer(triangles.Length, sizeof(float) * 12, ComputeBufferType.Append);
-    // trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
-    // verticesBuffer = new ComputeBuffer(vertices.Length, sizeof(float));
     verticesBuffer.SetData(vertices);
 
     int kernel = meshGenerator.FindKernel("GenerateMesh");
@@ -145,7 +140,6 @@ public class GPUChunk : MonoBehaviour
     Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
     int[] meshTriangles = new int[trianglesCount[0] * 3];
     Vector3[] meshVertices = new Vector3[trianglesCount[0] * 3];
-    Debug.Log("Generated " + trianglesCount[0] + " triangles");
 
     trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
     for (int i = 0; i < trianglesCount[0]; i++)
@@ -166,10 +160,6 @@ public class GPUChunk : MonoBehaviour
     mesh.triangles = meshTriangles;
     mesh.RecalculateNormals();
     meshFilter.mesh = mesh;
-
-    // trianglesBudffer.Release();
-    // trianglesCountBuffer.Release();
-    // verticesBuffer.Release();
   }
 
 
@@ -185,7 +175,8 @@ public class GPUChunk : MonoBehaviour
           {
             int idx = PositionToBufferIndex(x, y, z);
             float density = vertices[idx];
-            Gizmos.color = new Color(density, density, density, 1f);
+            float shade = density < isoLevel ? 1f : 0f;
+            Gizmos.color = new Color(shade, shade, shade, 1f);
             Gizmos.DrawSphere(new Vector3(x, y, z) + transform.position, 0.03f);
           }
         }

@@ -269,7 +269,8 @@ public class Chunk : MonoBehaviour
         for (int z = 0; z < chunkSize; z++)
         {
           CubeVertex vertex = vertices[x, y, z];
-          Gizmos.color = new Color(vertex.GetValue(), vertex.GetValue(), vertex.GetValue(), 1f);
+          float shade = vertex.GetValue() >= isoLevel ? 1f : 0f;
+          Gizmos.color = new Color(shade, shade, shade, 1f);
           Gizmos.DrawSphere(vertex.GetPosition() + transform.position, 0.03f * chunkDensity);
         }
       }

@@ -15,9 +15,9 @@ public class SurfaceManager : MonoBehaviour
   [SerializeField] Transform playerPosition = null;
 
   [Header("Chunk Configuration")]
-  [SerializeField] int chunkSize = 8;
+  [SerializeField][Range(1, 32)] int chunkSize = 8;
   [SerializeField] float chunkDensity = 1f;
-  [SerializeField] float isoLevel = 0.5f;
+  [SerializeField][Range(-1f, 1f)] float isoLevel = 0.5f;
   [SerializeField] int seed = 0;
   [SerializeField] float elevation = 1f;
 
@@ -28,7 +28,6 @@ public class SurfaceManager : MonoBehaviour
 
   [Header("Noise Configuration")]
   [SerializeField] int noiseLevels = 2;
-  [SerializeField] float noiseComplexityIncrease = 2f;
   [SerializeField] Vector2Int noiseResolution = new Vector2Int(256, 256);
   public List<Texture2D> noiseMaps = new List<Texture2D>();
 
@@ -78,7 +77,7 @@ public class SurfaceManager : MonoBehaviour
     noiseMaps.Clear();
     for (int i = 0; i < noiseLevels; i++)
     {
-      float scale = Mathf.Pow(noiseComplexityIncrease, i);
+      float scale = Mathf.Pow(10f, i + 1);
       Texture2D noiseMap = new Texture2D(noiseResolution.x, noiseResolution.y);
       for (int x = 0; x < noiseResolution.x; x++)
       {

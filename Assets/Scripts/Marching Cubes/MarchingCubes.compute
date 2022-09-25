@@ -88,15 +88,16 @@ float3 LerpPosition(float3 a, float3 b, float t){
  * the vertex at (x, y, z) on the chunk
  * at position _ChunkPosition
 */
-float CalculateDensity(uint3 id)
+float CalculateDensity(uint3 id) 
 {
-	float3 wsPosition = _ChunkPosition + float3(id.x, id.y, id.z);
-	// if(wsPosition.y >= (float)_ChunkSize/(float)2) return 0;
-	// return 1;
-	float density = 1 - (wsPosition.y / (float)_ChunkSize);
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wsPosition.xz * .01, 0).x * .2;
-	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wsPosition.xz * .05, 0).x * .1;
-	density += _NoiseMapVol3.SampleLevel(TrilinearRepeat, wsPosition.xz * .1, 0).x * .05;
+	float3 samplePosition = _ChunkPosition + float3(id.x + 1, id.y + 1, id.z + 1);
+
+	float density = (-1.0 * id.y) + 1.0;
+	
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, samplePosition.xz * .001, 0).x * 32.0;
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, samplePosition.xz * .01, 0) * 8;
+	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, samplePosition.xz * .1, 0).r * 1;
+
 	return density;
 }
 
@@ -114,7 +115,7 @@ int GetCubeIndex(uint3 cubeOrigin)
 		uint3 vertex = cubeOrigin + GetVertexOffset(i);
 		uint idx = PositionToBufferIndex(vertex);
 		float density = _ChunkVertices[idx];
-		if (density >= _IsoLevel) cubeIndex |= (1 << i);
+		if (density < _IsoLevel) cubeIndex |= (1 << i);
 	}
 	return cubeIndex;
 }
@@ -165,9 +166,9 @@ void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
 
 	for(int i = 0; triangles[i] != -1; i += 3){
 		_ChunkTriangles.Append(CreateTriangle(
-			generatedVertices[triangles[i + 2]],
+			generatedVertices[triangles[i]],
 			generatedVertices[triangles[i + 1]],
-			generatedVertices[triangles[i]]
+			generatedVertices[triangles[i + 2]]
 		));
 	}
 }
