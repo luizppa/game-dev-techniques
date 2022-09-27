@@ -25,8 +25,8 @@ public class CameraNavigation : MonoBehaviour
 
   private void Rotate()
   {
-    float x = Input.GetAxis("Mouse X");
-    float y = -Input.GetAxis("Mouse Y");
+    float x = Input.GetAxis("Look X");
+    float y = -Input.GetAxis("Look Y");
 
     angleX += x;
     angleY += y;

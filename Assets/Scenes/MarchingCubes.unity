@@ -398,6 +398,7 @@ MonoBehaviour:
   waterParticles: {fileID: 198162320992083923}
   thirdPersonCamera: {fileID: 963194227}
   firstPersonCamera: {fileID: 395309960}
+  offsetRotation: {x: 90, y: 0, z: 0}
 --- !u!43 &134189348
 Mesh:
   m_ObjectHideFlags: 0
@@ -13428,7 +13429,7 @@ GameObject:
   - component: {fileID: 395309960}
   m_Layer: 0
   m_Name: First Person Camera
-  m_TagString: Untagged
+  m_TagString: FirstPersonCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -13440,7 +13441,7 @@ Camera:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395309958}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 2
   m_BackGroundColor: {r: 0.16862746, g: 0.3254902, b: 0.9529412, a: 0}
@@ -13483,9 +13484,9 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395309958}
-  m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 8.4, z: 0.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0.7071068, y: -0, z: -0, w: 0.7071068}
+  m_LocalPosition: {x: 0, y: 8.400003, z: 0.4000078}
+  m_LocalScale: {x: 1, y: 1.0000001, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1911860528087285169}
@@ -26472,7 +26473,7 @@ MonoBehaviour:
   startFogDensity: 0.06
   endFogHeight: 5
   endFogColor: {r: 0.011258455, g: 0.051728487, b: 0.21698111, a: 1}
-  endFogDensity: 0.1
+  endFogDensity: 0.16
 --- !u!4 &834915884
 Transform:
   m_ObjectHideFlags: 0
@@ -44086,7 +44087,7 @@ GameObject:
   - component: {fileID: 963194229}
   m_Layer: 0
   m_Name: Third Person Camera
-  m_TagString: MainCamera
+  m_TagString: ThirdPersonCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -44200,10 +44201,10 @@ MonoBehaviour:
   verticalOffset: 0
   useTargetNormal: 0
   captureCursor: 1
-  horizontalAxis: Mouse X
+  horizontalAxis: Look X
   horizontalSensitivity: 1
   invertX: 0
-  verticalAxis: Mouse Y
+  verticalAxis: Look Y
   verticalSensitivity: 0.8
   invertY: 1
   zoomOutOnMotion:

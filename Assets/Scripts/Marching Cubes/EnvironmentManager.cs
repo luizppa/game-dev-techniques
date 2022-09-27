@@ -14,6 +14,8 @@ public class EnvironmentManager : MonoBehaviour
   [SerializeField] Color endFogColor = new Color(0.015f, 0.063f, 0.254f, 1f);
   [SerializeField] float endFogDensity = 0.15f;
 
+  private Camera thirdPersonCamera = null;
+  private Camera firstPersonCamera = null;
 
   void Start()
   {
@@ -25,6 +27,8 @@ public class EnvironmentManager : MonoBehaviour
     {
       DontDestroyOnLoad(gameObject);
     }
+    thirdPersonCamera = GameObject.FindWithTag("ThirdPersonCamera").GetComponent<Camera>();
+    firstPersonCamera = GameObject.FindWithTag("FirstPersonCamera").GetComponent<Camera>();
   }
 
   void Update()
@@ -37,6 +41,7 @@ public class EnvironmentManager : MonoBehaviour
     float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
     RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight);
     RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
-    Camera.main.backgroundColor = RenderSettings.fogColor;
+    firstPersonCamera.backgroundColor = RenderSettings.fogColor;
+    thirdPersonCamera.backgroundColor = RenderSettings.fogColor;
   }
 }

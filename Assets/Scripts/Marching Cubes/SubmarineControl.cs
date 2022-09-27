@@ -10,7 +10,9 @@ public class SubmarineControl : MonoBehaviour
 
   [SerializeField] Camera thirdPersonCamera = null;
   [SerializeField] Camera firstPersonCamera = null;
+  [SerializeField] Vector3 offsetRotation = new Vector3(90f, 0f, 0f);
   private bool firstPerson = false;
+  private Vector2 firstPersonRotation = Vector2.zero;
 
   void Start()
   {
@@ -30,8 +32,16 @@ public class SubmarineControl : MonoBehaviour
 
   void Move()
   {
-    Vector3 direction = GetMoveDirection();
-    direction = ProjectionOnGroundPlane(direction) + (Vector3.up * Input.GetAxis("Ascend"));
+    Vector3 direction;
+    if (firstPerson)
+    {
+      direction = GetMoveDirection() + (Vector3.up * Input.GetAxis("Ascend"));
+    }
+    else
+    {
+      direction = GetMoveDirection() + (Vector3.up * Input.GetAxis("Ascend"));
+    }
+
     if (direction.magnitude > 0f)
     {
       if (waterParticles.isPlaying == false)
@@ -48,17 +58,25 @@ public class SubmarineControl : MonoBehaviour
 
   void Rotate()
   {
-    Vector3 direction = GetLookDirection();
-    direction = ProjectionOnGroundPlane(direction);
-    if (direction.magnitude > 0.1f)
+    firstPersonRotation.x += Input.GetAxis("Look X") * Time.deltaTime * 500f;
+    firstPersonRotation.y -= Input.GetAxis("Look Y") * Time.deltaTime * 300f;
+    if (firstPerson)
     {
-      transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(90, 0, 0);
+      transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f) * Quaternion.Euler(offsetRotation.x, offsetRotation.y, offsetRotation.z);
+    }
+    else
+    {
+      Vector3 direction = GetLookDirection();
+      if (direction.magnitude > 0.1f)
+      {
+        transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(offsetRotation.x, offsetRotation.y, offsetRotation.z);
+      }
     }
   }
 
   void ToggleView()
   {
-    if (Input.GetKeyDown(KeyCode.V))
+    if (Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.JoystickButton4))
     {
       firstPerson = !firstPerson;
       if (firstPerson)
@@ -70,13 +88,20 @@ public class SubmarineControl : MonoBehaviour
       {
         thirdPersonCamera.enabled = true;
         firstPersonCamera.enabled = false;
+        float x = Vector3.Angle(Vector3.forward, thirdPersonCamera.transform.forward);
+        float y = Vector3.Angle(Vector3.right, thirdPersonCamera.transform.right);
+        firstPersonRotation = new Vector2(x, y);
       }
     }
   }
 
   private Vector3 GetMoveDirection()
   {
-    Vector3 direction = (thirdPersonCamera.transform.right * Input.GetAxis(horizontalAxis)) + (thirdPersonCamera.transform.forward * Input.GetAxis(verticalAxis));
+    Camera referenceCamera = firstPerson ? firstPersonCamera : thirdPersonCamera;
+    Vector3 right = referenceCamera.transform.right;
+    Vector3 forward = referenceCamera.transform.forward;
+    Vector3 direction = (right * Input.GetAxis(horizontalAxis)) + (forward * Input.GetAxis(verticalAxis));
+
     if (direction.magnitude <= 0.1f)
     {
       return Vector3.zero;
@@ -87,7 +112,13 @@ public class SubmarineControl : MonoBehaviour
   private Vector3 GetLookDirection()
   {
     Vector3 right = thirdPersonCamera.transform.right;
-    Vector3 direction = (right * Input.GetAxis(horizontalAxis)) + (thirdPersonCamera.transform.forward * Input.GetAxis(verticalAxis));
+    Vector3 forward = thirdPersonCamera.transform.forward;
+
+    float horizontalAxisValue = Input.GetAxis(horizontalAxis);
+    float verticalAxisValue = Input.GetAxis(verticalAxis);
+
+    Vector3 direction = (right * horizontalAxisValue) + (forward * verticalAxisValue);
+
     if (direction.magnitude <= 0.1f)
     {
       return Vector3.zero;
