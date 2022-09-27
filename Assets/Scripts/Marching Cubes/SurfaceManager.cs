@@ -36,8 +36,8 @@ public class SurfaceManager : MonoBehaviour
   private int previousSeed = 0;
   private float previousElevation = 0f;
 
-  private Vector2 centralPosition = new Vector2(0, 0);
-  private Vector2 previousCentralPosition;
+  private Vector2Int centralPosition = new Vector2Int(0, 0);
+  private Vector2Int previousCentralPosition;
 
   void Awake()
   {
@@ -109,19 +109,24 @@ public class SurfaceManager : MonoBehaviour
     int chunkCount = (chunksPerDirection * 2) + 1;
     chunks = new GameObject[chunkCount, chunkCount];
 
-    float playerX = playerPosition.position.x;
-    float playerZ = playerPosition.position.z;
-    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkSize * chunkDensity)), Mathf.Floor(playerZ / (chunkSize * chunkDensity)));
+    centralPosition = GetCentralPosition();
     previousCentralPosition = centralPosition;
   }
 
   private bool ShouldUpdate()
   {
-    float playerX = playerPosition.position.x;
-    float playerZ = playerPosition.position.z;
-    centralPosition = new Vector2(Mathf.Floor(playerX / (chunkSize * chunkDensity)), Mathf.Floor(playerZ / (chunkSize * chunkDensity)));
+    centralPosition = GetCentralPosition();
 
     return centralPosition - previousCentralPosition != Vector2.zero || previousIsoLevel != isoLevel || previousSeed != seed || previousElevation != elevation;
+  }
+
+  private Vector2Int GetCentralPosition()
+  {
+    float playerX = playerPosition.position.x;
+    float playerZ = playerPosition.position.z;
+    int centralX = Mathf.FloorToInt(playerX / ((float)(chunkSize - 1) * chunkDensity));
+    int centralZ = Mathf.FloorToInt(playerZ / ((float)(chunkSize - 1) * chunkDensity));
+    return new Vector2Int(centralX, centralZ);
   }
 
   private void UpdateProperties()
