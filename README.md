@@ -57,8 +57,10 @@ You can check out a video of the result [here](https://www.youtube.com/watch?v=S
 <p align="center">
   <img width="45%" src="./Docs/marching-cubes-screen-capture-2.png"/>
   <img width="45%" src="./Docs/marching-cubes-screen-capture-9.png"/>
-  <img width="45%" src="./Docs/marching-cubes-screen-capture-4.png"/>
+  <img width="45%" src="./Docs/marching-cubes-screen-capture-3.png"/>
   <img width="45%" src="./Docs/marching-cubes-screen-capture-11.png"/>
+  <img width="45%" src="./Docs/marching-cubes-screen-capture-4.png"/>
+  <img width="45%" src="./Docs/marching-cubes-screen-capture-8.png"/>
 </p>
 
 ### Learining resources
