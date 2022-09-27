@@ -262,18 +262,24 @@ public class Chunk : MonoBehaviour
 
   void OnDrawGizmosSelected()
   {
-    for (int x = 0; x < chunkSize; x++)
+    if (Application.isPlaying && chunkSize <= 16)
     {
-      for (int y = 0; y < chunkSize; y++)
+      for (int x = 0; x < chunkSize; x++)
       {
-        for (int z = 0; z < chunkSize; z++)
+        for (int y = 0; y < chunkSize; y++)
         {
-          CubeVertex vertex = vertices[x, y, z];
-          float shade = vertex.GetValue() >= isoLevel ? 1f : 0f;
-          Gizmos.color = new Color(shade, shade, shade, 1f);
-          Gizmos.DrawSphere(vertex.GetPosition() + transform.position, 0.03f * chunkDensity);
+          for (int z = 0; z < chunkSize; z++)
+          {
+            CubeVertex vertex = vertices[x, y, z];
+            float shade = vertex.GetValue() >= isoLevel ? 1f : 0f;
+            Gizmos.color = new Color(shade, shade, shade, 1f);
+            Gizmos.DrawSphere(vertex.GetPosition() + transform.position, 0.03f * chunkDensity);
+          }
         }
       }
     }
+    Gizmos.color = Color.white;
+    Vector3 dimension = new Vector3(chunkSize - 1, chunkSize - 1, chunkSize - 1);
+    Gizmos.DrawWireCube(transform.position + dimension / 2f, dimension);
   }
 }

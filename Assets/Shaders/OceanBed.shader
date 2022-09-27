@@ -49,9 +49,9 @@ Shader "Custom/OceanBed"
             // Albedo comes from a texture tinted by color
             float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
 
-            float3 color = float3(angle * 0.9, .2, 1 - angle * 0.7);
-            if(angle > 0.9){
-                color = float3(angle * 0.7, angle * 0.6, angle * 0.2);
+            float3 color = float3(angle * 0.9, .2, 1 - (angle * angle * 0.7));
+            if(angle > 0.93){
+                color = float3(angle * 0.75, angle * 0.68, angle * 0.2);
             }
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * float4(color.rgb, 1); 
             o.Albedo = c.rgb;
