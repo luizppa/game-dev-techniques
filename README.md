@@ -63,6 +63,17 @@ You can check out a video of the result [here](https://www.youtube.com/watch?v=S
   <img width="45%" src="./Docs/marching-cubes-screen-capture-8.png"/>
 </p>
 
+You can also see down below how much more natural the perlin noise based generation looks compared to the RNG based generation.
+
+<p align="center">⬇️ RNG based ⬇️</p>
+<p align="center">
+  <img width="90%" src="./Docs/marching-cubes-screen-capture-13.png"/>
+</p>
+<p align="center">⬇️ Perlin noise based ⬇️</p>
+<p align="center">
+  <img width="90%" src="./Docs/marching-cubes-screen-capture-12.png"/>
+</p>
+
 ### Learining resources
 
 * [Polygonising a scalar field](http://paulbourke.net/geometry/polygonise/)
