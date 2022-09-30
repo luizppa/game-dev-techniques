@@ -33,14 +33,12 @@ public class SubmarineControl : MonoBehaviour
   void Move()
   {
     Vector3 direction;
-    if (firstPerson)
+    direction = GetMoveDirection();
+    if (firstPerson == false)
     {
-      direction = GetMoveDirection() + (Vector3.up * Input.GetAxis("Ascend"));
+      direction = ProjectionOnGroundPlane(direction);
     }
-    else
-    {
-      direction = GetMoveDirection() + (Vector3.up * Input.GetAxis("Ascend"));
-    }
+    direction += (Vector3.up * Input.GetAxis("Ascend"));
 
     if (direction.magnitude > 0f)
     {
@@ -119,6 +117,12 @@ public class SubmarineControl : MonoBehaviour
 
     Vector3 direction = (right * horizontalAxisValue) + (forward * verticalAxisValue);
 
+    if (firstPerson == false)
+    {
+      direction = ProjectionOnGroundPlane(direction);
+      direction += (Vector3.up * Input.GetAxis("Ascend"));
+    }
+
     if (direction.magnitude <= 0.1f)
     {
       return Vector3.zero;
@@ -128,6 +132,8 @@ public class SubmarineControl : MonoBehaviour
 
   private Vector3 ProjectionOnGroundPlane(Vector3 v)
   {
-    return Vector3.ProjectOnPlane(v, Vector3.up);
+    Vector3 normal = Vector3.up;
+    return Vector3.ProjectOnPlane(v, normal);
   }
+
 }
