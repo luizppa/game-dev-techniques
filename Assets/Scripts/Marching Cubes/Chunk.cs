@@ -7,7 +7,7 @@ public class Chunk : MonoBehaviour
 {
 
   int chunkSize = 8;
-  float chunkDensity = 1f;
+  float chunkScale = 1f;
   float isoLevel = 0.5f;
   int seed = 0;
   float elevation = 1f;
@@ -33,7 +33,7 @@ public class Chunk : MonoBehaviour
     if (surfaceManager != null)
     {
       chunkSize = surfaceManager.GetChunkSize();
-      chunkDensity = surfaceManager.GetChunkDensity();
+      chunkScale = surfaceManager.GetChunkScale();
       isoLevel = surfaceManager.GetIsoLevel();
       seed = surfaceManager.GetSeed();
       elevation = surfaceManager.GetElevation();
@@ -61,7 +61,7 @@ public class Chunk : MonoBehaviour
         for (int z = 0; z < chunkSize; z++)
         {
           Vector3Int position = new Vector3Int(x, y, z);
-          Vector3 transformPosition = new Vector3(x, y, z) * chunkDensity;
+          Vector3 transformPosition = new Vector3(x, y, z) * chunkScale;
           Vector3 worldPosition = transform.position + transformPosition;
           vertices[x, y, z] = new CubeVertex(GenerateValue(position, transformPosition, worldPosition), transformPosition);
         }
@@ -273,7 +273,7 @@ public class Chunk : MonoBehaviour
             CubeVertex vertex = vertices[x, y, z];
             float shade = vertex.GetValue() >= isoLevel ? 1f : 0f;
             Gizmos.color = new Color(shade, shade, shade, 1f);
-            Gizmos.DrawSphere(vertex.GetPosition() + transform.position, 0.03f * chunkDensity);
+            Gizmos.DrawSphere(vertex.GetPosition() + transform.position, 0.03f * chunkScale);
           }
         }
       }

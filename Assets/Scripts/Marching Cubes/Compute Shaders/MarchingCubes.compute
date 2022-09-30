@@ -26,6 +26,8 @@ SamplerState TrilinearRepeat;
 float3 _ChunkPosition;
 uint _ChunkSize;
 float _IsoLevel;
+float _Scale;
+float _Elevation;
 
 // ====================== Constructors ====================== //
 
@@ -93,7 +95,7 @@ float CalculateDensity(uint3 id)
 	if(id.y >= _ChunkSize - 1) return _IsoLevel - 1;
 
 	float3 chunkSpace = float3(id);
-	float3 worldSpace = _ChunkPosition + chunkSpace;
+	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
 	float density = -chunkSpace.y + 1.0;
 
 	float3 warp = _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.xz * 0.002, 0).xyz;
@@ -107,7 +109,7 @@ float CalculateDensity(uint3 id)
 	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .1, 0).x * 1.0;
 	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .5, 0).x * 0.5;
 
-	float hardFloor = _ChunkSize * .5;
+	float hardFloor = _Elevation;
 	density += saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize; 
 
 	return density;

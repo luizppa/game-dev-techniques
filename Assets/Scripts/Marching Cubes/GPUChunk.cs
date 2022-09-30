@@ -26,7 +26,9 @@ public class GPUChunk : MonoBehaviour
   // Configs
   private int chunkSize = 4;
   private int seed = 42;
-  private float isoLevel = 0.5f;
+  private float isoLevel = 0f;
+  private float elevation = 1f;
+  private float chunkScale = 1f;
   private List<Texture2D> noiseMaps = new List<Texture2D>();
 
   // Bounds
@@ -64,6 +66,9 @@ public class GPUChunk : MonoBehaviour
       chunkSize = surfaceManager.GetChunkSize();
       seed = surfaceManager.GetSeed();
       noiseMaps = surfaceManager.GetNoiseMaps();
+      isoLevel = surfaceManager.GetIsoLevel();
+      elevation = surfaceManager.GetElevation();
+      chunkScale = surfaceManager.GetChunkScale();
     }
   }
 
@@ -128,7 +133,9 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
     meshGenerator.SetBuffer(kernel, "_ChunkTriangles", trianglesBudffer);
     meshGenerator.SetFloat("_IsoLevel", isoLevel);
+    meshGenerator.SetFloat("_Elevation", elevation);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
+    meshGenerator.SetFloat("_Scale", chunkScale);
     meshGenerator.SetInt("_ChunkSize", chunkSize);
 
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
@@ -146,9 +153,9 @@ public class GPUChunk : MonoBehaviour
     {
       Triangle tri = generatedTriangles[i];
       int baseIndex = i * 3;
-      meshVertices[baseIndex] = tri.a;
-      meshVertices[baseIndex + 1] = tri.b;
-      meshVertices[baseIndex + 2] = tri.c;
+      meshVertices[baseIndex] = tri.a * chunkScale;
+      meshVertices[baseIndex + 1] = tri.b * chunkScale;
+      meshVertices[baseIndex + 2] = tri.c * chunkScale;
 
       meshTriangles[baseIndex] = baseIndex;
       meshTriangles[baseIndex + 1] = baseIndex + 1;
@@ -177,13 +184,13 @@ public class GPUChunk : MonoBehaviour
             float density = vertices[idx];
             float shade = density < isoLevel ? 1f : 0f;
             Gizmos.color = new Color(shade, shade, shade, 1f);
-            Gizmos.DrawSphere(new Vector3(x, y, z) + transform.position, 0.03f);
+            Gizmos.DrawSphere((new Vector3(x, y, z) * chunkScale) + transform.position, 0.03f);
           }
         }
       }
     }
     Gizmos.color = Color.white;
-    Vector3 dimension = new Vector3(chunkSize - 1, chunkSize - 1, chunkSize - 1);
+    Vector3 dimension = new Vector3(chunkSize - 1, chunkSize - 1, chunkSize - 1) * chunkScale;
     Gizmos.DrawWireCube(transform.position + dimension / 2f, dimension);
   }
 

@@ -16,8 +16,8 @@ public class SurfaceManager : MonoBehaviour
 
   [Header("Chunk Configuration")]
   [SerializeField][Range(1, 32)] int chunkSize = 8;
-  [SerializeField] float chunkDensity = 1f;
-  [SerializeField][Range(-1f, 1f)] float isoLevel = 0.5f;
+  [SerializeField] float chunkScale = 1f;
+  [SerializeField] float isoLevel = 0.5f;
   [SerializeField] int seed = 0;
   [SerializeField] float elevation = 1f;
 
@@ -124,8 +124,8 @@ public class SurfaceManager : MonoBehaviour
   {
     float playerX = playerPosition.position.x;
     float playerZ = playerPosition.position.z;
-    int centralX = Mathf.FloorToInt(playerX / ((float)(chunkSize - 1) * chunkDensity));
-    int centralZ = Mathf.FloorToInt(playerZ / ((float)(chunkSize - 1) * chunkDensity));
+    int centralX = Mathf.FloorToInt(playerX / ((float)(chunkSize - 1) * chunkScale));
+    int centralZ = Mathf.FloorToInt(playerZ / ((float)(chunkSize - 1) * chunkScale));
     return new Vector2Int(centralX, centralZ);
   }
 
@@ -265,7 +265,7 @@ public class SurfaceManager : MonoBehaviour
   {
     if (chunkPrefab != null)
     {
-      GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkSize - 1) * chunkDensity, 0f, z * (chunkSize - 1) * chunkDensity), Quaternion.identity);
+      GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkSize - 1) * chunkScale, 0f, z * (chunkSize - 1) * chunkScale), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
       return chunk;
     }
@@ -294,9 +294,9 @@ public class SurfaceManager : MonoBehaviour
     return chunkSize;
   }
 
-  public float GetChunkDensity()
+  public float GetChunkScale()
   {
-    return chunkDensity;
+    return chunkScale;
   }
 
   public float GetIsoLevel()
