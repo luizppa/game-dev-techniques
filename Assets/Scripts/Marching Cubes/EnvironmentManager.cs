@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class EnvironmentManager : MonoBehaviour
 {
@@ -33,15 +34,22 @@ public class EnvironmentManager : MonoBehaviour
 
   void Update()
   {
+    if (SceneManager.GetActiveScene().name != "MarchingCubes")
+    {
+      Destroy(gameObject);
+    }
     SetFog();
   }
 
   void SetFog()
   {
-    float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
-    RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight);
-    RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
-    firstPersonCamera.backgroundColor = RenderSettings.fogColor;
-    thirdPersonCamera.backgroundColor = RenderSettings.fogColor;
+    if (playerPosition)
+    {
+      float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
+      RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight);
+      RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
+      firstPersonCamera.backgroundColor = RenderSettings.fogColor;
+      thirdPersonCamera.backgroundColor = RenderSettings.fogColor;
+    }
   }
 }
