@@ -18,6 +18,7 @@ struct Triangle {
 
 RWStructuredBuffer<float> _ChunkVertices;
 AppendStructuredBuffer<Triangle> _ChunkTriangles;
+AppendStructuredBuffer<float3> _ChunkVegetation;
 Texture2D<float4> _NoiseMapVol1;
 Texture2D<float4> _NoiseMapVol2;
 Texture2D<float4> _NoiseMapVol3;
@@ -41,6 +42,10 @@ Triangle CreateTriangle(float3 a, float3 b, float3 c) {
 }
 
 // ====================== Utils ====================== //
+
+float3 GetCentroid(Triangle tri){
+	return float3((tri.a + tri.b + tri.c) / 3);
+}
 
 /**
  * Gets the index of vertex ate (x, y, z)
@@ -104,12 +109,12 @@ float CalculateDensity(uint3 id)
 	float3 wrappedWorldSpace = worldSpace + (warp * 8.0);
 	
 	// Octaves
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .001, 0).x * 32.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .005, 0).x * 12.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .01, 0).x * 6.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .05, 0).x * 1.0;
-	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .1, 0).x * 0.5;
-	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .5, 0).x * 0.1;
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .001, 0).r * 32.0;
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .005, 0).r * 12.0;
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .01, 0).r * 6.0;
+	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .05, 0).r * 1.0;
+	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .1, 0).r * 0.5;
+	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .5, 0).r * 0.1;
 
 	float hardFloor = _Elevation;
 	density += saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize; 
@@ -181,11 +186,18 @@ void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
 	int triangles[16] = triTable[cubeIndex];
 
 	for(int i = 0; triangles[i] != -1; i += 3){
-		_ChunkTriangles.Append(CreateTriangle(
+		Triangle tri = CreateTriangle(
 			generatedVertices[triangles[i]],
 			generatedVertices[triangles[i + 1]],
 			generatedVertices[triangles[i + 2]]
-		));
+		);
+		_ChunkTriangles.Append(tri);
+
+		float3 ctr = GetCentroid(tri);
+		float vegetationValue = (float)_NoiseMapVol1.SampleLevel(TrilinearRepeat, ctr.xz * .0001, 0).r;
+		if(vegetationValue < 0.0) {
+			_ChunkVegetation.Append(ctr);
+		}
 	}
 }
 

@@ -22,6 +22,7 @@ public class GPUChunk : MonoBehaviour
   // Mesh
   private float[] vertices = null;
   private Triangle[] triangles = null;
+  private Vector3[] vegetation = null;
 
   // Configs
   private int chunkSize = 4;
@@ -44,6 +45,11 @@ public class GPUChunk : MonoBehaviour
   ComputeBuffer trianglesBudffer = null;
   ComputeBuffer trianglesCountBuffer = null;
   ComputeBuffer verticesBuffer = null;
+  ComputeBuffer vegetationBuffer = null;
+  ComputeBuffer vegetationBufferCount = null;
+
+  // Props
+  [SerializeField] List<GameObject> grassPrefabs = new List<GameObject>();
 
   void Start()
   {
@@ -78,8 +84,10 @@ public class GPUChunk : MonoBehaviour
     voxelsNumber = (chunkSize - 1) * (chunkSize - 1) * (chunkSize - 1);
     verticesNumber = chunkSize * chunkSize * chunkSize;
     maxTrianglesNumber = voxelsNumber * 5;
+
     vertices = new float[verticesNumber];
     triangles = new Triangle[maxTrianglesNumber];
+    vegetation = new Vector3[maxTrianglesNumber];
   }
 
   private void InitializaBuffers()
@@ -87,6 +95,8 @@ public class GPUChunk : MonoBehaviour
     trianglesBudffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 12, ComputeBufferType.Append);
     trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
     verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
+    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 3);
+    vegetationBufferCount = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
   }
 
   private void ReleaseBuffers()
@@ -94,6 +104,8 @@ public class GPUChunk : MonoBehaviour
     trianglesBudffer.Release();
     trianglesCountBuffer.Release();
     verticesBuffer.Release();
+    vegetationBuffer.Release();
+    vegetationBufferCount.Release();
   }
 
   void Generate()
@@ -104,52 +116,93 @@ public class GPUChunk : MonoBehaviour
 
   void GenerateDensity()
   {
-    int verticesNumber = chunkSize * chunkSize * chunkSize;
-    // ComputeBuffer verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
-
-    int kernel = meshGenerator.FindKernel("DistributeDensity");
+    int kernel = SetupDensityComputeShader();
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize / (float)threadsCount);
-
-    meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
-    meshGenerator.SetTexture(kernel, "_NoiseMapVol1", noiseMaps[0]);
-    meshGenerator.SetTexture(kernel, "_NoiseMapVol2", noiseMaps[1]);
-    meshGenerator.SetTexture(kernel, "_NoiseMapVol3", noiseMaps[2]);
-    meshGenerator.SetFloat("_IsoLevel", isoLevel);
-    meshGenerator.SetVector("_ChunkPosition", transform.position);
-    meshGenerator.SetInt("_ChunkSize", chunkSize);
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
-
     verticesBuffer.GetData(vertices);
   }
 
   void GenerateMesh()
   {
     verticesBuffer.SetData(vertices);
-
-    int kernel = meshGenerator.FindKernel("GenerateMesh");
+    int kernel = SetupMeshComputeShader();
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize - 1 / (float)threadsCount);
+    meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
 
+    // Get triangles
+    ComputeBuffer.CopyCount(trianglesBudffer, trianglesCountBuffer, 0);
+    int[] trianglesCount = new int[1];
+    trianglesCountBuffer.GetData(trianglesCount);
+
+    Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
+    trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
+
+    GeneratePolygons(trianglesCount[0], generatedTriangles);
+
+    // Get vegetation
+    // ComputeBuffer.CopyCount(vegetationBuffer, vegetationBufferCount, 0);
+    // int[] vegetationCount = new int[1];
+    // vegetationBufferCount.GetData(vegetationCount);
+    // Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
+    // vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
+
+    // GenerateVegetation(vegetationCount[0], generatedVegetation);
+  }
+
+  private int SetupDensityComputeShader()
+  {
+    int kernel = meshGenerator.FindKernel("DistributeDensity");
+
+    // Noise maps
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol1", noiseMaps[0]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol2", noiseMaps[1]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol3", noiseMaps[2]);
+
+    // Buffers
+    meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
+
+    // Configs
+    meshGenerator.SetFloat("_IsoLevel", isoLevel);
+    meshGenerator.SetVector("_ChunkPosition", transform.position);
+    meshGenerator.SetInt("_ChunkSize", chunkSize);
+
+    return kernel;
+  }
+
+  private int SetupMeshComputeShader()
+  {
+    int kernel = meshGenerator.FindKernel("GenerateMesh");
+
+    // Init data
+    verticesBuffer.SetData(vertices);
     trianglesBudffer.SetCounterValue(0);
+    vegetationBuffer.SetCounterValue(0);
+
+    // Noise maps
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol1", noiseMaps[0]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol2", noiseMaps[1]);
+    meshGenerator.SetTexture(kernel, "_NoiseMapVol3", noiseMaps[2]);
+
+    // Buffers
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
     meshGenerator.SetBuffer(kernel, "_ChunkTriangles", trianglesBudffer);
+    meshGenerator.SetBuffer(kernel, "_ChunkVegetation", vegetationBuffer);
+
+    // Configs
     meshGenerator.SetFloat("_IsoLevel", isoLevel);
     meshGenerator.SetFloat("_Elevation", elevation);
     meshGenerator.SetVector("_ChunkPosition", transform.position);
     meshGenerator.SetFloat("_Scale", chunkScale);
     meshGenerator.SetInt("_ChunkSize", chunkSize);
 
-    meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
+    return kernel;
+  }
 
-    ComputeBuffer.CopyCount(trianglesBudffer, trianglesCountBuffer, 0);
-    int[] trianglesCount = new int[1];
-    trianglesCountBuffer.GetData(trianglesCount);
-
-    Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
-    int[] meshTriangles = new int[trianglesCount[0] * 3];
-    Vector3[] meshVertices = new Vector3[trianglesCount[0] * 3];
-
-    trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
-    for (int i = 0; i < trianglesCount[0]; i++)
+  private void GeneratePolygons(int trianglesCount, Triangle[] generatedTriangles)
+  {
+    int[] meshTriangles = new int[trianglesCount * 3];
+    Vector3[] meshVertices = new Vector3[trianglesCount * 3];
+    for (int i = 0; i < trianglesCount; i++)
     {
       Triangle tri = generatedTriangles[i];
       int baseIndex = i * 3;
@@ -169,6 +222,14 @@ public class GPUChunk : MonoBehaviour
     meshFilter.mesh = mesh;
   }
 
+  private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
+  {
+    for (int i = 0; i < vegetationCount; i++)
+    {
+      Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
+      Instantiate(grassPrefabs[0], pos, Quaternion.identity, transform);
+    }
+  }
 
   void OnDrawGizmosSelected()
   {
