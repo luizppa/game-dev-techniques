@@ -56,8 +56,9 @@ public class SubmarineControl : MonoBehaviour
 
   void Rotate()
   {
-    firstPersonRotation.x += Input.GetAxis("Look X") * Time.deltaTime * 500f;
-    firstPersonRotation.y -= Input.GetAxis("Look Y") * Time.deltaTime * 300f;
+    float sensitivityMultiplier = firstPerson ? 5f : 1f;
+    firstPersonRotation.x += Input.GetAxis("Look X") * sensitivityMultiplier * Time.deltaTime * 500f;
+    firstPersonRotation.y -= Input.GetAxis("Look Y") * sensitivityMultiplier * Time.deltaTime * 300f;
     if (firstPerson)
     {
       transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f) * Quaternion.Euler(offsetRotation.x, offsetRotation.y, offsetRotation.z);

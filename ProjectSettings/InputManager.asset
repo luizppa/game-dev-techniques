@@ -313,17 +313,17 @@ InputManager:
     m_Name: Ascend
     descriptiveName: 
     descriptiveNegativeName: 
-    negativeButton: joystick button 2
-    positiveButton: joystick button 0
+    negativeButton: 
+    positiveButton: 
     altNegativeButton: 
     altPositiveButton: 
-    gravity: 1000
-    dead: 0.001
-    sensitivity: 1000
+    gravity: 3
+    dead: 0.005
+    sensitivity: 0.6
     snap: 0
     invert: 0
-    type: 0
-    axis: 0
+    type: 2
+    axis: 2
     joyNum: 0
   - serializedVersion: 3
     m_Name: Look X
@@ -333,9 +333,9 @@ InputManager:
     positiveButton: 
     altNegativeButton: 
     altPositiveButton: 
-    gravity: 0
-    dead: 0
-    sensitivity: 0.25
+    gravity: 3
+    dead: 0.01
+    sensitivity: 0.1
     snap: 0
     invert: 0
     type: 2
@@ -349,9 +349,9 @@ InputManager:
     positiveButton: 
     altNegativeButton: 
     altPositiveButton: 
-    gravity: 0
-    dead: 0
-    sensitivity: 0.3
+    gravity: 3
+    dead: 0.01
+    sensitivity: 0.1
     snap: 0
     invert: 1
     type: 2
