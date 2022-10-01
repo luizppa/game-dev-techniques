@@ -194,8 +194,8 @@ void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
 		_ChunkTriangles.Append(tri);
 
 		float3 ctr = GetCentroid(tri);
-		float vegetationValue = (float)_NoiseMapVol1.SampleLevel(TrilinearRepeat, ctr.xz * .0001, 0).r;
-		if(vegetationValue < 0.0) {
+		float vegetationValue = _NoiseMapVol3.SampleLevel(TrilinearRepeat, ctr.xz * .001, 0).r;
+		if(vegetationValue > 0.75) {
 			_ChunkVegetation.Append(ctr);
 		}
 	}

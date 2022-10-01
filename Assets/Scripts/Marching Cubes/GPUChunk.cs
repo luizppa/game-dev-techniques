@@ -95,7 +95,7 @@ public class GPUChunk : MonoBehaviour
     trianglesBudffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 12, ComputeBufferType.Append);
     trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
     verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
-    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 3);
+    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 3, ComputeBufferType.Append);
     vegetationBufferCount = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
   }
 
@@ -103,9 +103,9 @@ public class GPUChunk : MonoBehaviour
   {
     trianglesBudffer.Release();
     trianglesCountBuffer.Release();
-    verticesBuffer.Release();
     vegetationBuffer.Release();
     vegetationBufferCount.Release();
+    verticesBuffer.Release();
   }
 
   void Generate()
@@ -133,20 +133,17 @@ public class GPUChunk : MonoBehaviour
     ComputeBuffer.CopyCount(trianglesBudffer, trianglesCountBuffer, 0);
     int[] trianglesCount = new int[1];
     trianglesCountBuffer.GetData(trianglesCount);
-
     Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
     trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
-
     GeneratePolygons(trianglesCount[0], generatedTriangles);
 
     // Get vegetation
-    // ComputeBuffer.CopyCount(vegetationBuffer, vegetationBufferCount, 0);
-    // int[] vegetationCount = new int[1];
-    // vegetationBufferCount.GetData(vegetationCount);
-    // Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
-    // vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
-
-    // GenerateVegetation(vegetationCount[0], generatedVegetation);
+    ComputeBuffer.CopyCount(vegetationBuffer, vegetationBufferCount, 0);
+    int[] vegetationCount = new int[1];
+    vegetationBufferCount.GetData(vegetationCount);
+    Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
+    vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
+    GenerateVegetation(vegetationCount[0], generatedVegetation);
   }
 
   private int SetupDensityComputeShader()
@@ -224,6 +221,7 @@ public class GPUChunk : MonoBehaviour
 
   private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
   {
+    Debug.Log("Vegetation count: " + vegetationCount);
     for (int i = 0; i < vegetationCount; i++)
     {
       Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
