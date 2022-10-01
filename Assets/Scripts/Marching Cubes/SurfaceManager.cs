@@ -15,7 +15,7 @@ public class SurfaceManager : MonoBehaviour
   [SerializeField] Transform playerPosition = null;
 
   [Header("Chunk Configuration")]
-  [SerializeField][Range(1, 32)] int chunkSize = 8;
+  [SerializeField][Range(1, 64)] int chunkSize = 8;
   [SerializeField] float chunkScale = 1f;
   [SerializeField] float isoLevel = 0.5f;
   [SerializeField] int seed = 0;

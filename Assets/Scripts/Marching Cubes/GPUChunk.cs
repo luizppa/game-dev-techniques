@@ -2,6 +2,7 @@ using System.Net.Mime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TreeEditor;
 
 struct Triangle
 {
@@ -221,11 +222,10 @@ public class GPUChunk : MonoBehaviour
 
   private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
   {
-    Debug.Log("Vegetation count: " + vegetationCount);
     for (int i = 0; i < vegetationCount; i++)
     {
       Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
-      Instantiate(grassPrefabs[0], pos, Quaternion.identity, transform);
+      Instantiate(grassPrefabs[Random.Range(0, grassPrefabs.Count)], pos, Quaternion.identity, transform);
     }
   }
 

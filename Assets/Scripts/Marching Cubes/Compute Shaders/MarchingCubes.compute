@@ -8,6 +8,8 @@
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
 static const int threads = 8;
+static const uint vegetationSparsity = 8;
+static const float vegetationDensity = 0.4;
 
 struct Triangle {
 	float3 a;
@@ -179,13 +181,24 @@ void CalculateVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 gener
 }
 
 /**
+ * Generates the grass for the given triangle
+*/
+void GenerateTriangleVegetation(Triangle tri){
+	float3 ctr = GetCentroid(tri);
+	float vegetationValue = _NoiseMapVol3.SampleLevel(TrilinearRepeat, ctr.xz * .001, 0).r;
+	if(vegetationValue > (1.0 - vegetationDensity)) {
+		_ChunkVegetation.Append(ctr); 
+	}
+}
+
+/**
  * Generates the triangles for the voxel
  * "cubeIndex" at position "_ChunkPosition + id"
 */
-void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
+void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12], bool hasVegetation){
 	int triangles[16] = triTable[cubeIndex];
 
-	for(int i = 0; triangles[i] != -1; i += 3){
+	for(uint i = 0; triangles[i] != -1; i += 3){
 		Triangle tri = CreateTriangle(
 			generatedVertices[triangles[i]],
 			generatedVertices[triangles[i + 1]],
@@ -193,10 +206,8 @@ void GenerateVoxelTriangles(int cubeIndex, float3 generatedVertices[12]){
 		);
 		_ChunkTriangles.Append(tri);
 
-		float3 ctr = GetCentroid(tri);
-		float vegetationValue = _NoiseMapVol3.SampleLevel(TrilinearRepeat, ctr.xz * .001, 0).r;
-		if(vegetationValue > 0.75) {
-			_ChunkVegetation.Append(ctr);
+		if(hasVegetation && i == 0){
+			GenerateTriangleVegetation(tri); 
 		}
 	}
 }
@@ -222,10 +233,12 @@ void GenerateMesh (uint3 id : SV_DispatchThreadID)
 		return;
 	}
 
+	uint bufferIndex = PositionToBufferIndex(id);
 	int cubeIndex = GetCubeIndex(id);
 	if (cubeIndex == 0 || cubeIndex == 255) return;
 
 	float3 generatedVertices[12];
+	bool hasVegetation = bufferIndex % vegetationSparsity == 0;
 	CalculateVoxelGeneratedVertices(id, cubeIndex, generatedVertices);
-	GenerateVoxelTriangles(cubeIndex, generatedVertices);
+	GenerateVoxelTriangles(cubeIndex, generatedVertices, hasVegetation);
 }
