@@ -52,7 +52,7 @@ The surface manager is a singleton that is associated with a prefab where you ca
 
 Each chunk generates the values for the points in his grid and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now the meshes are generated with RNG for the CPU implementation and with noise maps for the GPU implementation, you will probably notice that the noise map based generation gives us much more organic looking meshes.
 
-You can check out a video of the result for the first version [here](https://youtu.be/SCsOzZVZ7ic), when I had not yet implemented the GPU version, and the second version [here](https://youtu.be/UXGe814-oxA), using compute shaders and with an enhanced environment. On the screen shots below you can also see the difference between the CPU (left) and GPU (right) implementations.
+You can check out a video of the result for the [first version here](https://youtu.be/SCsOzZVZ7ic), when I had not yet implemented the GPU version, and the [second version here](https://youtu.be/UXGe814-oxA), using compute shaders and with an enhanced environment. On the screen shots below you can also see the difference between the CPU (left) and GPU (right) implementations.
 
 <p align="center">
   <img width="45%" src="./Docs/marching-cubes-screen-capture-2.png"/>
