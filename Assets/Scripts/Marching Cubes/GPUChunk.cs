@@ -222,11 +222,14 @@ public class GPUChunk : MonoBehaviour
 
   private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
   {
-    for (int i = 0; i < vegetationCount; i++)
+    if (grassPrefabs.Count > 0)
     {
-      Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
-      GameObject grass = Instantiate(grassPrefabs[Random.Range(0, grassPrefabs.Count)], pos, Quaternion.identity, transform);
-      grass.transform.Rotate(0, Random.Range(0, 360), 0);
+      for (int i = 0; i < vegetationCount; i++)
+      {
+        Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
+        GameObject grass = Instantiate(grassPrefabs[Random.Range(0, grassPrefabs.Count)], pos, Quaternion.identity, transform);
+        grass.transform.Rotate(0, Random.Range(0, 360), 0);
+      }
     }
   }
 
