@@ -47,7 +47,7 @@ MonoBehaviour:
   playerPosition: {fileID: 0}
   startFogHeight: 35
   startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
-  startFogDensity: 0.04
+  startFogDensity: 0.03
   endFogHeight: 0
   endFogColor: {r: 0.011258455, g: 0.051728487, b: 0.21698111, a: 1}
-  endFogDensity: 0.08
+  endFogDensity: 0.06

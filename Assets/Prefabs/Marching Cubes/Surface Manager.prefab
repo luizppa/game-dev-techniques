@@ -44,8 +44,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da282aabeeab9b2439b391d6558f4841, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chunkHeight: 5
-  chunkWidth: 5
-  chunkDepth: 5
-  chunkDensity: 1
-  chunkPrefab: {fileID: 5699508934594323191, guid: 44dd4825855a4a6409438658f8305237, type: 3}
+  chunksPerDirection: 3
+  playerPosition: {fileID: 0}
+  chunkSize: 32
+  chunkScale: 1
+  isoLevel: 2
+  seed: 42
+  elevation: 16
+  generationTechnology: 1
+  CPUChunkPrefab: {fileID: 5699508934594323191, guid: 44dd4825855a4a6409438658f8305237, type: 3}
+  GPUChunkPrefab: {fileID: 1730893836560757263, guid: 3a6cf677fdcaee64da5297ef292a66b5, type: 3}
+  noiseLevels: 3
+  noiseResolution: {x: 256, y: 256}
+  noiseMaps: []
