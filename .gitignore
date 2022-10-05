@@ -73,3 +73,4 @@ crashlytics-build.properties
 
 # Copyright packages
 /Assets/Third Party/Copyright/*
+/Assets/Models/Submarine.fbx*
