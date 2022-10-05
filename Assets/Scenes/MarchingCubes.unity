@@ -166,7 +166,7 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.23137255, g: 0.9411765, b: 1, a: 1}
   m_Intensity: 3
   m_Range: 20
   m_SpotAngle: 120
@@ -308,14 +308,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 395309958}
-  m_LocalRotation: {x: -0.063464075, y: -0, z: -0, w: 0.9979842}
+  m_LocalRotation: {x: -0.12259596, y: -0, z: -0, w: 0.99245673}
   m_LocalPosition: {x: -0.038000107, y: 0.4319992, z: -0.1420002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 486869166}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: -7.277, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -14.084, y: 0, z: 0}
 --- !u!1 &486869165
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,6 +367,12 @@ MonoBehaviour:
   verticalAxis: Vertical
   waterParticles: {fileID: 198162320992083923}
   proppeler: {fileID: 319376204}
+  lights:
+  - {fileID: 84104681}
+  - {fileID: 2115213193}
+  - {fileID: 746053009}
+  maxSpeed: 7
+  acceleration: 5
   thirdPersonCamera: {fileID: 963194227}
   firstPersonCamera: {fileID: 395309960}
 --- !u!1 &679775210
@@ -555,7 +561,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 746053007}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -0.61, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -573,7 +579,7 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.23137255, g: 0.9411765, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
@@ -1498,7 +1504,7 @@ Light:
   serializedVersion: 10
   m_Type: 0
   m_Shape: 0
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.23137255, g: 0.9411765, b: 1, a: 1}
   m_Intensity: 3
   m_Range: 20
   m_SpotAngle: 120

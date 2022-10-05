@@ -8,10 +8,17 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] string verticalAxis = "Vertical";
   [SerializeField] ParticleSystem waterParticles = null;
   [SerializeField] Rotate proppeler = null;
+  [SerializeField] List<Light> lights = new List<Light>();
+
+  [SerializeField] float maxSpeed = 5f;
+  [SerializeField] float acceleration = 2f;
+  private Vector3 velocity = Vector3.zero;
 
   [SerializeField] Camera thirdPersonCamera = null;
   [SerializeField] Camera firstPersonCamera = null;
+
   private bool firstPerson = false;
+  private bool lightState = true;
   private Vector2 firstPersonRotation = Vector2.zero;
 
   void Start()
@@ -19,14 +26,10 @@ public class SubmarineControl : MonoBehaviour
     firstPersonCamera.enabled = false;
   }
 
-  void FixedUpdate()
-  {
-    Move();
-  }
-
   void Update()
   {
-    ToggleView();
+    Action();
+    Move();
     Rotate();
   }
 
@@ -47,13 +50,24 @@ public class SubmarineControl : MonoBehaviour
         waterParticles.Play();
         proppeler.Play();
       }
-      transform.Translate(direction.normalized * Time.deltaTime * 5f, Space.World);
+      velocity += direction * acceleration * Time.deltaTime;
+      if (velocity.magnitude > maxSpeed)
+      {
+        velocity = velocity.normalized * maxSpeed;
+      }
     }
     else if (waterParticles.isPlaying == true && direction.magnitude == 0f)
     {
-      waterParticles.Stop();
-      proppeler.Stop();
+      velocity -= velocity.normalized * acceleration * Time.deltaTime;
+      if (velocity.magnitude < 0.1f)
+      {
+        velocity = Vector3.zero;
+        waterParticles.Stop();
+        proppeler.Stop();
+      }
     }
+    proppeler.SetSpeed(velocity.magnitude);
+    transform.Translate(Time.deltaTime * velocity, Space.World);
   }
 
   void Rotate()
@@ -71,6 +85,24 @@ public class SubmarineControl : MonoBehaviour
       if (direction.magnitude > 0.1f)
       {
         transform.rotation = Quaternion.LookRotation(direction);
+      }
+    }
+  }
+
+  void Action()
+  {
+    ControlLights();
+    ToggleView();
+  }
+
+  void ControlLights()
+  {
+    if (Input.GetKeyDown(KeyCode.Mouse1))
+    {
+      lightState = !lightState;
+      foreach (Light light in lights)
+      {
+        light.enabled = lightState;
       }
     }
   }
@@ -112,23 +144,21 @@ public class SubmarineControl : MonoBehaviour
 
   private Vector3 GetLookDirection()
   {
+    float e = 0.01f;
+    Vector3 modelForward = ProjectionOnGroundPlane(transform.forward).normalized * e;
     Vector3 right = thirdPersonCamera.transform.right;
     Vector3 forward = thirdPersonCamera.transform.forward;
 
     float horizontalAxisValue = Input.GetAxis(horizontalAxis);
     float verticalAxisValue = Input.GetAxis(verticalAxis);
 
-    Vector3 direction = (right * horizontalAxisValue) + (forward * verticalAxisValue);
+
+    Vector3 direction = (right * horizontalAxisValue) + (forward * verticalAxisValue) + modelForward;
 
     if (firstPerson == false)
     {
       direction = ProjectionOnGroundPlane(direction);
-      direction += (Vector3.up * Input.GetAxis("Ascend"));
-    }
-
-    if (direction.magnitude <= 0.1f)
-    {
-      return Vector3.zero;
+      direction += (Vector3.up * Input.GetAxis("Ascend") * 0.9f);
     }
     return direction;
   }
