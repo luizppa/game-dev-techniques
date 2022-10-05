@@ -7,10 +7,10 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] string horizontalAxis = "Horizontal";
   [SerializeField] string verticalAxis = "Vertical";
   [SerializeField] ParticleSystem waterParticles = null;
+  [SerializeField] Rotate proppeler = null;
 
   [SerializeField] Camera thirdPersonCamera = null;
   [SerializeField] Camera firstPersonCamera = null;
-  [SerializeField] Vector3 offsetRotation = new Vector3(90f, 0f, 0f);
   private bool firstPerson = false;
   private Vector2 firstPersonRotation = Vector2.zero;
 
@@ -45,12 +45,14 @@ public class SubmarineControl : MonoBehaviour
       if (waterParticles.isPlaying == false)
       {
         waterParticles.Play();
+        proppeler.Play();
       }
       transform.Translate(direction.normalized * Time.deltaTime * 5f, Space.World);
     }
     else if (waterParticles.isPlaying == true && direction.magnitude == 0f)
     {
       waterParticles.Stop();
+      proppeler.Stop();
     }
   }
 
@@ -61,14 +63,14 @@ public class SubmarineControl : MonoBehaviour
     firstPersonRotation.y -= Input.GetAxis("Look Y") * sensitivityMultiplier * Time.deltaTime * 300f;
     if (firstPerson)
     {
-      transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f) * Quaternion.Euler(offsetRotation.x, offsetRotation.y, offsetRotation.z);
+      transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f);
     }
     else
     {
       Vector3 direction = GetLookDirection();
       if (direction.magnitude > 0.1f)
       {
-        transform.rotation = Quaternion.LookRotation(direction) * Quaternion.Euler(offsetRotation.x, offsetRotation.y, offsetRotation.z);
+        transform.rotation = Quaternion.LookRotation(direction);
       }
     }
   }

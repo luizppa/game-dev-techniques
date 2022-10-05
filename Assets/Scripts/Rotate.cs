@@ -16,6 +16,11 @@ public class Rotate : MonoBehaviour
     }
   }
 
+  public void SetSpeed(float speed)
+  {
+    this.speed = speed;
+  }
+
   public void Play()
   {
     play = true;
