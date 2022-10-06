@@ -1,18 +1,18 @@
 # Game Development Techniques
 
-Hi! My name is Luiz, I am an aspring game developer and this is a repository where I will be putting the projects I will create throughout my journey. I will be trying to roughly follow [this roadmap](https://github.com/utilForever/game-developer-roadmap) by [Chris Ohk](https://github.com/utilForever). Many of the projects you will see here are inspired by a few of my favorite content creators, I absolutely recommend you to check them out:
+Hi! My name is Luiz, I am an aspring game developer and this is a repository where I will be putting the projects I will create throughout my journey. I will be trying to roughly follow [this roadmap](https://github.com/utilForever/game-developer-roadmap) by [Chris Ohk](https://github.com/utilForever). Many of the projects you will see here are inspired by two of my favorite content creators, I absolutely recommend you to check them out:
 
 * [Freya Holmér](https://www.youtube.com/c/Acegikmo)
 * [Sebastian Lague](https://www.youtube.com/c/SebastianLague)
-* [Stylized Station](https://www.youtube.com/c/StylizedStation)
 
-I would also recommend you to check out this other creators who does not (necessarily) inspired the content of this repository, but are a solid option to learn about game art, design, optimization, marketing and development in general:
+I would also recommend you to check out this other creators who do not (necessarily) inspired the content of this repository, but are a solid option to learn about game art, design, optimization, marketing and development in general:
 
 * [Game Maker's Toolkit](https://www.youtube.com/c/MarkBrownGMT)
 * [Ask Gamedev](https://www.youtube.com/c/AskGamedev)
 * [Acerola](https://www.youtube.com/c/Acerola_t)
 * [Daryl Talks Games](https://www.youtube.com/c/DarylTalksGames)
 * [Dani](https://www.youtube.com/c/DaniDev)
+* [Stylized Station](https://www.youtube.com/c/StylizedStation)
 
 Whithout further ado, let's get to the projects!
 
@@ -23,6 +23,8 @@ Whithout further ado, let's get to the projects!
     - [Credits](#credits)
   - [🔮 Compute Shaders](#-compute-shaders)
     - [Implementation](#implementation-1)
+    - [Learning Resources](#learning-resources)
+  - [🪅 Convex Decomposition](#-convex-decomposition)
 
 ## 🚤 Marching Cubes
 
@@ -121,4 +123,16 @@ I won't go into too much details because this is not a tutorial nor am I an expe
 
 <p align="center">
   <img src="./Docs/ray-tracing-screen-capture-5.png"/>
+</p>
+
+### Learning Resources
+
+* [GPU Ray Tracing in Unity Part one](http://blog.three-eyed-games.com/2018/05/03/gpu-ray-tracing-in-unity-part-1/) by David Kuri
+* [GPU Path Tracing in Unity Part two](http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/) by David Kuri
+* [GPU Path Tracing in Unity Part three](http://three-eyed-games.com/2019/03/18/gpu-path-tracing-in-unity-part-3/) by David Kuri
+
+## 🪅 Convex Decomposition
+
+<p align="center">
+  🚧 Under construction 🚧
 </p>
