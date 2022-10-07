@@ -1,11 +1,30 @@
+using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum DecompositionMethod
+{
+  HULL,
+  HACD,
+  TREE_SEARCH,
+}
+
+public enum ConcavityMetric
+{
+  VOLUME,
+  AREA,
+  BOUNDING_BOX,
+  HAUSDORFF
+}
+
 public class ConvexMeshBuilder : MonoBehaviour
 {
   [SerializeField] MeshFilter meshFilter = null;
+  [SerializeField] DecompositionMethod method = DecompositionMethod.TREE_SEARCH;
+  [SerializeField] ConcavityMetric metric = ConcavityMetric.HAUSDORFF;
+  [SerializeField] float treshold = 0.5f;
   private Mesh mesh = null;
 
   private Mesh convexHull = null;
@@ -21,6 +40,7 @@ public class ConvexMeshBuilder : MonoBehaviour
     }
 
     CalculateProperties();
+    ConvexDecomposition(method);
   }
 
   void Update()
@@ -36,14 +56,32 @@ public class ConvexMeshBuilder : MonoBehaviour
     concavity = CalculateConcavity(mesh, convexHull);
   }
 
-  float CalculateConcavity(Mesh mesh, Mesh convexHull)
-  {
-    return Mathf.Max(0f, Rv(mesh, convexHull));
-  }
+  // ============================= Mesh shenaningans ============================= //
 
-  float Rv(Mesh mesh, Mesh convexHull)
+  List<Mesh> ConvexDecomposition(DecompositionMethod method)
   {
-    return Mathf.Pow(((3f * hullVolume) - volume) / 4f * Mathf.PI, 1f / 3f);
+    List<Mesh> meshes = new List<Mesh>();
+    Queue<Mesh> queue = new Queue<Mesh>();
+    queue.Enqueue(mesh);
+
+    while (queue.Count > 0)
+    {
+      Mesh m = queue.Dequeue();
+      Mesh hull = ConvexHull(m);
+      float concavity = CalculateConcavity(m, hull);
+      if (concavity < treshold)
+      {
+        meshes.Add(m);
+      }
+      else
+      {
+        // TODO: implement monte carlo tree search and other decomposition methods
+        // Mesh[] splitMeshes = SplitMesh(m, hull);
+        // queue.Enqueue(splitMeshes[0]);
+        // queue.Enqueue(splitMeshes[1]);
+      }
+    }
+    return meshes;
   }
 
   Mesh ConvexHull(Mesh mesh)
@@ -63,17 +101,6 @@ public class ConvexMeshBuilder : MonoBehaviour
     return convexHull;
   }
 
-  float SignedVolumeOfTriangle(Vector3 p1, Vector3 p2, Vector3 p3)
-  {
-    float v321 = p3.x * p2.y * p1.z;
-    float v231 = p2.x * p3.y * p1.z;
-    float v312 = p3.x * p1.y * p2.z;
-    float v132 = p1.x * p3.y * p2.z;
-    float v213 = p2.x * p1.y * p3.z;
-    float v123 = p1.x * p2.y * p3.z;
-    return (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
-  }
-
   float Volume(Mesh mesh)
   {
     float volume = 0;
@@ -88,6 +115,64 @@ public class ConvexMeshBuilder : MonoBehaviour
     }
     return Mathf.Abs(volume);
   }
+
+  float SignedVolumeOfTriangle(Vector3 p1, Vector3 p2, Vector3 p3)
+  {
+    float v321 = p3.x * p2.y * p1.z;
+    float v231 = p2.x * p3.y * p1.z;
+    float v312 = p3.x * p1.y * p2.z;
+    float v132 = p1.x * p3.y * p2.z;
+    float v213 = p2.x * p1.y * p3.z;
+    float v123 = p1.x * p2.y * p3.z;
+    return (1.0f / 6.0f) * (-v321 + v231 + v312 - v132 - v213 + v123);
+  }
+
+  // ============================= Math shenanigans ============================= //
+
+  float CalculateConcavity(Mesh mesh, Mesh convexHull)
+  {
+    return Mathf.Max(HausdorffDistance(mesh, convexHull), Rv(mesh, convexHull));
+  }
+
+  float Rv(Mesh mesh, Mesh convexHull)
+  {
+    return Mathf.Pow(((3f * hullVolume) - volume) / (4f * Mathf.PI), 1f / 3f);
+  }
+
+  float OneSidedDistance(Vector3[] surfaceA, Vector3[] surfaceB)
+  {
+    float max = 0f;
+    foreach (Vector3 point in surfaceA)
+    {
+      float distance = DistanceFromSurface(point, surfaceB);
+      if (distance > max)
+      {
+        max = distance;
+      }
+    }
+    return max;
+  }
+
+  float DistanceFromSurface(Vector3 point, Vector3[] surfacePoints)
+  {
+    float min = Mathf.Infinity;
+    foreach (Vector3 sPoint in surfacePoints)
+    {
+      float distance = Vector3.Distance(point, sPoint);
+      if (distance < min)
+      {
+        min = distance;
+      }
+    }
+    return min;
+  }
+
+  float HausdorffDistance(Mesh meshA, Mesh meshB)
+  {
+    return Mathf.Max(OneSidedDistance(meshA.vertices, meshB.vertices), OneSidedDistance(meshB.vertices, meshA.vertices));
+  }
+
+  // ============================= Gizmos ============================= //
 
   void OnDrawGizmos()
   {
@@ -106,6 +191,8 @@ public class ConvexMeshBuilder : MonoBehaviour
       Gizmos.DrawWireMesh(mesh, meshFilter.transform.position, meshFilter.transform.rotation, meshFilter.transform.lossyScale);
     }
   }
+
+  // ============================= Getters ============================= //
 
   public Mesh GetConvexHull()
   {
