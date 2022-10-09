@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -25,27 +24,37 @@ public class MonteCarloTreeNode
   public List<Mesh> components = new List<Mesh>();
   private MonteCarloTreeNode parent = null;
   private List<MonteCarloTreeNode> children = new List<MonteCarloTreeNode>();
-  private Plane cutPlane = null;
+  private Plane cutPlane;
 
+  private int planesPerDimension = 10;
+  private bool[] planeIndices = null;
   private int depth = 0;
   private int height = 1;
-  private float upperConfidenceBound = null;
+  private int triedPlanes = 0;
+  private float upperConfidenceBound = -1.0f;
 
-  readonly float C = 1f; // factor for the upper confidence bound
-
-  public MonteCarloTreeNode(List<Mesh> components)
+  public MonteCarloTreeNode(int planesPerDimension, List<Mesh> components)
   {
-    this.parent = null;
+    this.planesPerDimension = planesPerDimension;
     this.components = components;
+    CreatePlanes();
   }
 
-  public MonteCarloTreeNode(ref MonteCarloTreeNode parent, List<Mesh> components, Plane cutPlane)
+  public MonteCarloTreeNode(int planesPerDimension, ref MonteCarloTreeNode parent, List<Mesh> components, Plane cutPlane)
   {
+    this.planesPerDimension = planesPerDimension;
     this.parent = parent;
     this.depth = parent.depth + 1;
-    this.parent.AddChild(ref this);
+    MonteCarloTreeNode self = this;
+    this.parent.AddChild(ref self);
     this.components = components;
     this.cutPlane = cutPlane;
+    CreatePlanes();
+  }
+
+  private void CreatePlanes()
+  {
+    this.planeIndices = new bool[planesPerDimension * 3];
   }
 
   public int GetDepth()
@@ -60,8 +69,13 @@ public class MonteCarloTreeNode
 
   public void AddChild(ref MonteCarloTreeNode child)
   {
-    children.Add(ref child);
+    children.Add(child);
     height = Mathf.Max(height, child.GetHeight() + 1);
+  }
+
+  public List<MonteCarloTreeNode> GetChildren()
+  {
+    return children;
   }
 
   public int GetChildCount()
@@ -69,14 +83,50 @@ public class MonteCarloTreeNode
     return children.Count;
   }
 
+  public Plane GetCutPlane()
+  {
+    return cutPlane;
+  }
+
   public float UpperConfidenceBound()
   {
-    if (upperConfidenceBound == null)
+    if (upperConfidenceBound < 0f)
     {
       // TODO: calculate upper confidence bound
     }
 
     return upperConfidenceBound;
+  }
+
+  private int[] GetPlaneValue(int planeIndex)
+  {
+    int dimension = Mathf.FloorToInt(planeIndex / planesPerDimension);
+    int value = planeIndex % planesPerDimension;
+
+    return new int[] { dimension, value };
+  }
+
+  public Plane GetUntriedPlane()
+  {
+    if (triedPlanes == planeIndices.Length)
+    {
+      throw new System.Exception("No untreid planes left"); ;
+    }
+    int index = Random.Range(0, planeIndices.Length);
+    while (planeIndices[index])
+    {
+      index = (index + 1) % planeIndices.Length;
+    }
+    int[] planeValue = GetPlaneValue(index);
+    int dimension = planeValue[0];
+    int value = planeValue[1];
+    switch (dimension)
+    {
+      case 0: return new Plane(Vector3.up, value);
+      case 1: return new Plane(Vector3.right, value);
+      case 2: return new Plane(Vector3.forward, value);
+      default: throw new System.Exception("Invalid dimension");
+    }
   }
 }
 
@@ -125,7 +175,7 @@ public class ConvexMeshBuilder : MonoBehaviour
 
   Plane MonteCarloTreeSearch(Mesh mesh, int iterations, int depth)
   {
-    MonteCarloTreeNode root = new MonteCarloTreeNode(new List<Mesh> { mesh });
+    MonteCarloTreeNode root = new MonteCarloTreeNode(M, new List<Mesh> { mesh });
     MonteCarloTreeNode current = root;
     List<Plane> planes = new List<Plane>();
     Plane bestPlane = new Plane();
@@ -156,16 +206,17 @@ public class ConvexMeshBuilder : MonoBehaviour
       Mesh mesh = current.components.OrderBy(c => CalculateConcavity(c)).First();
       if (current.GetChildCount() == (3 * M))
       {
-        current = current.children.OrderBy(c => c.UpperConfidenceBound()).First();
-        planes.Add(current.cutPlane);
+        current = current.GetChildren().OrderBy(c => c.UpperConfidenceBound()).First();
+        planes.Add(current.GetCutPlane());
       }
       else
       {
         // TODO
-        // Randomly select a untried cutting plane P of mesh
+        Plane candidatePlane = current.GetUntriedPlane();
         // Cut mesh into 𝑐𝑙 and 𝑐𝑟 with P
         // Create a new child 𝑣′ to current with P, 𝑐𝑙 and 𝑐𝑟
         // bestChild = 𝑣′
+        planes.Add(candidatePlane);
         // return planes + { P }
       }
     }
