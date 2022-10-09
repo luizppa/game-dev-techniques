@@ -16,7 +16,68 @@ public enum ConcavityMetric
   VOLUME,
   AREA,
   BOUNDING_BOX,
-  HAUSDORFF
+  HAUSDORFF,
+  BILATERAL_HAUSDORFF,
+}
+
+public class MonteCarloTreeNode
+{
+  public List<Mesh> components = new List<Mesh>();
+  private MonteCarloTreeNode parent = null;
+  private List<MonteCarloTreeNode> children = new List<MonteCarloTreeNode>();
+  private Plane cutPlane = null;
+
+  private int depth = 0;
+  private int height = 1;
+  private float upperConfidenceBound = null;
+
+  readonly float C = 1f; // factor for the upper confidence bound
+
+  public MonteCarloTreeNode(List<Mesh> components)
+  {
+    this.parent = null;
+    this.components = components;
+  }
+
+  public MonteCarloTreeNode(ref MonteCarloTreeNode parent, List<Mesh> components, Plane cutPlane)
+  {
+    this.parent = parent;
+    this.depth = parent.depth + 1;
+    this.parent.AddChild(ref this);
+    this.components = components;
+    this.cutPlane = cutPlane;
+  }
+
+  public int GetDepth()
+  {
+    return depth;
+  }
+
+  public int GetHeight()
+  {
+    return height;
+  }
+
+  public void AddChild(ref MonteCarloTreeNode child)
+  {
+    children.Add(ref child);
+    height = Mathf.Max(height, child.GetHeight() + 1);
+  }
+
+  public int GetChildCount()
+  {
+    return children.Count;
+  }
+
+  public float UpperConfidenceBound()
+  {
+    if (upperConfidenceBound == null)
+    {
+      // TODO: calculate upper confidence bound
+    }
+
+    return upperConfidenceBound;
+  }
 }
 
 public class ConvexMeshBuilder : MonoBehaviour
@@ -31,6 +92,10 @@ public class ConvexMeshBuilder : MonoBehaviour
   private float volume = 0f;
   private float hullVolume = 0f;
   private float concavity = 0f;
+
+  // Constants 
+  readonly float K = 1f; // factor for the cocavity metric
+  readonly int M = 5; // factor for the number of candidate planes
 
   void Start()
   {
@@ -56,6 +121,68 @@ public class ConvexMeshBuilder : MonoBehaviour
     concavity = CalculateConcavity(mesh, convexHull);
   }
 
+  // ============================= Algorithms ============================= //
+
+  Plane MonteCarloTreeSearch(Mesh mesh, int iterations, int depth)
+  {
+    MonteCarloTreeNode root = new MonteCarloTreeNode(new List<Mesh> { mesh });
+    MonteCarloTreeNode current = root;
+    List<Plane> planes = new List<Plane>();
+    Plane bestPlane = new Plane();
+
+    for (int i = 0; i < iterations; i++)
+    {
+      MonteCarloTreeNode child = null;
+      planes = TreePolicy(current, ref child, depth);
+      // TODO
+      // Calculate the planes for the default policy
+      // Measure the quality of the planes
+      // Backpropagate the quality of the planes
+    }
+
+    // TODO
+    // Select the best child 𝑣* of the root node
+    // bestPlaane = plane for 𝑣*
+
+    return bestPlane;
+  }
+
+  List<Plane> TreePolicy(MonteCarloTreeNode node, ref MonteCarloTreeNode bestChild, int depth)
+  {
+    List<Plane> planes = new List<Plane>();
+    MonteCarloTreeNode current = node;
+    while (current.GetDepth() < depth)
+    {
+      Mesh mesh = current.components.OrderBy(c => CalculateConcavity(c)).First();
+      if (current.GetChildCount() == (3 * M))
+      {
+        current = current.children.OrderBy(c => c.UpperConfidenceBound()).First();
+        planes.Add(current.cutPlane);
+      }
+      else
+      {
+        // TODO
+        // Randomly select a untried cutting plane P of mesh
+        // Cut mesh into 𝑐𝑙 and 𝑐𝑟 with P
+        // Create a new child 𝑣′ to current with P, 𝑐𝑙 and 𝑐𝑟
+        // bestChild = 𝑣′
+        // return planes + { P }
+      }
+    }
+    bestChild = current;
+    return planes;
+  }
+
+  void DefaultPolicy()
+  {
+    // TODO
+  }
+
+  void Backup(Mesh mesh, Plane[] planes)
+  {
+    // TODO
+  }
+
   // ============================= Mesh shenaningans ============================= //
 
   List<Mesh> ConvexDecomposition(DecompositionMethod method)
@@ -76,7 +203,7 @@ public class ConvexMeshBuilder : MonoBehaviour
       else
       {
         // TODO: implement monte carlo tree search and other decomposition methods
-        // Mesh[] splitMeshes = SplitMesh(m, hull);
+        // List<Mesh> splitMeshes = MonteCarloTreeSearch(m, hull);
         // queue.Enqueue(splitMeshes[0]);
         // queue.Enqueue(splitMeshes[1]);
       }
@@ -129,14 +256,39 @@ public class ConvexMeshBuilder : MonoBehaviour
 
   // ============================= Math shenanigans ============================= //
 
+  float CalculateConcavity(Mesh mesh)
+  {
+    return CalculateConcavity(mesh, ConvexHull(mesh));
+  }
+
   float CalculateConcavity(Mesh mesh, Mesh convexHull)
   {
-    return Mathf.Max(HausdorffDistance(mesh, convexHull), Rv(mesh, convexHull));
+    switch (metric)
+    {
+      case ConcavityMetric.VOLUME:
+        return Volume(mesh) / Volume(convexHull);
+      // case ConcavityMetric.AREA:
+      //   return Area(mesh) / Area(convexHull);
+      // case ConcavityMetric.BOUNDING_BOX:
+      //   return BoundingBox(mesh).sqrMagnitude / BoundingBox(convexHull).sqrMagnitude;
+      case ConcavityMetric.HAUSDORFF:
+        return HausdorffDistance(mesh, convexHull);
+      case ConcavityMetric.BILATERAL_HAUSDORFF:
+        return Mathf.Max(HausdorffDistance(mesh, convexHull), K * Rv(mesh, convexHull));
+      default:
+        return HausdorffDistance(mesh, convexHull);
+    }
+
   }
 
   float Rv(Mesh mesh, Mesh convexHull)
   {
     return Mathf.Pow(((3f * hullVolume) - volume) / (4f * Mathf.PI), 1f / 3f);
+  }
+
+  float HausdorffDistance(Mesh meshA, Mesh meshB)
+  {
+    return Mathf.Max(OneSidedDistance(meshA.vertices, meshB.vertices), OneSidedDistance(meshB.vertices, meshA.vertices));
   }
 
   float OneSidedDistance(Vector3[] surfaceA, Vector3[] surfaceB)
@@ -165,11 +317,6 @@ public class ConvexMeshBuilder : MonoBehaviour
       }
     }
     return min;
-  }
-
-  float HausdorffDistance(Mesh meshA, Mesh meshB)
-  {
-    return Mathf.Max(OneSidedDistance(meshA.vertices, meshB.vertices), OneSidedDistance(meshB.vertices, meshA.vertices));
   }
 
   // ============================= Gizmos ============================= //

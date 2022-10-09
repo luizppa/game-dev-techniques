@@ -1,4 +1,4 @@
-# Game Development Techniques
+<h1 align="center">🎮 Game Development Techniques 🎮</h1>
 
 Hi! My name is Luiz, I am an aspring game developer and this is a repository where I will be putting the projects I will create throughout my journey. I will be trying to roughly follow [this roadmap](https://github.com/utilForever/game-developer-roadmap) by [Chris Ohk](https://github.com/utilForever). Many of the projects you will see here are inspired by two of my favorite content creators, I absolutely recommend you to check them out:
 
@@ -16,15 +16,14 @@ I would also recommend you to check out this other creators who do not (necessar
 
 Whithout further ado, let's get to the projects!
 
-- [Game Development Techniques](#game-development-techniques)
-  - [🚤 Marching Cubes](#-marching-cubes)
-    - [Implementation](#implementation)
-    - [Learining resources](#learining-resources)
-    - [Credits](#credits)
-  - [🔮 Compute Shaders](#-compute-shaders)
-    - [Implementation](#implementation-1)
-    - [Learning Resources](#learning-resources)
-  - [🪅 Convex Decomposition](#-convex-decomposition)
+- [🚤 Marching Cubes](#-marching-cubes)
+  - [Implementation](#implementation)
+  - [Learining resources](#learining-resources)
+  - [Credits](#credits)
+- [🔮 Compute Shaders](#-compute-shaders)
+  - [Implementation](#implementation-1)
+  - [Learning Resources](#learning-resources)
+- [🪅 Convex Decomposition](#-convex-decomposition)
 
 ## 🚤 Marching Cubes
 
