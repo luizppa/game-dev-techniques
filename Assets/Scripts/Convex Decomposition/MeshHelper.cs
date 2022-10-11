@@ -15,6 +15,7 @@ public static class MeshHelper
   static readonly float K = .3f; // factor for the cocavity metric
 
   // ============================= Geometri shenaningans ============================= //
+
   public static Mesh ConvexHull(Mesh mesh)
   {
     List<Vector3> vertices = new List<Vector3>(mesh.vertices);
@@ -47,11 +48,157 @@ public static class MeshHelper
     return Mathf.Abs(volume);
   }
 
+  // TODO: implement with compute shaders
   public static Mesh[] Cut(Mesh mesh, Plane cutPlane)
   {
-    Mesh[] result = new Mesh[2];
-    // TODO: Cut mesh with plane
+    Mesh upperMesh = new Mesh();
+    Mesh lowerMesh = new Mesh();
+    List<int> upperTriangles = new List<int>();
+    List<int> lowerTriangles = new List<int>();
+    List<Vector3> upperVertices = new List<Vector3>();
+    List<Vector3> lowerVertices = new List<Vector3>();
+
+    Vector3[] vertices = mesh.vertices;
+    int[] triangles = mesh.triangles;
+
+    for (int i = 0; (i + 2) < triangles.Length; i += 3)
+    {
+
+      List<int> upSide = new List<int>();
+      List<int> downSide = new List<int>();
+
+      for (int j = 0; j < 3; j++)
+      {
+        if (cutPlane.GetSide(vertices[triangles[i + j]]))
+        {
+          upSide.Add(j);
+        }
+        else
+        {
+          downSide.Add(j);
+        }
+      }
+
+      if (upSide.Count == 3)
+      {
+        for (int j = 0; j < 3; j++)
+        {
+          upperTriangles.Add(upperVertices.Count);
+          upperVertices.Add(vertices[triangles[i + j]]);
+        }
+      }
+      else if (upSide.Count == 0)
+      {
+        for (int j = 0; j < 3; j++)
+        {
+          lowerTriangles.Add(lowerVertices.Count);
+          lowerVertices.Add(vertices[triangles[i + j]]);
+        }
+      }
+      else
+      {
+        CutTriangle(mesh, i, cutPlane, upSide, downSide, ref upperTriangles, ref lowerTriangles, ref upperVertices, ref lowerVertices);
+      }
+    }
+
+    upperMesh.vertices = upperVertices.ToArray();
+    upperMesh.triangles = upperTriangles.ToArray();
+    upperMesh.RecalculateNormals();
+
+    lowerMesh.vertices = lowerVertices.ToArray();
+    lowerMesh.triangles = lowerTriangles.ToArray();
+    lowerMesh.RecalculateNormals();
+    Mesh[] result = new Mesh[] { upperMesh, lowerMesh };
     return result;
+  }
+
+  public static void CutTriangle(Mesh mesh, int triangleIndex, Plane cutPlane, List<int> upSide, List<int> downSide, ref List<int> upperTriangles, ref List<int> lowerTriangles, ref List<Vector3> upperVertices, ref List<Vector3> lowerVertices)
+  {
+    int a, b, c;
+    if (upSide.Count == 1)
+    {
+      a = upSide[0];
+    }
+    else
+    {
+      a = downSide[0];
+    }
+
+    b = GetLeftTriangleVertex(a);
+    c = GetRightTriangleVertex(a);
+
+    Vector3 aVertex = mesh.vertices[triangleIndex + a];
+    Vector3 bVertex = mesh.vertices[triangleIndex + b];
+    Vector3 cVertex = mesh.vertices[triangleIndex + c];
+
+    Ray rayLeft = new Ray(aVertex, (bVertex - aVertex).normalized);
+    Ray rayRight = new Ray(aVertex, (cVertex - aVertex).normalized);
+
+    float distanceLeft;
+    float distanceRight;
+    cutPlane.Raycast(rayLeft, out distanceLeft);
+    cutPlane.Raycast(rayRight, out distanceRight);
+
+    Vector3 v1 = rayLeft.GetPoint(distanceRight);
+    Vector3 v2 = rayLeft.GetPoint(distanceLeft);
+
+    if (upSide.Count == 1)
+    {
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(aVertex);
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(v2);
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(v1);
+
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(cVertex);
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(v1);
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(v2);
+
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(cVertex);
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(v2);
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(bVertex);
+    }
+    else
+    {
+
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(aVertex);
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(v2);
+      lowerTriangles.Add(lowerVertices.Count);
+      lowerVertices.Add(v1);
+
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(cVertex);
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(v1);
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(v2);
+
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(cVertex);
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(v2);
+      upperTriangles.Add(upperVertices.Count);
+      upperVertices.Add(bVertex);
+    }
+  }
+
+  private static int GetLeftTriangleVertex(int v)
+  {
+    return (v + 1) % 3;
+  }
+
+  private static int GetRightTriangleVertex(int v)
+  {
+    return (v + 2) % 3;
   }
 
   // ============================= Math shenanigans ============================= //
