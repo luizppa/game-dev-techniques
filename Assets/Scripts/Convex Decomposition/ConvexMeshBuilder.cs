@@ -34,7 +34,7 @@ public class ConvexMeshBuilder : MonoBehaviour
     }
 
     CalculateProperties();
-    ConvexDecomposition(method);
+    // ConvexDecomposition(method);
   }
 
   void Update()
@@ -48,6 +48,32 @@ public class ConvexMeshBuilder : MonoBehaviour
     volume = MeshHelper.Volume(mesh) * meshFilter.transform.lossyScale.x;
     hullVolume = MeshHelper.Volume(convexHull) * meshFilter.transform.lossyScale.x;
     concavity = MeshHelper.CalculateConcavity(mesh, metric);
+  }
+
+  List<Mesh> ConvexDecomposition(DecompositionMethod method)
+  {
+    List<Mesh> meshes = new List<Mesh>();
+    Queue<Mesh> queue = new Queue<Mesh>();
+    queue.Enqueue(mesh);
+
+    while (queue.Count > 0)
+    {
+      Mesh m = queue.Dequeue();
+      float concavity = MeshHelper.CalculateConcavity(m, metric);
+      if (concavity < treshold)
+      {
+        meshes.Add(m);
+      }
+      else
+      {
+        // TODO: implement other decomposition methods
+        Plane cutPlane = MonteCarloTreeSearch(m);
+        Mesh[] cutMeshes = MeshHelper.Cut(m, cutPlane);
+        queue.Enqueue(cutMeshes[0]);
+        queue.Enqueue(cutMeshes[1]);
+      }
+    }
+    return meshes;
   }
 
   // ============================= Algorithms ============================= //
@@ -90,13 +116,19 @@ public class ConvexMeshBuilder : MonoBehaviour
       }
       else
       {
-        // TODO
         Plane candidatePlane = current.GetUntriedPlane();
-        // Cut mesh into 𝑐𝑙 and 𝑐𝑟 with P
-        // Create a new child 𝑣′ to current with P, 𝑐𝑙 and 𝑐𝑟
-        // bestChild = 𝑣′
+        Mesh[] meshes = MeshHelper.Cut(mesh, candidatePlane);
+        Mesh cl = meshes[0];
+        Mesh cr = meshes[1];
+        List<Mesh> components = current.components.GetRange(0, current.components.Count);
+        components.Remove(mesh);
+        components.Add(cl);
+        components.Add(cr);
+        MonteCarloTreeNode child = new MonteCarloTreeNode(M, components, ref current, candidatePlane);
+        current.AddChild(ref child);
+        current = child;
         planes.Add(candidatePlane);
-        // return planes + { P }
+        return planes;
       }
     }
     bestChild = current;
@@ -111,33 +143,6 @@ public class ConvexMeshBuilder : MonoBehaviour
   void Backup(Mesh mesh, Plane[] planes)
   {
     // TODO
-  }
-
-  // ============================= Mesh manipulation ============================= //
-
-  List<Mesh> ConvexDecomposition(DecompositionMethod method)
-  {
-    List<Mesh> meshes = new List<Mesh>();
-    Queue<Mesh> queue = new Queue<Mesh>();
-    queue.Enqueue(mesh);
-
-    while (queue.Count > 0)
-    {
-      Mesh m = queue.Dequeue();
-      float concavity = MeshHelper.CalculateConcavity(m, metric);
-      if (concavity < treshold)
-      {
-        meshes.Add(m);
-      }
-      else
-      {
-        // TODO: implement monte carlo tree search and other decomposition methods
-        // List<Mesh> splitMeshes = MonteCarloTreeSearch(m, hull);
-        // queue.Enqueue(splitMeshes[0]);
-        // queue.Enqueue(splitMeshes[1]);
-      }
-    }
-    return meshes;
   }
 
   // ============================= Gizmos ============================= //

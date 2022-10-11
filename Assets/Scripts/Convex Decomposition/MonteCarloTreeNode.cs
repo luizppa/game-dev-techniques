@@ -26,7 +26,7 @@ public class MonteCarloTreeNode
     CreatePlanes();
   }
 
-  public MonteCarloTreeNode(int planesPerDimension, ref MonteCarloTreeNode parent, List<Mesh> components, Plane cutPlane)
+  public MonteCarloTreeNode(int planesPerDimension, List<Mesh> components, ref MonteCarloTreeNode parent, Plane cutPlane)
   {
     this.planesPerDimension = planesPerDimension;
     this.parent = parent;
