@@ -124,6 +124,7 @@ public class MonteCarloTreeNode
     {
       index = (index + 1) % planeIndices.Length;
     }
+    planeIndices[index] = true;
     int[] planeValue = GetPlaneValue(index);
     int dimension = planeValue[0];
     int value = planeValue[1];

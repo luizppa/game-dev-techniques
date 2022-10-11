@@ -127,9 +127,9 @@ public static class MeshHelper
     b = GetLeftTriangleVertex(a);
     c = GetRightTriangleVertex(a);
 
-    Vector3 aVertex = mesh.vertices[triangleIndex + a];
-    Vector3 bVertex = mesh.vertices[triangleIndex + b];
-    Vector3 cVertex = mesh.vertices[triangleIndex + c];
+    Vector3 aVertex = mesh.vertices[mesh.triangles[triangleIndex + a]];
+    Vector3 bVertex = mesh.vertices[mesh.triangles[triangleIndex + b]];
+    Vector3 cVertex = mesh.vertices[mesh.triangles[triangleIndex + c]];
 
     Ray rayLeft = new Ray(aVertex, (bVertex - aVertex).normalized);
     Ray rayRight = new Ray(aVertex, (cVertex - aVertex).normalized);
@@ -139,7 +139,7 @@ public static class MeshHelper
     cutPlane.Raycast(rayLeft, out distanceLeft);
     cutPlane.Raycast(rayRight, out distanceRight);
 
-    Vector3 v1 = rayLeft.GetPoint(distanceRight);
+    Vector3 v1 = rayRight.GetPoint(distanceRight);
     Vector3 v2 = rayLeft.GetPoint(distanceLeft);
 
     if (upSide.Count == 1)
