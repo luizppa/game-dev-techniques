@@ -57,6 +57,7 @@ public static class MeshHelper
     List<int> lowerTriangles = new List<int>();
     List<Vector3> upperVertices = new List<Vector3>();
     List<Vector3> lowerVertices = new List<Vector3>();
+    List<Vector3> cutVertices = new List<Vector3>();
 
     Vector3[] vertices = mesh.vertices;
     int[] triangles = mesh.triangles;
@@ -79,40 +80,55 @@ public static class MeshHelper
         }
       }
 
+      // Triangle is completely above the plane
       if (upSide.Count == 3)
       {
         for (int j = 0; j < 3; j++)
         {
-          upperTriangles.Add(upperVertices.Count);
-          upperVertices.Add(vertices[triangles[i + j]]);
+          CopyTriangle(i, vertices, triangles, ref upperVertices, ref upperTriangles);
         }
       }
+      // Triangle is completely below the plane
       else if (upSide.Count == 0)
       {
         for (int j = 0; j < 3; j++)
         {
-          lowerTriangles.Add(lowerVertices.Count);
-          lowerVertices.Add(vertices[triangles[i + j]]);
+          CopyTriangle(i, vertices, triangles, ref lowerVertices, ref lowerTriangles);
         }
       }
+      // Triangle was cut by the plane
       else
       {
-        CutTriangle(mesh, i, cutPlane, upSide, downSide, ref upperTriangles, ref lowerTriangles, ref upperVertices, ref lowerVertices);
+        CutTriangle(mesh, i, cutPlane, upSide, downSide, ref upperTriangles, ref lowerTriangles, ref upperVertices, ref lowerVertices, ref cutVertices);
       }
+    }
+
+    Vector3 cutCenter = GetCenter(cutVertices);
+    for (int i = 0; i < cutVertices.Count; i++)
+    {
+      Vector3[] triangle = new Vector3[] { cutVertices[i], cutCenter, cutVertices[(i + 1) % cutVertices.Count] };
+      Vector3[] reverseTriangle = new Vector3[] { cutVertices[i], cutVertices[(i + 1) % cutVertices.Count], cutCenter };
+      AddTriangle(triangle, ref upperVertices, ref upperTriangles);
+      AddTriangle(reverseTriangle, ref lowerVertices, ref lowerTriangles);
     }
 
     upperMesh.vertices = upperVertices.ToArray();
     upperMesh.triangles = upperTriangles.ToArray();
     upperMesh.RecalculateNormals();
+    // upperMesh.RecalculateBounds();
+    // upperMesh.RecalculateTangents();
 
     lowerMesh.vertices = lowerVertices.ToArray();
     lowerMesh.triangles = lowerTriangles.ToArray();
     lowerMesh.RecalculateNormals();
+    // lowerMesh.RecalculateBounds();
+    // lowerMesh.RecalculateTangents();
+
     Mesh[] result = new Mesh[] { upperMesh, lowerMesh };
     return result;
   }
 
-  public static void CutTriangle(Mesh mesh, int triangleIndex, Plane cutPlane, List<int> upSide, List<int> downSide, ref List<int> upperTriangles, ref List<int> lowerTriangles, ref List<Vector3> upperVertices, ref List<Vector3> lowerVertices)
+  public static void CutTriangle(Mesh mesh, int triangleIndex, Plane cutPlane, List<int> upSide, List<int> downSide, ref List<int> upperTriangles, ref List<int> lowerTriangles, ref List<Vector3> upperVertices, ref List<Vector3> lowerVertices, ref List<Vector3> cutVertices)
   {
     int a, b, c;
     if (upSide.Count == 1)
@@ -131,63 +147,29 @@ public static class MeshHelper
     Vector3 bVertex = mesh.vertices[mesh.triangles[triangleIndex + b]];
     Vector3 cVertex = mesh.vertices[mesh.triangles[triangleIndex + c]];
 
-    Ray rayLeft = new Ray(aVertex, (bVertex - aVertex).normalized);
-    Ray rayRight = new Ray(aVertex, (cVertex - aVertex).normalized);
+    Vector3 v1;
+    Vector3 v2;
 
-    float distanceLeft;
-    float distanceRight;
-    cutPlane.Raycast(rayLeft, out distanceLeft);
-    cutPlane.Raycast(rayRight, out distanceRight);
+    IntersectTriangle(aVertex, bVertex, cVertex, cutPlane, out v1, out v2);
 
-    Vector3 v1 = rayRight.GetPoint(distanceRight);
-    Vector3 v2 = rayLeft.GetPoint(distanceLeft);
+    cutVertices.Add(v1);
+    cutVertices.Add(v2);
 
     if (upSide.Count == 1)
     {
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(aVertex);
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(v2);
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(v1);
-
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(cVertex);
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(v1);
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(v2);
-
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(cVertex);
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(v2);
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(bVertex);
+      // A to upper
+      AddTriangle(new Vector3[] { aVertex, v2, v1 }, ref upperVertices, ref upperTriangles);
+      // B and C to lower
+      AddTriangle(new Vector3[] { cVertex, v1, v2 }, ref lowerVertices, ref lowerTriangles);
+      AddTriangle(new Vector3[] { cVertex, v2, bVertex }, ref lowerVertices, ref lowerTriangles);
     }
     else
     {
-
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(aVertex);
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(v2);
-      lowerTriangles.Add(lowerVertices.Count);
-      lowerVertices.Add(v1);
-
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(cVertex);
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(v1);
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(v2);
-
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(cVertex);
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(v2);
-      upperTriangles.Add(upperVertices.Count);
-      upperVertices.Add(bVertex);
+      // A to lower
+      AddTriangle(new Vector3[] { aVertex, v2, v1 }, ref lowerVertices, ref lowerTriangles);
+      // B and C to upper
+      AddTriangle(new Vector3[] { cVertex, v1, v2 }, ref upperVertices, ref upperTriangles);
+      AddTriangle(new Vector3[] { cVertex, v2, bVertex }, ref upperVertices, ref upperTriangles);
     }
   }
 
@@ -272,6 +254,50 @@ public static class MeshHelper
       }
     }
     return min;
+  }
+
+  // ============================= Utils ============================= //
+  static void CopyTriangle(int triangleIndex, Vector3[] sourceVertices, int[] sourceTriangles, ref List<Vector3> destVertices, ref List<int> destTriangles)
+  {
+    for (int j = 0; j < 3; j++)
+    {
+      destTriangles.Add(destVertices.Count);
+      destVertices.Add(sourceVertices[sourceTriangles[triangleIndex + j]]);
+    }
+  }
+
+  static void AddTriangle(Vector3[] vertices, ref List<Vector3> destVertices, ref List<int> destTriangles)
+  {
+    for (int j = 0; j < 3; j++)
+    {
+      destTriangles.Add(destVertices.Count);
+      destVertices.Add(vertices[j]);
+    }
+  }
+
+  static void IntersectTriangle(Vector3 a, Vector3 b, Vector3 c, Plane p, out Vector3 v1, out Vector3 v2)
+  {
+    Ray rayLeft = new Ray(a, (b - a).normalized);
+    Ray rayRight = new Ray(a, (c - a).normalized);
+
+    float distanceLeft;
+    float distanceRight;
+    p.Raycast(rayLeft, out distanceLeft);
+    p.Raycast(rayRight, out distanceRight);
+
+    v1 = rayRight.GetPoint(distanceRight);
+    v2 = rayLeft.GetPoint(distanceLeft);
+  }
+
+  static Vector3 GetCenter(List<Vector3> points)
+  {
+    Vector3 center = Vector3.zero;
+    foreach (Vector3 point in points)
+    {
+      center += point;
+    }
+    center /= points.Count;
+    return center;
   }
 
 }
