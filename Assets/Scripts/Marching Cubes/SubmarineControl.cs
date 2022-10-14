@@ -12,7 +12,6 @@ public class SubmarineControl : MonoBehaviour
 
   [SerializeField] float maxSpeed = 5f;
   [SerializeField] float acceleration = 2f;
-  private Vector3 velocity = Vector3.zero;
 
   [SerializeField] Camera thirdPersonCamera = null;
   [SerializeField] Camera firstPersonCamera = null;
@@ -21,8 +20,11 @@ public class SubmarineControl : MonoBehaviour
   private bool lightState = true;
   private Vector2 firstPersonRotation = Vector2.zero;
 
+  private Rigidbody rb = null;
+
   void Start()
   {
+    rb = GetComponent<Rigidbody>();
     firstPersonCamera.enabled = false;
   }
 
@@ -50,24 +52,26 @@ public class SubmarineControl : MonoBehaviour
         waterParticles.Play();
         proppeler.Play();
       }
-      velocity += direction * acceleration * Time.deltaTime;
-      if (velocity.magnitude > maxSpeed)
+
+      rb.AddForce(direction * acceleration, ForceMode.Acceleration);
+      if (rb.velocity.magnitude > maxSpeed)
       {
-        velocity = velocity.normalized * maxSpeed;
+        rb.velocity = rb.velocity.normalized * maxSpeed;
       }
     }
-    else if (waterParticles.isPlaying == true && direction.magnitude == 0f)
+
+    if (rb.velocity.magnitude < 0.1f && waterParticles.isPlaying == true)
     {
-      velocity -= velocity.normalized * acceleration * Time.deltaTime;
-      if (velocity.magnitude < 0.1f)
-      {
-        velocity = Vector3.zero;
-        waterParticles.Stop();
-        proppeler.Stop();
-      }
+      waterParticles.Stop();
+      proppeler.Stop();
     }
-    proppeler.SetSpeed(velocity.magnitude);
-    transform.Translate(Time.deltaTime * velocity, Space.World);
+    else if (rb.velocity.magnitude > 0.1f && waterParticles.isPlaying == false)
+    {
+      waterParticles.Play();
+      proppeler.Play();
+    }
+
+    proppeler.SetSpeed(rb.velocity.magnitude);
   }
 
   void Rotate()

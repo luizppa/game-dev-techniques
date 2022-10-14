@@ -326,9 +326,14 @@ GameObject:
   m_Component:
   - component: {fileID: 486869166}
   - component: {fileID: 486869167}
+  - component: {fileID: 486869168}
+  - component: {fileID: 486869169}
+  - component: {fileID: 486869172}
+  - component: {fileID: 486869171}
+  - component: {fileID: 486869170}
   m_Layer: 0
   m_Name: Submarine
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -371,10 +376,80 @@ MonoBehaviour:
   - {fileID: 84104681}
   - {fileID: 2115213193}
   - {fileID: 746053009}
-  maxSpeed: 7
+  maxSpeed: 8
   acceleration: 5
   thirdPersonCamera: {fileID: 963194227}
   firstPersonCamera: {fileID: 395309960}
+--- !u!54 &486869168
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486869165}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0.6
+  m_AngularDrag: 0.6
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 1
+--- !u!135 &486869169
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486869165}
+  m_Material: {fileID: 13400000, guid: a22ce952fd8c35843b5dddcf3155e8b7, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.6306324
+  m_Center: {x: -0.05, y: 0.29475212, z: 0}
+--- !u!136 &486869170
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486869165}
+  m_Material: {fileID: 13400000, guid: a22ce952fd8c35843b5dddcf3155e8b7, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.3275882
+  m_Height: 2.01724
+  m_Direction: 2
+  m_Center: {x: -0.7137795, y: 0.02960968, z: 0.1100202}
+--- !u!136 &486869171
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486869165}
+  m_Material: {fileID: 13400000, guid: a22ce952fd8c35843b5dddcf3155e8b7, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.3275882
+  m_Height: 2.0172396
+  m_Direction: 2
+  m_Center: {x: 0.5137795, y: 0.02960968, z: 0.11002016}
+--- !u!65 &486869172
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 486869165}
+  m_Material: {fileID: 13400000, guid: a22ce952fd8c35843b5dddcf3155e8b7, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.78488636, y: 0.5741539, z: 1.4552174}
+  m_Center: {x: -0.047525883, y: 0.37375832, z: -0.59745884}
 --- !u!1 &679775210
 GameObject:
   m_ObjectHideFlags: 0
@@ -749,7 +824,7 @@ MonoBehaviour:
   fixedHeight: 0.5
   lockTranslation: 0
   fixedTranslation: 0
-  avoidClipping: 1
+  avoidClipping: 0
   clipDistance: 5
   clippingOffset: 0
   horizontalTilt: 0
