@@ -14,6 +14,7 @@ struct Triangle
 
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(MeshCollider))]
 public class GPUChunk : MonoBehaviour
 {
   // Compute shader
@@ -41,6 +42,7 @@ public class GPUChunk : MonoBehaviour
   // Refferences
   private SurfaceManager surfaceManager = null;
   private MeshFilter meshFilter = null;
+  private MeshCollider meshCollider = null;
 
   // Buffers
   ComputeBuffer trianglesBudffer = null;
@@ -82,6 +84,7 @@ public class GPUChunk : MonoBehaviour
   private void InitializeProperties()
   {
     meshFilter = GetComponent<MeshFilter>();
+    meshCollider = GetComponent<MeshCollider>();
     voxelsNumber = (chunkSize - 1) * (chunkSize - 1) * (chunkSize - 1);
     verticesNumber = chunkSize * chunkSize * chunkSize;
     maxTrianglesNumber = voxelsNumber * 5;
@@ -218,6 +221,7 @@ public class GPUChunk : MonoBehaviour
     mesh.triangles = meshTriangles;
     mesh.RecalculateNormals();
     meshFilter.mesh = mesh;
+    meshCollider.sharedMesh = mesh;
   }
 
   private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
