@@ -29,17 +29,16 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] float acceleration = 2f;
 
   [Header("Camera")]
-  [SerializeField] Camera thirdPersonCamera = null;
-  [SerializeField] Camera firstPersonCamera = null;
+  [SerializeField] Camera gameCamera = null;
 
   private float health;
 
-  private bool firstPerson = false;
   private bool lightState = true;
   private Vector2 firstPersonRotation = Vector2.zero;
 
   private Rigidbody rb = null;
   private AudioSource audioSource = null;
+  private CameraManager cameraManager = null;
 
 
   // ================================ Unity messages ================================ //
@@ -48,19 +47,23 @@ public class SubmarineControl : MonoBehaviour
     health = maxHealth;
     rb = GetComponent<Rigidbody>();
     audioSource = GetComponent<AudioSource>();
-    firstPersonCamera.enabled = false;
+    if (gameCamera == null)
+    {
+      gameCamera = Camera.main;
+    }
+    cameraManager = gameCamera.GetComponent<CameraManager>();
   }
 
   void FixedUpdate()
   {
     Move();
-    Rotate();
   }
 
   void Update()
   {
     UpdateEffects();
     Action();
+    Rotate();
   }
 
   void OnCollisionEnter(Collision other)
@@ -75,7 +78,7 @@ public class SubmarineControl : MonoBehaviour
   {
     Vector3 direction;
     direction = GetMoveDirection();
-    if (firstPerson == false)
+    if (cameraManager.IsThirdPerson())
     {
       direction = ProjectionOnGroundPlane(direction);
     }
@@ -93,10 +96,10 @@ public class SubmarineControl : MonoBehaviour
 
   void Rotate()
   {
-    float sensitivityMultiplier = firstPerson ? 5f : 1f;
+    float sensitivityMultiplier = cameraManager.IsFirstPerson() ? 5f : 1f;
     firstPersonRotation.x += Input.GetAxis(horizontalLookAxis) * sensitivityMultiplier * Time.deltaTime * 500f;
     firstPersonRotation.y -= Input.GetAxis(verticalLookAxis) * sensitivityMultiplier * Time.deltaTime * 300f;
-    if (firstPerson)
+    if (cameraManager.IsFirstPerson())
     {
       transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f);
     }
@@ -131,7 +134,6 @@ public class SubmarineControl : MonoBehaviour
   void Action()
   {
     ControlLights();
-    ToggleView();
   }
 
   void ControlLights()
@@ -142,27 +144,6 @@ public class SubmarineControl : MonoBehaviour
       foreach (Light light in lights)
       {
         light.enabled = lightState;
-      }
-    }
-  }
-
-  void ToggleView()
-  {
-    if (Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.JoystickButton4))
-    {
-      firstPerson = !firstPerson;
-      if (firstPerson)
-      {
-        firstPersonCamera.enabled = true;
-        thirdPersonCamera.enabled = false;
-      }
-      else
-      {
-        thirdPersonCamera.enabled = true;
-        firstPersonCamera.enabled = false;
-        float x = Vector3.Angle(Vector3.forward, thirdPersonCamera.transform.forward);
-        float y = Vector3.Angle(Vector3.right, thirdPersonCamera.transform.right);
-        firstPersonRotation = new Vector2(x, y);
       }
     }
   }
@@ -197,9 +178,8 @@ public class SubmarineControl : MonoBehaviour
 
   private Vector3 GetMoveDirection()
   {
-    Camera referenceCamera = firstPerson ? firstPersonCamera : thirdPersonCamera;
-    Vector3 right = referenceCamera.transform.right;
-    Vector3 forward = referenceCamera.transform.forward;
+    Vector3 right = gameCamera.transform.right;
+    Vector3 forward = gameCamera.transform.forward;
     Vector3 direction = (right * Input.GetAxis(horizontalAxis)) + (forward * Input.GetAxis(verticalAxis));
 
     if (direction.magnitude <= 0.1f)
@@ -213,15 +193,15 @@ public class SubmarineControl : MonoBehaviour
   {
     float e = 0.01f;
     Vector3 modelForward = ProjectionOnGroundPlane(transform.forward).normalized * e;
-    Vector3 right = thirdPersonCamera.transform.right;
-    Vector3 forward = thirdPersonCamera.transform.forward;
+    Vector3 right = gameCamera.transform.right;
+    Vector3 forward = gameCamera.transform.forward;
 
     float horizontalAxisValue = Input.GetAxis(horizontalAxis);
     float verticalAxisValue = Input.GetAxis(verticalAxis);
 
     Vector3 direction = (right * horizontalAxisValue) + (forward * verticalAxisValue) + modelForward;
 
-    if (firstPerson == false)
+    if (cameraManager.IsThirdPerson())
     {
       direction = ProjectionOnGroundPlane(direction);
       direction += (Vector3.up * Input.GetAxis(ascendAxis) * 0.9f);

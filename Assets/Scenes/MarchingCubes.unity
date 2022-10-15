@@ -395,81 +395,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 1
   axis: {x: 1, y: 0, z: 0}
---- !u!1 &395309958
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 395309961}
-  - component: {fileID: 395309960}
-  m_Layer: 0
-  m_Name: First Person Camera
-  m_TagString: FirstPersonCamera
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!20 &395309960
-Camera:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395309958}
-  m_Enabled: 0
-  serializedVersion: 2
-  m_ClearFlags: 2
-  m_BackGroundColor: {r: 0.16862746, g: 0.3254902, b: 0.9529412, a: 0}
-  m_projectionMatrixMode: 1
-  m_GateFitMode: 2
-  m_FOVAxisMode: 0
-  m_SensorSize: {x: 36, y: 24}
-  m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
-  m_NormalizedViewPortRect:
-    serializedVersion: 2
-    x: 0
-    y: 0
-    width: 1
-    height: 1
-  near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 60
-  orthographic: 0
-  orthographic size: 5
-  m_Depth: 0
-  m_CullingMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_RenderingPath: -1
-  m_TargetTexture: {fileID: 0}
-  m_TargetDisplay: 0
-  m_TargetEye: 3
-  m_HDR: 1
-  m_AllowMSAA: 1
-  m_AllowDynamicResolution: 0
-  m_ForceIntoRT: 0
-  m_OcclusionCulling: 1
-  m_StereoConvergence: 10
-  m_StereoSeparation: 0.022
---- !u!4 &395309961
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 395309958}
-  m_LocalRotation: {x: -0.12259596, y: -0, z: -0, w: 0.99245673}
-  m_LocalPosition: {x: -0.038000107, y: 0.4319992, z: -0.1420002}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 486869166}
-  m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: -14.084, y: 0, z: 0}
 --- !u!1 &486869165
 GameObject:
   m_ObjectHideFlags: 0
@@ -503,7 +428,6 @@ Transform:
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1748433420}
-  - {fileID: 395309961}
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -539,8 +463,7 @@ MonoBehaviour:
   impactParticles: {fileID: 1418297478396749206, guid: 7722cb1d233eb6b488ba83188e04379a, type: 3}
   maxSpeed: 10
   acceleration: 8
-  thirdPersonCamera: {fileID: 963194227}
-  firstPersonCamera: {fileID: 395309960}
+  gameCamera: {fileID: 0}
 --- !u!54 &486869168
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -1060,9 +983,11 @@ GameObject:
   - component: {fileID: 963194227}
   - component: {fileID: 963194226}
   - component: {fileID: 963194229}
+  - component: {fileID: 963194230}
+  - component: {fileID: 963194231}
   m_Layer: 0
-  m_Name: Third Person Camera
-  m_TagString: ThirdPersonCamera
+  m_Name: Camera
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1200,6 +1125,33 @@ MonoBehaviour:
     horizontalCapIntensity: 0.07
     horizontalSpeed: 7.5
     horizontalPhase: 0
+--- !u!114 &963194230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 550c5f287eeeb4b4b8dd8be2ad6428ab, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 486869165}
+  offsetPosition: {x: -0.038000107, y: 0.4319992, z: -0.1420002}
+  offsetRotation: {x: -14.084, y: 0, z: 0}
+--- !u!114 &963194231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 963194225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 996eb1befa512ad4cbb60b911db26052, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1247134497
 GameObject:
   m_ObjectHideFlags: 0
