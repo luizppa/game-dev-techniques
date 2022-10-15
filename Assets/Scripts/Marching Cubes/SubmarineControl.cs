@@ -22,6 +22,7 @@ public class SubmarineControl : MonoBehaviour
   [SerializeField] List<Light> lights = new List<Light>();
   [SerializeField] ParticleSystem waterParticles = null;
   [SerializeField] List<AudioClip> impactSounds = new List<AudioClip>();
+  [SerializeField] GameObject impactParticles = null;
 
   [Header("Movement")]
   [SerializeField] float maxSpeed = 5f;
@@ -64,7 +65,7 @@ public class SubmarineControl : MonoBehaviour
 
   void OnCollisionEnter(Collision other)
   {
-    PlayCollisionSound(other.relativeVelocity.magnitude);
+    PlayCollisionEffects(other.relativeVelocity.magnitude, other.contacts);
     ApplyCollisionDamage(other.relativeVelocity.magnitude);
   }
 
@@ -167,13 +168,21 @@ public class SubmarineControl : MonoBehaviour
   }
 
   // ================================ Side effects ================================ //
-  void PlayCollisionSound(float relativeVelocity)
+  void PlayCollisionEffects(float relativeVelocity, ContactPoint[] contacts)
   {
     if (impactSounds.Count > 0)
     {
       int index = Random.Range(0, impactSounds.Count);
       float volumeScale = Mathf.InverseLerp(2f, 10f, relativeVelocity);
       audioSource.PlayOneShot(impactSounds[index], volumeScale);
+    }
+    if (impactParticles != null && relativeVelocity > 2f)
+    {
+      foreach (ContactPoint contact in contacts)
+      {
+        GameObject particles = Instantiate(impactParticles, contact.point, Quaternion.identity);
+        Destroy(particles, 1f);
+      }
     }
   }
 
@@ -210,7 +219,6 @@ public class SubmarineControl : MonoBehaviour
     float horizontalAxisValue = Input.GetAxis(horizontalAxis);
     float verticalAxisValue = Input.GetAxis(verticalAxis);
 
-
     Vector3 direction = (right * horizontalAxisValue) + (forward * verticalAxisValue) + modelForward;
 
     if (firstPerson == false)
@@ -225,6 +233,17 @@ public class SubmarineControl : MonoBehaviour
   {
     Vector3 normal = Vector3.up;
     return Vector3.ProjectOnPlane(v, normal);
+  }
+
+  // ================================ Getters ================================ //
+  public float GetHealth()
+  {
+    return health;
+  }
+
+  public float GetMaxHealth()
+  {
+    return maxHealth;
   }
 
 }
