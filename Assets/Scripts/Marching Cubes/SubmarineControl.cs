@@ -2,38 +2,73 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class SubmarineControl : MonoBehaviour
 {
+  [Header("Stats")]
+  [SerializeField] float maxHealth = 100f;
+  [SerializeField] float maxCollisionDamage = 20f;
+
+  [Header("Controls")]
   [SerializeField] string horizontalAxis = "Horizontal";
   [SerializeField] string verticalAxis = "Vertical";
-  [SerializeField] ParticleSystem waterParticles = null;
+  [SerializeField] string horizontalLookAxis = "Look X";
+  [SerializeField] string verticalLookAxis = "Look Y";
+  [SerializeField] string ascendAxis = "Ascend";
+
+  [Header("Effects")]
   [SerializeField] Rotate proppeler = null;
   [SerializeField] List<Light> lights = new List<Light>();
+  [SerializeField] ParticleSystem waterParticles = null;
+  [SerializeField] List<AudioClip> impactSounds = new List<AudioClip>();
 
+  [Header("Movement")]
   [SerializeField] float maxSpeed = 5f;
   [SerializeField] float acceleration = 2f;
 
+  [Header("Camera")]
   [SerializeField] Camera thirdPersonCamera = null;
   [SerializeField] Camera firstPersonCamera = null;
+
+  private float health;
 
   private bool firstPerson = false;
   private bool lightState = true;
   private Vector2 firstPersonRotation = Vector2.zero;
 
   private Rigidbody rb = null;
+  private AudioSource audioSource = null;
 
+
+  // ================================ Unity messages ================================ //
   void Start()
   {
+    health = maxHealth;
     rb = GetComponent<Rigidbody>();
+    audioSource = GetComponent<AudioSource>();
     firstPersonCamera.enabled = false;
+  }
+
+  void FixedUpdate()
+  {
+    Move();
   }
 
   void Update()
   {
-    Action();
-    Move();
     Rotate();
+    UpdateEffects();
+    Action();
   }
+
+  void OnCollisionEnter(Collision other)
+  {
+    PlayCollisionSound(other.relativeVelocity.magnitude);
+    ApplyCollisionDamage(other.relativeVelocity.magnitude);
+  }
+
+  // ================================ Movement ================================ //
 
   void Move()
   {
@@ -43,23 +78,39 @@ public class SubmarineControl : MonoBehaviour
     {
       direction = ProjectionOnGroundPlane(direction);
     }
-    direction += (Vector3.up * Input.GetAxis("Ascend"));
+    direction += (Vector3.up * Input.GetAxis(ascendAxis));
 
     if (direction.magnitude > 0f)
     {
-      if (waterParticles.isPlaying == false)
-      {
-        waterParticles.Play();
-        proppeler.Play();
-      }
-
-      rb.AddForce(direction * acceleration, ForceMode.Acceleration);
+      rb.AddForce(direction.normalized * acceleration, ForceMode.Acceleration);
       if (rb.velocity.magnitude > maxSpeed)
       {
         rb.velocity = rb.velocity.normalized * maxSpeed;
       }
     }
+  }
 
+  void Rotate()
+  {
+    float sensitivityMultiplier = firstPerson ? 5f : 1f;
+    firstPersonRotation.x += Input.GetAxis(horizontalLookAxis) * sensitivityMultiplier * Time.deltaTime * 500f;
+    firstPersonRotation.y -= Input.GetAxis(verticalLookAxis) * sensitivityMultiplier * Time.deltaTime * 300f;
+    if (firstPerson)
+    {
+      transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f);
+    }
+    else
+    {
+      Vector3 direction = GetLookDirection();
+      if (direction.magnitude > 0.1f)
+      {
+        transform.rotation = Quaternion.LookRotation(direction);
+      }
+    }
+  }
+
+  void UpdateEffects()
+  {
     if (rb.velocity.magnitude < 0.1f && waterParticles.isPlaying == true)
     {
       waterParticles.Stop();
@@ -74,24 +125,7 @@ public class SubmarineControl : MonoBehaviour
     proppeler.SetSpeed(rb.velocity.magnitude);
   }
 
-  void Rotate()
-  {
-    float sensitivityMultiplier = firstPerson ? 5f : 1f;
-    firstPersonRotation.x += Input.GetAxis("Look X") * sensitivityMultiplier * Time.deltaTime * 500f;
-    firstPersonRotation.y -= Input.GetAxis("Look Y") * sensitivityMultiplier * Time.deltaTime * 300f;
-    if (firstPerson)
-    {
-      transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f);
-    }
-    else
-    {
-      Vector3 direction = GetLookDirection();
-      if (direction.magnitude > 0.1f)
-      {
-        transform.rotation = Quaternion.LookRotation(direction);
-      }
-    }
-  }
+  // ================================ Actions ================================ //
 
   void Action()
   {
@@ -132,6 +166,26 @@ public class SubmarineControl : MonoBehaviour
     }
   }
 
+  // ================================ Side effects ================================ //
+  void PlayCollisionSound(float relativeVelocity)
+  {
+    if (impactSounds.Count > 0)
+    {
+      int index = Random.Range(0, impactSounds.Count);
+      float volumeScale = Mathf.InverseLerp(2f, 10f, relativeVelocity);
+      audioSource.PlayOneShot(impactSounds[index], volumeScale);
+    }
+  }
+
+  void ApplyCollisionDamage(float relativeVelocity)
+  {
+    float damageMultiplier = Mathf.InverseLerp(2f, 10f, relativeVelocity);
+    float damage = maxCollisionDamage * damageMultiplier;
+    health = Mathf.Max(0f, health - damage);
+  }
+
+  // ================================ Helpers ================================ //
+
   private Vector3 GetMoveDirection()
   {
     Camera referenceCamera = firstPerson ? firstPersonCamera : thirdPersonCamera;
@@ -162,7 +216,7 @@ public class SubmarineControl : MonoBehaviour
     if (firstPerson == false)
     {
       direction = ProjectionOnGroundPlane(direction);
-      direction += (Vector3.up * Input.GetAxis("Ascend") * 0.9f);
+      direction += (Vector3.up * Input.GetAxis(ascendAxis) * 0.9f);
     }
     return direction;
   }
