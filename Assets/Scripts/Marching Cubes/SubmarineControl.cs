@@ -54,11 +54,11 @@ public class SubmarineControl : MonoBehaviour
   void FixedUpdate()
   {
     Move();
+    Rotate();
   }
 
   void Update()
   {
-    Rotate();
     UpdateEffects();
     Action();
   }
@@ -136,7 +136,7 @@ public class SubmarineControl : MonoBehaviour
 
   void ControlLights()
   {
-    if (Input.GetKeyDown(KeyCode.Mouse1))
+    if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.Joystick1Button9))
     {
       lightState = !lightState;
       foreach (Light light in lights)
@@ -181,7 +181,7 @@ public class SubmarineControl : MonoBehaviour
       foreach (ContactPoint contact in contacts)
       {
         GameObject particles = Instantiate(impactParticles, contact.point, Quaternion.identity);
-        Destroy(particles, 1f);
+        Destroy(particles, 2f);
       }
     }
   }
