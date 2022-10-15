@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
-public class SubmarineControl : MonoBehaviour
+public class SubmarineControl : MonoBehaviour, CameraListener
 {
   [Header("Stats")]
   [SerializeField] float maxHealth = 100f;
@@ -52,6 +52,7 @@ public class SubmarineControl : MonoBehaviour
       gameCamera = Camera.main;
     }
     cameraManager = gameCamera.GetComponent<CameraManager>();
+    cameraManager.AddListener(this);
   }
 
   void FixedUpdate()
@@ -70,6 +71,14 @@ public class SubmarineControl : MonoBehaviour
   {
     PlayCollisionEffects(other.relativeVelocity.magnitude, other.contacts);
     ApplyCollisionDamage(other.relativeVelocity.magnitude);
+  }
+
+  public void OnToggleView()
+  {
+    if (cameraManager.IsFirstPerson())
+    {
+      firstPersonRotation = new Vector2(transform.eulerAngles.y, transform.eulerAngles.x);
+    }
   }
 
   // ================================ Movement ================================ //
@@ -96,9 +105,8 @@ public class SubmarineControl : MonoBehaviour
 
   void Rotate()
   {
-    float sensitivityMultiplier = cameraManager.IsFirstPerson() ? 5f : 1f;
-    firstPersonRotation.x += Input.GetAxis(horizontalLookAxis) * sensitivityMultiplier * Time.deltaTime * 500f;
-    firstPersonRotation.y -= Input.GetAxis(verticalLookAxis) * sensitivityMultiplier * Time.deltaTime * 300f;
+    firstPersonRotation.x += Input.GetAxis(horizontalLookAxis) * Time.deltaTime * 2500;
+    firstPersonRotation.y -= Input.GetAxis(verticalLookAxis) * Time.deltaTime * 1500f;
     if (cameraManager.IsFirstPerson())
     {
       transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f);
@@ -106,7 +114,7 @@ public class SubmarineControl : MonoBehaviour
     else
     {
       Vector3 direction = GetLookDirection();
-      if (direction.magnitude > 0.1f)
+      if (direction.magnitude > 0.1f && Time.timeScale > 0f)
       {
         transform.rotation = Quaternion.LookRotation(direction);
       }

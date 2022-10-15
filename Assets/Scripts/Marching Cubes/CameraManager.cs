@@ -2,13 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public interface CameraListener
+{
+  public void OnToggleView();
+}
+
 [RequireComponent(typeof(ThirdPersonCamera))]
 [RequireComponent(typeof(FirstPersonCamera))]
 public class CameraManager : MonoBehaviour
 {
+
   private ThirdPersonCamera thirdPersonCamera = null;
   private FirstPersonCamera firstPersonCamera = null;
   private bool firstPerson = false;
+  private List<CameraListener> listeners = new List<CameraListener>();
 
   void Start()
   {
@@ -17,7 +24,6 @@ public class CameraManager : MonoBehaviour
     SetEnabledCamera();
   }
 
-  // Update is called once per frame
   void Update()
   {
     ToogleView();
@@ -28,22 +34,49 @@ public class CameraManager : MonoBehaviour
     if (Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.JoystickButton4))
     {
       firstPerson = !firstPerson;
-      SetEnabledCamera();
+      SetEnabledCamera(true);
+      foreach (CameraListener listener in listeners)
+      {
+        listener.OnToggleView();
+      }
     }
   }
 
-  void SetEnabledCamera()
+  void SetEnabledCamera(bool animate = false)
   {
     if (firstPerson)
     {
-      firstPersonCamera.enabled = true;
       thirdPersonCamera.enabled = false;
+      if (animate)
+      {
+        StartCoroutine(AnimateToFirstPerson());
+      }
+      else
+      {
+        firstPersonCamera.enabled = true;
+      }
     }
     else
     {
-      thirdPersonCamera.enabled = true;
       firstPersonCamera.enabled = false;
+      thirdPersonCamera.enabled = true;
     }
+  }
+
+  private IEnumerator AnimateToFirstPerson()
+  {
+    Vector3 target = firstPersonCamera.GetTargetPosition();
+    while ((transform.position - target).magnitude > 0.1f)
+    {
+      transform.position = Vector3.MoveTowards(transform.position, target, 40f * Time.deltaTime);
+      yield return null;
+    }
+    firstPersonCamera.enabled = true;
+  }
+
+  public void AddListener(CameraListener listener)
+  {
+    listeners.Add(listener);
   }
 
   public bool IsFirstPerson()

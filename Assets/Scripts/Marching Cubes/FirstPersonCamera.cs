@@ -10,7 +10,28 @@ public class FirstPersonCamera : MonoBehaviour
 
   void Update()
   {
-    transform.position = player.transform.position + player.transform.TransformVector(offsetPosition);
+    UpdatePosition();
+    UpdateRotation();
+  }
+
+  void OnEnable()
+  {
+    UpdatePosition();
+    UpdateRotation();
+  }
+
+  private void UpdatePosition()
+  {
+    transform.position = GetTargetPosition();
+  }
+
+  private void UpdateRotation()
+  {
     transform.rotation = player.transform.rotation * Quaternion.Euler(offsetRotation);
+  }
+
+  public Vector3 GetTargetPosition()
+  {
+    return player.transform.position + player.transform.TransformVector(offsetPosition);
   }
 }

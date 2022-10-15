@@ -176,7 +176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -225,14 +225,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 84104679}
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.3, y: 0, z: -0.35}
+  m_LocalRotation: {x: -0.030321982, y: -0.70645636, z: -0.030321982, w: 0.70645636}
+  m_LocalPosition: {x: -0.57500064, y: 0.02400124, z: -0.35000026}
   m_LocalScale: {x: 16.666664, y: 16.666668, z: 16.666664}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1312643779}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -4.915, y: -90, z: 0}
 --- !u!108 &84104681
 Light:
   m_ObjectHideFlags: 0
@@ -251,7 +251,7 @@ Light:
   m_InnerSpotAngle: 1
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -474,7 +474,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0.6
-  m_AngularDrag: 0
+  m_AngularDrag: 0.1
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -785,7 +785,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 746053007}
   m_LocalRotation: {x: 0, y: -0.7071068, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: -0.053, y: 0, z: -0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -810,7 +810,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -1108,9 +1108,9 @@ MonoBehaviour:
   verticalSensitivity: 0.8
   invertY: 1
   zoomOutOnMotion:
-    enabled: 0
-    startSpeed: 10
-    capSpeed: 15
+    enabled: 1
+    startSpeed: 2
+    capSpeed: 8
     startDistanceRatio: 0
     capDistanceRatio: 0.3
   motionShake:
@@ -2174,14 +2174,14 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2115213191}
-  m_LocalRotation: {x: -0, y: -0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -0.3, y: 0, z: 0.35}
+  m_LocalRotation: {x: -0.030321982, y: -0.70645636, z: -0.030321982, w: 0.70645636}
+  m_LocalPosition: {x: -0.5750007, y: 0.02400124, z: 0.35000056}
   m_LocalScale: {x: 16.666664, y: 16.666668, z: 16.666664}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1312643779}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -4.915, y: -90, z: 0}
 --- !u!108 &2115213193
 Light:
   m_ObjectHideFlags: 0
@@ -2200,7 +2200,7 @@ Light:
   m_InnerSpotAngle: 1
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 1
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -7107,7 +7107,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: endFogDensity
-      value: 0.06
+      value: 0.04
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: playerPosition
@@ -7115,7 +7115,7 @@ PrefabInstance:
       objectReference: {fileID: 486869166}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: startFogDensity
-      value: 0.03
+      value: 0.02
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
