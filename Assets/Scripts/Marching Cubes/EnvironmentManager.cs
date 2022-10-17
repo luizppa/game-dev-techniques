@@ -7,6 +7,8 @@ public class EnvironmentManager : MonoBehaviour
 {
   [SerializeField] Transform playerPosition = null;
 
+  [SerializeField] float waterLevel = 50f;
+
   [Header("Fog Settings")]
   [SerializeField] float startFogHeight = 35f;
   [SerializeField] Color startFogColor = new Color(0.168f, 0.325f, 0.952f, 1f);
@@ -46,10 +48,27 @@ public class EnvironmentManager : MonoBehaviour
   {
     if (playerPosition)
     {
-      float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
-      RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight);
-      RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
-      gameCamera.backgroundColor = RenderSettings.fogColor;
+      if (gameCamera.transform.position.y <= waterLevel)
+      {
+        float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
+        RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight);
+        RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
+        gameCamera.backgroundColor = RenderSettings.fogColor;
+        gameCamera.clearFlags = CameraClearFlags.SolidColor;
+      }
+      else
+      {
+        RenderSettings.fogColor = Color.white;
+        RenderSettings.fogDensity = 0f;
+        gameCamera.backgroundColor = Color.white;
+        gameCamera.clearFlags = CameraClearFlags.Skybox;
+      }
     }
+  }
+
+  // ================================ Getters ================================ //
+  public float GetWaterLevel()
+  {
+    return waterLevel;
   }
 }

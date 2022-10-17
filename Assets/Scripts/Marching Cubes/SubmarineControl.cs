@@ -39,6 +39,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   private Rigidbody rb = null;
   private AudioSource audioSource = null;
   private CameraManager cameraManager = null;
+  private EnvironmentManager environmentManager = null;
 
 
   // ================================ Unity messages ================================ //
@@ -53,6 +54,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     }
     cameraManager = gameCamera.GetComponent<CameraManager>();
     cameraManager.AddListener(this);
+    environmentManager = FindObjectOfType<EnvironmentManager>();
   }
 
   void FixedUpdate()
@@ -101,6 +103,8 @@ public class SubmarineControl : MonoBehaviour, CameraListener
         rb.velocity = rb.velocity.normalized * maxSpeed;
       }
     }
+
+    rb.useGravity = transform.position.y > environmentManager.GetWaterLevel();
   }
 
   void Rotate()
