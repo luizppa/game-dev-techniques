@@ -92,6 +92,18 @@ float3 LerpPosition(float3 a, float3 b, float t){
 
 // ====================== Density ====================== //
 
+float GetOctave(float3 position, float frequency, float amplitude, float cap)
+{
+	float octave = _NoiseMapVol1.SampleLevel(TrilinearRepeat, position.xz * frequency, 0).x * amplitude;
+	if(octave > cap) octave = cap;
+	return octave;
+}
+
+float3 GetWarp(float2 position, float frequency, float amplitude)
+{
+	return _NoiseMapVol2.SampleLevel(TrilinearRepeat, position * frequency, 0).xyz * amplitude;
+} 
+
 /**
  * Returns the density value of
  * the vertex at (x, y, z) on the chunk
@@ -103,20 +115,27 @@ float CalculateDensity(uint3 id)
 
 	float3 chunkSpace = float3(id);
 	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
-	float density = -chunkSpace.y + 1.0;
-
-	float3 warp = _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.xz * 0.002, 0).xyz;
-	warp += _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.xy * 0.001, 0).xyz;
-	warp += _NoiseMapVol2.SampleLevel(TrilinearRepeat, worldSpace.zy * 0.001, 0).xyz;
-	float3 wrappedWorldSpace = worldSpace + (warp * 8.0);
+	float3 warp = float3(0, 0, 0);
+	float density = -chunkSpace.y - 12.0;
+ 
+	// Warp the position
+	warp += GetWarp(worldSpace.xz, 0.0004, 40.0);
+	warp += GetWarp(worldSpace.xy, 0.001, 8.0);
+	warp += GetWarp(worldSpace.zy, 0.001, 8.0);
+	float3 wrappedWorldSpace = worldSpace + warp;
 	
-	// Octaves
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .001, 0).r * 32.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .005, 0).r * 12.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .01, 0).r * 6.0;
-	density += _NoiseMapVol1.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .05, 0).r * 1.0;
-	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .1, 0).r * 0.5;
-	density += _NoiseMapVol2.SampleLevel(TrilinearRepeat, wrappedWorldSpace.xz * .5, 0).r * 0.1;
+	// Upper octaves
+	density += GetOctave(wrappedWorldSpace, .001, 36.0, 28.0);
+	density += GetOctave(wrappedWorldSpace, .003, 18.0, 14.0);
+	density += GetOctave(wrappedWorldSpace, .005, 15.0, 6.0);
+	density += GetOctave(wrappedWorldSpace, .008, 8.0, 4.0);
+	density += GetOctave(wrappedWorldSpace, .01, 6.0, 2.0);
+
+	// Lower octaves
+	density += GetOctave(worldSpace, .05, 0.8, 0.8);
+	density += GetOctave(worldSpace, .1, 0.4, 0.4);
+	density += GetOctave(worldSpace, .5, 0.2, 0.2);
+	density += GetOctave(worldSpace, .8, 0.1, 0.1);
 
 	float hardFloor = _Elevation;
 	density += saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize; 
