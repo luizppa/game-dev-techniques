@@ -128,19 +128,18 @@ float CalculateDensity(uint3 id)
 	float density = -chunkSpace.y - 24.0;
  
 	// Warp the position
-	warp += GetWarp(worldSpace.xz, 0.0004, 40.0);
-	warp += GetWarp(worldSpace.xy, 0.001, 8.0);
-	warp += GetWarp(worldSpace.zy, 0.001, 8.0);
+	warp += GetWarp(worldSpace.xy, 0.00025, 128.0);
+	warp += GetWarp(worldSpace.zy, 0.00025, 128.0);
 	float3 wrappedWorldSpace = worldSpace + warp;
 	
 	// Upper octaves
 	density += GetOctave(wrappedWorldSpace, .001, 42.0, 38.0);
-	density += GetOctave(wrappedWorldSpace, .003, 18.0, 16.0);
-	density += GetOctave(wrappedWorldSpace, .005, 15.0, 6.0);
-	density += GetOctave(wrappedWorldSpace, .008, 8.0, 4.0);
-	density += GetOctave(wrappedWorldSpace, .01, 6.0, 2.0);
+	density += GetOctave(wrappedWorldSpace, .003, 22.0, 16.0);
+	density += GetOctave(wrappedWorldSpace, .005, 15.0, 8.0);
 
 	// Lower octaves
+	density += GetOctave(worldSpace, .008, 8.0, 4.0);
+	density += GetOctave(worldSpace, .01, 6.0, 2.0);
 	density += GetOctave(worldSpace, .05, 0.8, 0.8);
 	density += GetOctave(worldSpace, .1, 0.4, 0.4);
 	density += GetOctave(worldSpace, .5, 0.2, 0.2);
