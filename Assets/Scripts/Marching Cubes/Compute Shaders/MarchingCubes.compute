@@ -92,6 +92,12 @@ float3 LerpPosition(float3 a, float3 b, float t){
 
 // ====================== Density ====================== //
 
+
+/**
+ * Generates and octave of nois with
+ * the given parameters for frequency and amplitude
+ * the value is capped at `cap`
+*/
 float GetOctave(float3 position, float frequency, float amplitude, float cap)
 {
 	float octave = _NoiseMapVol1.SampleLevel(TrilinearRepeat, position.xz * frequency, 0).x * amplitude;
@@ -99,6 +105,9 @@ float GetOctave(float3 position, float frequency, float amplitude, float cap)
 	return octave;
 }
 
+/**
+ * Gets the warp value for the 2D position
+*/
 float3 GetWarp(float2 position, float frequency, float amplitude)
 {
 	return _NoiseMapVol2.SampleLevel(TrilinearRepeat, position * frequency, 0).xyz * amplitude;
@@ -116,7 +125,7 @@ float CalculateDensity(uint3 id)
 	float3 chunkSpace = float3(id);
 	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
 	float3 warp = float3(0, 0, 0);
-	float density = -chunkSpace.y - 12.0;
+	float density = -chunkSpace.y - 24.0;
  
 	// Warp the position
 	warp += GetWarp(worldSpace.xz, 0.0004, 40.0);
@@ -125,8 +134,8 @@ float CalculateDensity(uint3 id)
 	float3 wrappedWorldSpace = worldSpace + warp;
 	
 	// Upper octaves
-	density += GetOctave(wrappedWorldSpace, .001, 36.0, 28.0);
-	density += GetOctave(wrappedWorldSpace, .003, 18.0, 14.0);
+	density += GetOctave(wrappedWorldSpace, .001, 42.0, 38.0);
+	density += GetOctave(wrappedWorldSpace, .003, 18.0, 16.0);
 	density += GetOctave(wrappedWorldSpace, .005, 15.0, 6.0);
 	density += GetOctave(wrappedWorldSpace, .008, 8.0, 4.0);
 	density += GetOctave(wrappedWorldSpace, .01, 6.0, 2.0);
