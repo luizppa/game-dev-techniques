@@ -99,9 +99,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshGenerator: {fileID: 7200000, guid: 679435d509c913d4ebd7d2f14989d30c, type: 3}
-  grassPrefabs:
-  - {fileID: 1000010624020320, guid: 50cfbc7c572c6564cad13d72634db623, type: 3}
-  - {fileID: 1000010624020320, guid: eed944aa3c9fbb642b0f53ffb006b1a7, type: 3}
+  grassPrefabs: []
 --- !u!64 &-1180322890218020128
 MeshCollider:
   m_ObjectHideFlags: 0

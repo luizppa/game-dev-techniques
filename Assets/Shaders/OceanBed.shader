@@ -20,10 +20,11 @@ Shader "Custom/OceanBed"
         #pragma target 3.0
 
         sampler2D _MainTex;
+
         struct Input
         {
-            float3 normal;
             float2 uv_MainTex;
+            float3 normal : NORMAL;
         };
 
         half _Glossiness;
@@ -42,7 +43,6 @@ Shader "Custom/OceanBed"
             UNITY_INITIALIZE_OUTPUT(Input,data);
             data.normal = mul(unity_ObjectToWorld, float4( v.normal, 0 ));
         }
-
 
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
