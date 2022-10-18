@@ -51,6 +51,7 @@ public class WaterSurface : MonoBehaviour
         int indexUp = index + size.y;
         int indexUpRight = indexUp + 1;
 
+        // Facing up triangles
         triangles.Add(index);
         triangles.Add(indexRight);
         triangles.Add(indexUp);
@@ -58,6 +59,16 @@ public class WaterSurface : MonoBehaviour
         triangles.Add(indexRight);
         triangles.Add(indexUpRight);
         triangles.Add(indexUp);
+
+        // Facing down triangles
+        triangles.Add(indexUp);
+        triangles.Add(indexRight);
+        triangles.Add(index);
+
+        triangles.Add(indexUp);
+        triangles.Add(indexUpRight);
+        triangles.Add(indexRight);
+
       }
     }
 
