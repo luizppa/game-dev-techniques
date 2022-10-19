@@ -45,8 +45,21 @@ Triangle CreateTriangle(float3 a, float3 b, float3 c) {
 
 // ====================== Utils ====================== //
 
+/**
+ * Returns the position of the triangle's centroid.
+*/
 float3 GetCentroid(Triangle tri){
 	return float3((tri.a + tri.b + tri.c) / 3);
+}
+
+/**
+ * Returns the triangle's normal.
+*/
+float3 GetNormal(Triangle tri){
+	float3 v1 = tri.b - tri.a;
+	float3 v2 = tri.c - tri.a;
+	
+	return normalize(cross(v1, v2));
 }
 
 /**
@@ -212,6 +225,10 @@ void CalculateVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 gener
 */
 void GenerateTriangleVegetation(Triangle tri){
 	float3 ctr = GetCentroid(tri);
+	float3 normal = GetNormal(tri);
+	float3 up = float3(0, 1, 0);
+	float dotProd = dot(normal, up);
+	if(dotProd < 0.70) return;
 	float vegetationValue = _NoiseMapVol3.SampleLevel(TrilinearRepeat, ctr.xz * .001, 0).r;
 	if(vegetationValue > (1.0 - vegetationDensity)) {
 		_ChunkVegetation.Append(ctr); 
