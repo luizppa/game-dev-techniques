@@ -151,7 +151,8 @@ public class ThirdPersonCamera : MonoBehaviour
   [SerializeField] bool lockTranslation = false;
   [SerializeField][Range(0f, 360f)][ShowIf("lockTranslation")] float fixedTranslation = 0f;
   [SerializeField] bool avoidClipping = true;
-  [SerializeField] float clipDistance = 5f;
+  [ShowIf(nameof(avoidClipping))][SerializeField] LayerMask ignoreLayers = 0;
+  [ShowIf(nameof(avoidClipping))][SerializeField] float clipDistance = 5f;
   [ShowIf(nameof(avoidClipping))][SerializeField] float clippingOffset = 0f;
   [SerializeField][Range(-180, 180)] float horizontalTilt = 0f;
   [SerializeField] float horizontalOffset = 0f;
@@ -343,12 +344,21 @@ public class ThirdPersonCamera : MonoBehaviour
 
   private void CorrectClipping(float raycastDistance)
   {
-    RaycastHit hit;
     Ray ray = new Ray(follow.transform.position, (transform.position - follow.transform.position).normalized);
+    RaycastHit[] hits = Physics.RaycastAll(ray, raycastDistance, ignoreLayers);
 
-    if (avoidClipping && Physics.Raycast(ray, out hit, raycastDistance))
+    if (hits.Length > 0)
     {
-      float safeDistance = hit.distance - clippingOffset;
+      float closestHitDistance = Mathf.Infinity;
+      foreach (RaycastHit hit in hits)
+      {
+        if (hit.collider.gameObject != follow.gameObject)
+        {
+          closestHitDistance = Mathf.Min(closestHitDistance, hit.distance);
+        }
+      }
+
+      float safeDistance = closestHitDistance - clippingOffset;
       float sinAngl = referenceHeight / raycastDistance;
       float cosAngl = referenceDistance / raycastDistance;
 

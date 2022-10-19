@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 1
   m_SubtractiveShadowColor: {r: 0.2696244, g: 0.4149246, b: 0.7830189, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 9ca22510633fbfd4399f1704cd9d5c72, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 33ab377b49aa14f6fae6e5bac230a5d4, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -423,7 +423,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 486869165}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 16, y: 35, z: 20.62}
+  m_LocalPosition: {x: 16, y: 28, z: 20.62}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1051,7 +1051,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.05832255, y: -0.7046975, z: 0.05832255, w: 0.70469743}
-  m_LocalPosition: {x: 22, y: 36, z: 20.62}
+  m_LocalPosition: {x: 22, y: 29, z: 20.62}
   m_LocalScale: {x: 1, y: 1.0000006, z: 1.0000006}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1092,8 +1092,11 @@ MonoBehaviour:
   fixedHeight: 0.5
   lockTranslation: 0
   fixedTranslation: 0
-  avoidClipping: 0
-  clipDistance: 5
+  avoidClipping: 1
+  ignoreLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  clipDistance: 6
   clippingOffset: 0
   horizontalTilt: 0
   horizontalOffset: 0
@@ -7205,7 +7208,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: waterLevel
-      value: 30
+      value: 29
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: endFogDensity

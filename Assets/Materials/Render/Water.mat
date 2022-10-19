@@ -66,16 +66,17 @@ Material:
     m_Floats:
     - _BumpScale: 1
     - _Cutoff: 0.5
-    - _DepthFactor: 1.2
-    - _DepthPow: 0.04
+    - _DepthFactor: 1.5
+    - _DepthPow: 0.1
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _ExtraHeight: 0
+    - _FoamAnimationSpeed: 40
     - _GlossMapScale: 1
     - _Glossiness: 0.78
     - _GlossyReflections: 1
     - _IntersectionPow: 1
-    - _IntersectionThreshold: 1
+    - _IntersectionThreshold: 1.5
     - _Metallic: 0
     - _Mode: 3
     - _OcclusionStrength: 1
@@ -89,6 +90,8 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 0.15294118, g: 0.28627452, b: 0.83137256, a: 1}
+    - _DeepColor: {r: 0.011764706, g: 0.050980393, b: 0.21568628, a: 1}
     - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _ShalowColor: {r: 0.15294118, g: 0.28627452, b: 0.83137256, a: 1}
   m_BuildTextureStacks: []

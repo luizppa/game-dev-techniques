@@ -48,7 +48,7 @@ public class EnvironmentManager : MonoBehaviour
   {
     if (playerPosition)
     {
-      if (gameCamera.transform.position.y <= waterLevel)
+      if (gameCamera.transform.position.y - 0.2 <= waterLevel)
       {
         float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
         RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight);

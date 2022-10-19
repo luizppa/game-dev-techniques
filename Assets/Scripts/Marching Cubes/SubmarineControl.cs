@@ -95,7 +95,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     }
     direction += (Vector3.up * Input.GetAxis(ascendAxis));
 
-    if (direction.magnitude > 0f)
+    if (direction.magnitude > 0f && IsSubmerged())
     {
       rb.AddForce(direction.normalized * acceleration, ForceMode.Acceleration);
       if (rb.velocity.magnitude > maxSpeed)
@@ -104,7 +104,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
       }
     }
 
-    rb.useGravity = transform.position.y > environmentManager.GetWaterLevel();
+    rb.useGravity = !IsSubmerged();
   }
 
   void Rotate()
@@ -127,15 +127,13 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void UpdateEffects()
   {
-    if (rb.velocity.magnitude < 0.1f && waterParticles.isPlaying == true)
+    if ((rb.velocity.magnitude < 0.1f || !IsSubmerged()) && waterParticles.isPlaying == true)
     {
       waterParticles.Stop();
-      proppeler.Stop();
     }
-    else if (rb.velocity.magnitude > 0.1f && waterParticles.isPlaying == false)
+    else if (rb.velocity.magnitude > 0.1f && IsSubmerged() && waterParticles.isPlaying == false)
     {
       waterParticles.Play();
-      proppeler.Play();
     }
 
     proppeler.SetSpeed(rb.velocity.magnitude);
@@ -187,6 +185,11 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   }
 
   // ================================ Helpers ================================ //
+
+  private bool IsSubmerged()
+  {
+    return transform.position.y < environmentManager.GetWaterLevel();
+  }
 
   private Vector3 GetMoveDirection()
   {

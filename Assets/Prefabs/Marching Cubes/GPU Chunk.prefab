@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 4004197997473802454}
   - component: {fileID: -1180322890218020128}
   - component: {fileID: -229789663602365581}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: GPU Chunk
   m_TagString: Untagged
   m_Icon: {fileID: 0}

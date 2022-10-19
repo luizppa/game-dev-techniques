@@ -3,7 +3,8 @@ Shader "Unlit/WaterSurface"
 	Properties
 	{
 		// Depth
-		[HDR] _Color("Color", Color) = (1, 1, 1, 1)
+		[HDR] _ShalowColor("Shalow color", Color) = (1, 1, 1, 1)
+		[HDR] _DeepColor("Deep color", Color) = (1, 1, 1, 1)
 		_DepthFactor("Depth Factor", float) = 1.0
   	_DepthPow("Depth Pow", float) = 1.0
 
@@ -11,6 +12,7 @@ Shader "Unlit/WaterSurface"
 		[HDR] _EdgeColor("Edge Color", Color) = (1, 1, 1, 1)
 		_IntersectionThreshold("Intersection threshold", Float) = 1
 		_IntersectionPow("Pow", Float) = 1
+		_FoamAnimationSpeed("Foam animation speed", Float) = 10
 
 		// Waves
 		_NoiseTex("Noise Texture", 2D) = "white" {}
@@ -33,9 +35,11 @@ Shader "Unlit/WaterSurface"
 			#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
 			#include "UnityCG.cginc"
+			#include "UnityShaderVariables.cginc"
 
 			struct appdata
 			{
+				float3 normal : NORMAL;
 				float4 vertex : POSITION;
   			float4 texCoord : TEXCOORD0;
 			};
@@ -45,9 +49,11 @@ Shader "Unlit/WaterSurface"
 				float4 vertex : SV_POSITION;
 				float4 texCoord : TEXCOORD0;
 				float4 screenPos : TEXCOORD1;
+				float3 normal : NORMAL;
 			};
 
-			float4 _Color;
+			float4 _ShalowColor;
+			float4 _DeepColor;
 			UNITY_DECLARE_DEPTH_TEXTURE(_CameraDepthTexture);
 			float _DepthFactor;
 			float _DepthPow;
@@ -55,11 +61,20 @@ Shader "Unlit/WaterSurface"
 			float4 _EdgeColor;
 			fixed _IntersectionThreshold;
 			fixed _IntersectionPow;
+			float _FoamAnimationSpeed;
 
 			sampler2D _NoiseTex;
 			float _WaveSpeed;
 			float _WaveAmp;
 			float _ExtraHeight;
+
+			bool shouldApplyFoam(fixed foamFactor){
+				float sinTime = sin(_Time * _FoamAnimationSpeed) * 0.5 + 0.5;
+				float timeFactor = 0.2 * sinTime;
+				float inverseTimeFactor = 0.2 * (1 - sinTime);
+
+				return ((foamFactor > 0.3 + inverseTimeFactor) || (foamFactor < timeFactor && foamFactor > 0.05));
+			}
 
 			v2f vert (appdata v)
 			{
@@ -67,28 +82,38 @@ Shader "Unlit/WaterSurface"
 				o.vertex = UnityObjectToClipPos(v.vertex);
 
 				float noiseSample = tex2Dlod(_NoiseTex, float4(v.texCoord.xy, 0, 0));
-  			o.vertex.y += sin(_Time * _WaveSpeed * noiseSample) * _WaveAmp + _ExtraHeight;
+  			o.vertex.y += sin((_Time * _WaveSpeed) + noiseSample) * _WaveAmp + _ExtraHeight;
 
 				o.screenPos = ComputeScreenPos(o.vertex);
 				COMPUTE_EYEDEPTH(o.screenPos.z);
+
+				o.normal = normalize(mul(unity_ObjectToWorld, float4( v.normal, 0 )));
+				// o.normal = v.normal;
 
 				return o;
 			}
 
 			fixed4 frag (v2f i) : SV_Target
 			{
-				fixed4 col = _Color;
+				fixed4 col = fixed4(0, 0, 0, 0);
 				float3 cameraPos = _WorldSpaceCameraPos;
+				float dotProd = dot(i.normal, float3(0, 1.0, 0));
 
-				float sceneZ = LinearEyeDepth (SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos)));
+				// return float4(i.normal, 1);
+
+				float sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos)));
   			float depth = sceneZ - i.screenPos.z;
 				fixed depthFading = saturate((abs(pow(depth, _DepthPow))) / _DepthFactor);
-				col *= depthFading;
+				col = lerp(_ShalowColor, _DeepColor, depthFading);
 
-				fixed intersect = saturate((abs(depth)) / _IntersectionThreshold);
-  			col += _EdgeColor * pow(1 - intersect, 4) * _IntersectionPow;
+				float noiseSample = tex2Dlod(_NoiseTex, float4(i.texCoord.xz, 0, 0));
+				fixed intersect = saturate((abs(depth)) / (_IntersectionThreshold - noiseSample));
+				float foamFactor = pow(1 - intersect, 4) * _IntersectionPow;
+				if(shouldApplyFoam(foamFactor)){
+	  			col += _EdgeColor;
+				}
 
-				return float4(col.rgb, 1);
+				return float4(col.rgb, depthFading);
 			}
 			ENDCG
 		}

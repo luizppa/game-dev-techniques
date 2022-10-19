@@ -2,7 +2,6 @@ using System.Net.Mime;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TreeEditor;
 
 struct Triangle
 {
@@ -17,8 +16,13 @@ struct Triangle
 [RequireComponent(typeof(MeshCollider))]
 public class GPUChunk : MonoBehaviour
 {
-  // Compute shader
+  // Constants
   private const int threadsCount = 8;
+  private const int maxTrianglesPerVoxel = 5;
+  private const int triangleMemorySize = sizeof(float) * 3 * 4;
+  private const int vector3MemorySize = sizeof(float) * 3;
+
+  // Compute shader
   [SerializeField] ComputeShader meshGenerator = null;
 
   // Mesh
@@ -87,7 +91,7 @@ public class GPUChunk : MonoBehaviour
     meshCollider = GetComponent<MeshCollider>();
     voxelsNumber = (chunkSize - 1) * (chunkSize - 1) * (chunkSize - 1);
     verticesNumber = chunkSize * chunkSize * chunkSize;
-    maxTrianglesNumber = voxelsNumber * 5;
+    maxTrianglesNumber = voxelsNumber * maxTrianglesPerVoxel;
 
     vertices = new float[verticesNumber];
     triangles = new Triangle[maxTrianglesNumber];
@@ -96,10 +100,10 @@ public class GPUChunk : MonoBehaviour
 
   private void InitializaBuffers()
   {
-    trianglesBudffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 12, ComputeBufferType.Append);
+    trianglesBudffer = new ComputeBuffer(maxTrianglesNumber, triangleMemorySize, ComputeBufferType.Append);
     trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
     verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
-    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, sizeof(float) * 3, ComputeBufferType.Append);
+    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, vector3MemorySize, ComputeBufferType.Append);
     vegetationBufferCount = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
   }
 
