@@ -90,8 +90,8 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 0.15294118, g: 0.28627452, b: 0.83137256, a: 1}
-    - _DeepColor: {r: 0.011764706, g: 0.050980393, b: 0.21568628, a: 1}
+    - _DeepColor: {r: 0, g: 0.055817556, b: 0.6698113, a: 1}
     - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShalowColor: {r: 0.15294118, g: 0.28627452, b: 0.83137256, a: 1}
+    - _ShalowColor: {r: 0.3037113, g: 0.4394848, b: 0.990566, a: 1}
   m_BuildTextureStacks: []

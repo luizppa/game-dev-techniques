@@ -75,6 +75,14 @@ You can also see down below how much more natural the perlin noise based generat
   <img width="90%" src="./Docs/marching-cubes-screen-capture-12.png"/>
 </p>
 
+To make the resulting terrain even more intricate, I also implemented position warping, which is basically adding noise to our positions before calculating their density values. This will create complex structures like caves, bridges, cliffs and underpasses. An overview of the resulting terrain can be seen in [this video](https://youtu.be/A4ovcl4IxEs) as well as on the screen shot below.
+
+<p align="center">
+  <img width="90%" src="./Docs/marching-cubes-screen-capture-14.png"/>
+</p>
+
+Just to add some polish to the scene I also got a new model for the submarine, implemented a few effects like the water surface foam and underwater fog, detailed vegetation and particle effects. This is still a work in progress but once I'm done I will probably make a more detailed video showcasing the final result as well as going through the algorithm and the implementation.
+
 ### Learining resources
 
 * [Polygonising a scalar field](http://paulbourke.net/geometry/polygonise/)
@@ -124,11 +132,17 @@ I won't go into too much details because this is not a tutorial nor am I an expe
   <img src="./Docs/ray-tracing-screen-capture-5.png"/>
 </p>
 
+The noise effect can be reduced by implementing denoising algorithms, which have been gaining a lot of attention lately. NVIDIA as well as other researchers have been working on this problem and have come up with some very interesting solutions. I will try to implement some of these algorithms in the future, but for now I will leave it at that. I will make sure to include links to the papers and articles discussing these algorithms in the learning resources section.
+
 ### Learning Resources
 
-* [GPU Ray Tracing in Unity Part one](http://blog.three-eyed-games.com/2018/05/03/gpu-ray-tracing-in-unity-part-1/) by David Kuri
-* [GPU Path Tracing in Unity Part two](http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/) by David Kuri
-* [GPU Path Tracing in Unity Part three](http://three-eyed-games.com/2019/03/18/gpu-path-tracing-in-unity-part-3/) by David Kuri
+* [GPU Ray Tracing in Unity Part one](http://blog.three-eyed-games.com/2018/05/03/gpu-ray-tracing-in-unity-part-1/) by David Kuri (web article)
+* [GPU Path Tracing in Unity Part two](http://three-eyed-games.com/2018/05/12/gpu-path-tracing-in-unity-part-2/) by David Kuri (web article)
+* [GPU Path Tracing in Unity Part three](http://three-eyed-games.com/2019/03/18/gpu-path-tracing-in-unity-part-3/) by David Kuri (web article)
+* [Ray Tracing: How NVIDIA Solved the Impossible!](https://youtu.be/NRmkr50mkEE) (video)
+* [Automatic Parameter Control for Metropolis Light Transport](https://users.cg.tuwien.ac.at/zsolnai/gfx/adaptive_metropolis/) (paper)
+* [Generalized Resampled Importance Sampling: Foundations of ReSTIR](https://research.nvidia.com/publication/2022-07_generalized-resampled-importance-sampling-foundations-restir) (paper)
+* [Rearchitecting Spatiotemporal Resampling for Production](https://research.nvidia.com/publication/2021-07_rearchitecting-spatiotemporal-resampling-production) (paper)
 
 ## 🪅 Convex Decomposition
 
