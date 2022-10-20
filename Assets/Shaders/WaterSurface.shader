@@ -19,6 +19,10 @@ Shader "Unlit/WaterSurface"
 		_WaveSpeed("Wave Speed", float) = 1
 		_WaveAmp("Wave Amp", float) = 0.2
 		_ExtraHeight("Extra Height", float) = 0.0
+
+		// Phong
+		// _SpecularAmount("Specular Amount", float) = 0.4
+		// [HDR] _SpecularColor("Specular Color", Color) = (1, 1, 1, 1)
 	}
 	SubShader
 	{
@@ -37,19 +41,20 @@ Shader "Unlit/WaterSurface"
 			#include "UnityCG.cginc"
 			#include "UnityShaderVariables.cginc"
 
-			struct appdata
+			struct vertexInput
 			{
-				float3 normal : NORMAL;
+				float4 normal : NORMAL;
 				float4 vertex : POSITION;
   			float4 texCoord : TEXCOORD0;
 			};
 
-			struct v2f
+			struct fragmentInput
 			{
 				float4 vertex : SV_POSITION;
-				float4 texCoord : TEXCOORD0;
-				float4 screenPos : TEXCOORD1;
-				float3 normal : NORMAL;
+				float3 worldPos : TEXCOORD0;
+				float4 texCoord : TEXCOORD1;
+				float4 screenPos : TEXCOORD2;
+				float3 normal : TEXCOORD3;
 			};
 
 			float4 _ShalowColor;
@@ -68,18 +73,75 @@ Shader "Unlit/WaterSurface"
 			float _WaveAmp;
 			float _ExtraHeight;
 
-			bool shouldApplyFoam(fixed foamFactor){
+			float _SpecularAmount;
+			float4 _SpecularColor;
+
+			SamplerState _TrilinearRepeat;
+			Texture2D<float4> _Skybox;
+
+			bool shouldApplyFoam(float depth, float2 uv){
+				fixed intersect = saturate((abs(depth)) / (_IntersectionThreshold));
+				float foamFactor = pow(1 - intersect, 4) * _IntersectionPow;
 				float sinTime = sin(_Time * _FoamAnimationSpeed) * 0.5 + 0.5;
 				float timeFactor = 0.2 * sinTime;
 				float inverseTimeFactor = 0.2 * (1 - sinTime);
 
-				return ((foamFactor > 0.3 + inverseTimeFactor) || (foamFactor < timeFactor && foamFactor > 0.05));
+				float noiseSample = tex2D(_NoiseTex, uv/2).r;
+
+				float upperFoamBound = 0.3 + inverseTimeFactor + (0.3 * noiseSample);
+				float middleFoamBound = timeFactor - (0.2 * noiseSample);
+				float lowerFoamBound = 0.03 + (0.1 * noiseSample);
+
+				return ((foamFactor > upperFoamBound) || (foamFactor < middleFoamBound && foamFactor > lowerFoamBound));
 			}
 
-			v2f vert (appdata v)
+			float4 applyFoam(float depth, float2 uv){
+				if(shouldApplyFoam(depth, uv)){
+					return _EdgeColor;
+				}
+				else {
+					return float4(0, 0, 0, 0);
+				}
+			}
+
+			float4 upsideSurface(fragmentInput i, float depth){
+				float4 col = float4(0, 0, 0, 0);
+				fixed depthFading = saturate((abs(pow(depth, _DepthPow))) / _DepthFactor);
+				col = lerp(_ShalowColor, _DeepColor, depthFading);
+
+				float noiseSample = tex2Dlod(_NoiseTex, float4(i.texCoord.xz, 0, 0));
+				col += applyFoam(depth, i.worldPos.xz);
+
+				return float4(col.rgb, depthFading);
+			}
+
+			float4 downsideSurface(fragmentInput i, float depth){
+				float3 cameraPos = _WorldSpaceCameraPos;
+				float chunkDepth = 32.0; // hardcoded for now
+
+				float3 lightDir = normalize(_WorldSpaceLightPos0.xyz);
+				float3 viewDir = normalize(i.worldPos - cameraPos);
+
+				float viewDistance = length(i.worldPos - cameraPos);
+				float viewerDepth = saturate(viewDistance / 32.0);
+				float inverseDepthFactor = 1 - viewerDepth;
+
+				float sinTimeX = sin(_Time + i.worldPos.x) * 0.5 + 0.5;
+				float sinTimeZ = sin(_Time + i.worldPos.z) * 0.5 + 0.5;
+
+				float4 col = unity_FogColor + (inverseDepthFactor * inverseDepthFactor);
+				col += applyFoam(depth, i.worldPos.xz);
+
+				return float4(col.rgb, viewerDepth);
+			}
+
+			fragmentInput vert (vertexInput v)
 			{
-				v2f o;
+				fragmentInput o;
+
+				o.normal = normalize(v.normal);
 				o.vertex = UnityObjectToClipPos(v.vertex);
+				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 
 				float noiseSample = tex2Dlod(_NoiseTex, float4(v.texCoord.xy, 0, 0));
   			o.vertex.y += sin((_Time * _WaveSpeed) + noiseSample) * _WaveAmp + _ExtraHeight;
@@ -87,33 +149,21 @@ Shader "Unlit/WaterSurface"
 				o.screenPos = ComputeScreenPos(o.vertex);
 				COMPUTE_EYEDEPTH(o.screenPos.z);
 
-				o.normal = normalize(mul(unity_ObjectToWorld, float4( v.normal, 0 )));
-				// o.normal = v.normal;
-
 				return o;
 			}
 
-			fixed4 frag (v2f i) : SV_Target
+			float4 frag (fragmentInput i) : SV_Target
 			{
-				fixed4 col = fixed4(0, 0, 0, 0);
-				float3 cameraPos = _WorldSpaceCameraPos;
 				float dotProd = dot(i.normal, float3(0, 1.0, 0));
-
-				// return float4(i.normal, 1);
-
 				float sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos)));
-  			float depth = sceneZ - i.screenPos.z;
-				fixed depthFading = saturate((abs(pow(depth, _DepthPow))) / _DepthFactor);
-				col = lerp(_ShalowColor, _DeepColor, depthFading);
+				float depth = sceneZ - i.screenPos.z;
 
-				float noiseSample = tex2Dlod(_NoiseTex, float4(i.texCoord.xz, 0, 0));
-				fixed intersect = saturate((abs(depth)) / (_IntersectionThreshold - noiseSample));
-				float foamFactor = pow(1 - intersect, 4) * _IntersectionPow;
-				if(shouldApplyFoam(foamFactor)){
-	  			col += _EdgeColor;
+				if(dotProd > 0.0){
+					return upsideSurface(i, depth);
 				}
-
-				return float4(col.rgb, depthFading);
+				else{
+					return downsideSurface(i, depth);
+				}
 			}
 			ENDCG
 		}

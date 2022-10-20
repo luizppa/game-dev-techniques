@@ -1,4 +1,5 @@
-<h1 align="center">🎮 Game Development Techniques 🎮</h1>
+<h2 align="center">🎮</h2>
+<h1 align="center">Game Development Techniques</h1>
 
 Hi! My name is Luiz, I am an aspring game developer and this is a repository where I will be putting the projects I will create throughout my journey. I will be trying to roughly follow [this roadmap](https://github.com/utilForever/game-developer-roadmap) by [Chris Ohk](https://github.com/utilForever). Many of the projects you will see here are inspired by two of my favorite content creators, I absolutely recommend you to check them out:
 

@@ -82,6 +82,7 @@ Material:
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 1
+    - _SpecularAmount: 0.2
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
@@ -94,4 +95,5 @@ Material:
     - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _ShalowColor: {r: 0.3037113, g: 0.4394848, b: 0.990566, a: 1}
+    - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
