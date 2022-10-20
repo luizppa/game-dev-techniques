@@ -7,6 +7,7 @@ public class EnvironmentManager : MonoBehaviour
 {
   [SerializeField] Transform playerPosition = null;
 
+  [Header("Water")]
   [SerializeField] float waterLevel = 50f;
 
   [Header("Fog Settings")]

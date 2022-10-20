@@ -29,11 +29,11 @@ public class WaterSurface : MonoBehaviour
   void GenerateMesh()
   {
     mesh = new Mesh();
-    GetComponent<MeshFilter>().mesh = mesh;
 
     List<Vector3> vertices = new List<Vector3>();
     List<int> triangles = new List<int>();
 
+    // Facing up triangles
     for (int x = 0; x < size.x; x++)
     {
       for (int z = 0; z < size.y; z++)
@@ -41,7 +41,6 @@ public class WaterSurface : MonoBehaviour
         vertices.Add(new Vector3(x, 0, z));
       }
     }
-
     for (int x = 0; x < size.x - 1; x++)
     {
       for (int z = 0; z < size.y - 1; z++)
@@ -51,7 +50,6 @@ public class WaterSurface : MonoBehaviour
         int indexUp = index + size.y;
         int indexUpRight = indexUp + 1;
 
-        // Facing up triangles
         triangles.Add(index);
         triangles.Add(indexRight);
         triangles.Add(indexUp);
@@ -59,21 +57,40 @@ public class WaterSurface : MonoBehaviour
         triangles.Add(indexRight);
         triangles.Add(indexUpRight);
         triangles.Add(indexUp);
+      }
+    }
 
-        // Facing down triangles
-        triangles.Add(indexUp);
-        triangles.Add(indexRight);
-        triangles.Add(index);
+    // Facing down triangles
+    int offset = vertices.Count;
+    for (int x = 0; x < size.x; x++)
+    {
+      for (int z = 0; z < size.y; z++)
+      {
+        vertices.Add(new Vector3(x, 0, z));
+      }
+    }
+    for (int x = 0; x < size.x - 1; x++)
+    {
+      for (int z = 0; z < size.y - 1; z++)
+      {
+        int index = x * size.y + z;
+        int indexRight = index + 1;
+        int indexUp = index + size.y;
+        int indexUpRight = indexUp + 1;
 
-        triangles.Add(indexUp);
-        triangles.Add(indexUpRight);
-        triangles.Add(indexRight);
+        triangles.Add(indexUp + offset);
+        triangles.Add(indexRight + offset);
+        triangles.Add(index + offset);
 
+        triangles.Add(indexUp + offset);
+        triangles.Add(indexUpRight + offset);
+        triangles.Add(indexRight + offset);
       }
     }
 
     mesh.vertices = vertices.ToArray();
     mesh.triangles = triangles.ToArray();
     mesh.RecalculateNormals();
+    GetComponent<MeshFilter>().mesh = mesh;
   }
 }
