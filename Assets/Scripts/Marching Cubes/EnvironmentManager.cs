@@ -7,6 +7,12 @@ public class EnvironmentManager : MonoBehaviour
 {
   [SerializeField] Transform playerPosition = null;
 
+  [Header("Light")]
+  [SerializeField] Light sun = null;
+  [SerializeField] Gradient sunColor = null;
+  [SerializeField] float sunIntensity = 1f;
+  [SerializeField] float dayNightCycleSpeed = 1f;
+
   [Header("Water")]
   [SerializeField] float waterLevel = 50f;
 
@@ -34,6 +40,11 @@ public class EnvironmentManager : MonoBehaviour
     {
       gameCamera = Camera.main;
     }
+    if (sun)
+    {
+      sun.transform.position = new Vector3(0, 1000, 0);
+      sun.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+    }
   }
 
   void Update()
@@ -42,7 +53,24 @@ public class EnvironmentManager : MonoBehaviour
     {
       Destroy(gameObject);
     }
+    if (sun)
+    {
+      DayNightCycle();
+    }
     SetFog();
+  }
+
+  void DayNightCycle()
+  {
+    sun.transform.RotateAround(Vector3.zero, Vector3.right, dayNightCycleSpeed * Time.deltaTime);
+    sun.transform.LookAt(Vector3.zero);
+    float rotationAngle = (sun.transform.rotation.eulerAngles.x % 360f) / 360f;
+    sun.color = sunColor.Evaluate(rotationAngle);
+    float lerpBound = rotationAngle > 0.25 ? 0.5f : 0f;
+    float lerpValue = Mathf.InverseLerp(lerpBound, 0.25f, rotationAngle);
+    sun.intensity = Mathf.Lerp(0.1f, sunIntensity, lerpValue);
+    RenderSettings.ambientLight = sun.color;
+    RenderSettings.ambientIntensity = sun.intensity;
   }
 
   void SetFog()
