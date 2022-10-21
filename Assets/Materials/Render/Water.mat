@@ -67,7 +67,7 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DepthFactor: 1.5
-    - _DepthPow: 0.1
+    - _DepthPow: 0.12
     - _DetailNormalMapScale: 1
     - _DstBlend: 10
     - _ExtraHeight: 0
@@ -75,15 +75,18 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.78
     - _GlossyReflections: 1
-    - _IntersectionPow: 1
-    - _IntersectionThreshold: 1.5
+    - _IntersectionPow: 0.9
+    - _IntersectionThreshold: 1.8
     - _Metallic: 0
     - _Mode: 3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 1
-    - _SpecularAmount: 0.2
+    - _SpecularAmount: 0.7
+    - _SpecularDensity: 0.8
     - _SpecularHighlights: 1
+    - _SpecularSpeed: 0.8
+    - _SpecularSpread: 7
     - _SrcBlend: 1
     - _UVSec: 0
     - _WaveAmp: 0.3
@@ -91,9 +94,9 @@ Material:
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 0.15294118, g: 0.28627452, b: 0.83137256, a: 1}
-    - _DeepColor: {r: 0, g: 0.055817556, b: 0.6698113, a: 1}
+    - _DeepColor: {r: 0, g: 0.23128437, b: 0.5566038, a: 1}
     - _EdgeColor: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _ShalowColor: {r: 0.3037113, g: 0.4394848, b: 0.990566, a: 1}
+    - _ShalowColor: {r: 0, g: 0.83360666, b: 0.8962264, a: 1}
     - _SpecularColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

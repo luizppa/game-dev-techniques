@@ -21,8 +21,11 @@ Shader "Unlit/WaterSurface"
 		_ExtraHeight("Extra Height", float) = 0.0
 
 		// Phong
-		// _SpecularAmount("Specular Amount", float) = 0.4
-		// [HDR] _SpecularColor("Specular Color", Color) = (1, 1, 1, 1)
+		_SpecularAmount("Specular Amount", float) = 0.2
+		_SpecularSpread("Specular Spread", float) = 0.4
+		_SpecularSpeed("Specular Speed", float) = 3
+		_SpecularDensity("Specular Density", float) = 3
+		[HDR] _SpecularColor("Specular Color", Color) = (1, 1, 1, 1)
 	}
 	SubShader
 	{
@@ -74,6 +77,9 @@ Shader "Unlit/WaterSurface"
 			float _ExtraHeight;
 
 			float _SpecularAmount;
+			float _SpecularSpread;
+			float _SpecularSpeed;
+			float _SpecularDensity;
 			float4 _SpecularColor;
 
 			SamplerState _TrilinearRepeat;
@@ -104,13 +110,46 @@ Shader "Unlit/WaterSurface"
 				}
 			}
 
+			float4 applySunRefraction(float3 worldPos, float3 worldNormal, float viewerDepth){
+				float3 sunDir = _WorldSpaceLightPos0.xyz;
+				float3 viewDir = normalize(worldPos - _WorldSpaceCameraPos.xyz);
+				float dotProd = saturate(dot(viewDir, sunDir));
+
+				if(dotProd < _SpecularAmount){
+					return float4(0, 0, 0, 0);
+				}
+
+				float noiseSample = tex2D(_NoiseTex, (worldPos.xz/_SpecularSpread) + (_Time.x * _SpecularSpeed)).r;
+				if(noiseSample > _SpecularDensity){
+					float strength = saturate(1 - (viewerDepth * 2));
+					return float4(_SpecularColor.rgb * strength, 1);
+				}
+				return float4(0, 0, 0, 0);
+			}
+
+			float4 applySunReflection(float3 worldPos, float3 worldNormal, float depth){
+				float3 sunDir = _WorldSpaceLightPos0.xyz;
+				float3 viewDir = normalize(worldPos - _WorldSpaceCameraPos.xyz);
+				float ref = reflect(-viewDir, worldNormal);
+				float dotProd = saturate(dot(ref, sunDir));
+				if(dotProd < 1 - _SpecularAmount){
+					return float4(0, 0, 0, 0);
+				}
+				float noiseSample = tex2D(_NoiseTex, (worldPos.xz/_SpecularSpread) + (_Time.x * _SpecularSpeed)).r;
+				if(noiseSample > _SpecularDensity){
+					return float4(_SpecularColor.rgb * depth, 1);
+				}
+				return float4(0, 0, 0, 0);
+			}
+
 			float4 upsideSurface(fragmentInput i, float depth){
 				float4 col = float4(0, 0, 0, 0);
 				fixed depthFading = saturate((abs(pow(depth, _DepthPow))) / _DepthFactor);
-				col = lerp(_ShalowColor, _DeepColor, depthFading);
+				col = lerp(_ShalowColor, _DeepColor, (depthFading * depthFading));
 
 				float noiseSample = tex2Dlod(_NoiseTex, float4(i.texCoord.xz, 0, 0));
 				col += applyFoam(depth, i.worldPos.xz);
+				// col += applySunReflection(i.worldPos, i.normal, depth);
 
 				return float4(col.rgb, depthFading);
 			}
@@ -131,6 +170,7 @@ Shader "Unlit/WaterSurface"
 
 				float4 col = unity_FogColor + (inverseDepthFactor * inverseDepthFactor);
 				col += applyFoam(depth, i.worldPos.xz);
+				col += applySunRefraction(i.worldPos, i.normal, viewerDepth);
 
 				return float4(col.rgb, viewerDepth);
 			}
@@ -142,6 +182,7 @@ Shader "Unlit/WaterSurface"
 				o.normal = normalize(v.normal);
 				o.vertex = UnityObjectToClipPos(v.vertex);
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+				o.texCoord = v.texCoord;
 
 				float noiseSample = tex2Dlod(_NoiseTex, float4(v.texCoord.xy, 0, 0));
   			o.vertex.y += sin((_Time * _WaveSpeed) + noiseSample) * _WaveAmp + _ExtraHeight;
