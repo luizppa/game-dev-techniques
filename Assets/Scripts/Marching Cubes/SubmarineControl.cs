@@ -30,6 +30,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   [Header("Camera")]
   [SerializeField] Camera gameCamera = null;
+  [SerializeField] GameObject windShield = null;
 
   private float health;
 
@@ -81,6 +82,10 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     {
       firstPersonRotation = new Vector2(transform.eulerAngles.y, transform.eulerAngles.x);
     }
+    if (windShield != null)
+    {
+      windShield.GetComponent<MeshRenderer>().enabled = !cameraManager.IsFirstPerson();
+    }
   }
 
   // ================================ Movement ================================ //
@@ -97,7 +102,8 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
     if (direction.magnitude > 0f && IsSubmerged())
     {
-      rb.AddForce(direction.normalized * acceleration, ForceMode.Acceleration);
+      float instantAcceleration = acceleration * Time.fixedDeltaTime * 60f;
+      rb.AddForce(direction.normalized * instantAcceleration, ForceMode.Acceleration);
       if (rb.velocity.magnitude > maxSpeed)
       {
         rb.velocity = rb.velocity.normalized * maxSpeed;
@@ -105,6 +111,12 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     }
 
     rb.useGravity = !IsSubmerged();
+    if (IsCloseToSurface())
+    {
+      float distance = transform.position.y - environmentManager.GetWaterLevel();
+      float force = -(2.5f * distance) * Time.deltaTime * 60f;
+      rb.AddForce(Vector3.up * force, ForceMode.Acceleration);
+    }
   }
 
   void Rotate()
@@ -172,7 +184,6 @@ public class SubmarineControl : MonoBehaviour, CameraListener
       foreach (ContactPoint contact in contacts)
       {
         GameObject particles = Instantiate(impactParticles, contact.point, Quaternion.identity);
-        Destroy(particles, 2f);
       }
     }
   }
@@ -189,6 +200,12 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   private bool IsSubmerged()
   {
     return transform.position.y < environmentManager.GetWaterLevel();
+  }
+
+  private bool IsCloseToSurface()
+  {
+    float distance = transform.position.y - environmentManager.GetWaterLevel();
+    return Mathf.Abs(distance) < 1.5f;
   }
 
   private Vector3 GetMoveDirection()
