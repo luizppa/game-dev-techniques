@@ -142,6 +142,13 @@ Shader "Unlit/WaterSurface"
 				return float4(0, 0, 0, 0);
 			}
 
+			float getLightIncidence(float3 normal, float offset)
+			{
+				float3 sunDir = normalize(_WorldSpaceLightPos0.xyz);
+				float lightIncidence = saturate(offset + saturate(dot(normal, sunDir)));
+				return lightIncidence;
+			}
+
 			float4 upsideSurface(fragmentInput i, float depth){
 				float4 col = float4(0, 0, 0, 0);
 				fixed depthFading = saturate((abs(pow(depth, _DepthPow))) / _DepthFactor);
@@ -149,6 +156,7 @@ Shader "Unlit/WaterSurface"
 
 				float noiseSample = tex2Dlod(_NoiseTex, float4(i.texCoord.xz, 0, 0));
 				col += applyFoam(depth, i.worldPos.xz);
+				col *= getLightIncidence(i.normal, 0.35);
 				// col += applySunReflection(i.worldPos, i.normal, depth);
 
 				return float4(col.rgb, depthFading);
@@ -171,6 +179,7 @@ Shader "Unlit/WaterSurface"
 				float4 col = unity_FogColor + (inverseDepthFactor * inverseDepthFactor);
 				col += applyFoam(depth, i.worldPos.xz);
 				col += applySunRefraction(i.worldPos, i.normal, viewerDepth);
+				col *= getLightIncidence(-i.normal, 0.8);
 
 				return float4(col.rgb, viewerDepth);
 			}

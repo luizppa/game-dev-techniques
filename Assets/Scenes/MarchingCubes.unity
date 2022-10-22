@@ -7350,7 +7350,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: dayNightCycleSpeed
-      value: 1
+      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: sunColor.m_NumColorKeys
