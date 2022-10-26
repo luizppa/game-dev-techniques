@@ -88,6 +88,62 @@ public class WaterSurface : MonoBehaviour
       }
     }
 
+    // Back wall
+    vertices.Add(new Vector3(0, 0.1f, 0));
+    vertices.Add(new Vector3(size.x, 0.1f, 0));
+    vertices.Add(new Vector3(0, -100, 0));
+    vertices.Add(new Vector3(size.x, -100, 0));
+
+    triangles.Add(vertices.Count - 2);
+    triangles.Add(vertices.Count - 3);
+    triangles.Add(vertices.Count - 4);
+
+    triangles.Add(vertices.Count - 2);
+    triangles.Add(vertices.Count - 1);
+    triangles.Add(vertices.Count - 3);
+
+    // Front wall
+    vertices.Add(new Vector3(0, 0.1f, size.y));
+    vertices.Add(new Vector3(size.x, 0.1f, size.y));
+    vertices.Add(new Vector3(0, -100, size.y));
+    vertices.Add(new Vector3(size.x, -100, size.y));
+
+    triangles.Add(vertices.Count - 4);
+    triangles.Add(vertices.Count - 3);
+    triangles.Add(vertices.Count - 2);
+
+    triangles.Add(vertices.Count - 3);
+    triangles.Add(vertices.Count - 1);
+    triangles.Add(vertices.Count - 2);
+
+    // Left wall
+    vertices.Add(new Vector3(0, 0.1f, 0));
+    vertices.Add(new Vector3(0, 0.1f, size.y));
+    vertices.Add(new Vector3(0, -100, 0));
+    vertices.Add(new Vector3(0, -100, size.y));
+
+    triangles.Add(vertices.Count - 4);
+    triangles.Add(vertices.Count - 3);
+    triangles.Add(vertices.Count - 2);
+
+    triangles.Add(vertices.Count - 3);
+    triangles.Add(vertices.Count - 1);
+    triangles.Add(vertices.Count - 2);
+
+    // Right wall
+    vertices.Add(new Vector3(size.x, 0.1f, 0));
+    vertices.Add(new Vector3(size.x, 0.1f, size.y));
+    vertices.Add(new Vector3(size.x, -100, 0));
+    vertices.Add(new Vector3(size.x, -100, size.y));
+
+    triangles.Add(vertices.Count - 2);
+    triangles.Add(vertices.Count - 3);
+    triangles.Add(vertices.Count - 4);
+
+    triangles.Add(vertices.Count - 2);
+    triangles.Add(vertices.Count - 1);
+    triangles.Add(vertices.Count - 3);
+
     mesh.vertices = vertices.ToArray();
     mesh.triangles = triangles.ToArray();
     mesh.RecalculateNormals();

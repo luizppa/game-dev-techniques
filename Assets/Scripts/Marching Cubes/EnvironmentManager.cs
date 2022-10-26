@@ -82,15 +82,10 @@ public class EnvironmentManager : MonoBehaviour
         float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
         RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight) * sun.intensity;
         RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
-        gameCamera.backgroundColor = RenderSettings.fogColor;
-        gameCamera.clearFlags = CameraClearFlags.SolidColor;
       }
       else
       {
-        RenderSettings.fogColor = Color.white;
         RenderSettings.fogDensity = 0f;
-        gameCamera.backgroundColor = Color.white;
-        gameCamera.clearFlags = CameraClearFlags.Skybox;
       }
     }
   }

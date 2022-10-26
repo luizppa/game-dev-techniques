@@ -49,6 +49,7 @@ Shader "Unlit/WaterSurface"
 				float4 normal : NORMAL;
 				float4 vertex : POSITION;
   			float4 texCoord : TEXCOORD0;
+				UNITY_FOG_COORDS(1)
 			};
 
 			struct fragmentInput
@@ -177,7 +178,7 @@ Shader "Unlit/WaterSurface"
 				float sinTimeZ = sin(_Time + i.worldPos.z) * 0.5 + 0.5;
 
 				float4 col = unity_FogColor + (inverseDepthFactor * inverseDepthFactor);
-				col += applyFoam(depth, i.worldPos.xz);
+				// col += applyFoam(depth, i.worldPos.xz);
 				col += applySunRefraction(i.worldPos, i.normal, viewerDepth);
 				col *= getLightIncidence(-i.normal, 0.8);
 
@@ -199,6 +200,8 @@ Shader "Unlit/WaterSurface"
 				o.screenPos = ComputeScreenPos(o.vertex);
 				COMPUTE_EYEDEPTH(o.screenPos.z);
 
+				UNITY_TRANSFER_FOG(o, o.worldPos);
+
 				return o;
 			}
 
@@ -208,11 +211,14 @@ Shader "Unlit/WaterSurface"
 				float sceneZ = LinearEyeDepth(SAMPLE_DEPTH_TEXTURE_PROJ(_CameraDepthTexture, UNITY_PROJ_COORD(i.screenPos)));
 				float depth = sceneZ - i.screenPos.z;
 
-				if(dotProd > 0.0){
+				if(dotProd > 0.1){
 					return upsideSurface(i, depth);
 				}
-				else{
+				else if (dotProd < -0.1){
 					return downsideSurface(i, depth);
+				}
+				else{
+					return float4(unity_FogColor.rgb, 1);
 				}
 			}
 			ENDCG

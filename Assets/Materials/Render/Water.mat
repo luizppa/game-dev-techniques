@@ -83,7 +83,7 @@ Material:
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 1
     - _SpecularAmount: 0.7
-    - _SpecularDensity: 0.8
+    - _SpecularDensity: 0.1
     - _SpecularHighlights: 1
     - _SpecularSpeed: 0.8
     - _SpecularSpread: 7
