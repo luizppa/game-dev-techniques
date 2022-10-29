@@ -95,4 +95,9 @@ public class EnvironmentManager : MonoBehaviour
   {
     return waterLevel;
   }
+
+  public void SetDayNightCycleSpeed(float newSpeed)
+  {
+    dayNightCycleSpeed = newSpeed;
+  }
 }

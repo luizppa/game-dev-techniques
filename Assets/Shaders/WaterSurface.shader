@@ -15,17 +15,29 @@ Shader "Unlit/WaterSurface"
 		_FoamAnimationSpeed("Foam animation speed", Float) = 10
 
 		// Waves
-		_NoiseTex("Noise Texture", 2D) = "white" {}
 		_WaveSpeed("Wave Speed", float) = 1
 		_WaveAmp("Wave Amp", float) = 0.2
 		_ExtraHeight("Extra Height", float) = 0.0
 
-		// Phong
-		_SpecularAmount("Specular Amount", float) = 0.2
-		_SpecularSpread("Specular Spread", float) = 0.4
-		_SpecularSpeed("Specular Speed", float) = 3
-		_SpecularDensity("Specular Density", float) = 3
-		[HDR] _SpecularColor("Specular Color", Color) = (1, 1, 1, 1)
+		// Noise
+		_WavesNoise("Waves Noise Texture", 2D) = "white" {}
+		_FoamNoise("Foam Noise Texture", 2D) = "white" {}
+		_RefractionNoiseHorizontal("Refraction Noise Texture 1", 2D) = "white" {}
+		_RefractionNoiseVertical("Refraction Noise Texture 2", 2D) = "white" {}
+
+		// Refraction
+		_RefractionAmount("Refraction Amount", float) = 1
+		_RefractionSpread("Refraction Spread", float) = 15
+		_RefractionSpeed("Refraction Speed", float) = 15
+		_RefractionDensity("Refraction Density", float) = 0.3
+		[HDR] _RefractionColor("Refraction Color", Color) = (1, 1, 1, 1)
+
+		// Reflection
+		_ReflectionAmount("Reflection Amount", float) = 1
+		_ReflectionSpread("Reflection Spread", float) = 15
+		_ReflectionSpeed("Reflection Speed", float) = 15
+		_ReflectionDensity("Reflection Density", float) = 0.3
+		[HDR] _ReflectionColor("Reflection Color", Color) = (1, 1, 1, 1)
 	}
 	SubShader
 	{
@@ -72,16 +84,26 @@ Shader "Unlit/WaterSurface"
 			fixed _IntersectionPow;
 			float _FoamAnimationSpeed;
 
-			sampler2D _NoiseTex;
 			float _WaveSpeed;
 			float _WaveAmp;
 			float _ExtraHeight;
 
-			float _SpecularAmount;
-			float _SpecularSpread;
-			float _SpecularSpeed;
-			float _SpecularDensity;
-			float4 _SpecularColor;
+			sampler2D _WavesNoise;
+			sampler2D _FoamNoise;
+			sampler2D _RefractionNoiseHorizontal;
+			sampler2D _RefractionNoiseVertical;
+
+			float _RefractionAmount;
+			float _RefractionSpread;
+			float _RefractionSpeed;
+			float _RefractionDensity;
+			float4 _RefractionColor;
+
+			float _ReflectionAmount;
+			float _ReflectionSpread;
+			float _ReflectionSpeed;
+			float _ReflectionDensity;
+			float4 _ReflectionColor;
 
 			SamplerState _TrilinearRepeat;
 			Texture2D<float4> _Skybox;
@@ -93,7 +115,7 @@ Shader "Unlit/WaterSurface"
 				float timeFactor = 0.2 * sinTime;
 				float inverseTimeFactor = 0.2 * (1 - sinTime);
 
-				float noiseSample = tex2D(_NoiseTex, uv/2).r;
+				float noiseSample = tex2D(_FoamNoise, uv/2).r;
 
 				float upperFoamBound = 0.3 + inverseTimeFactor + (0.3 * noiseSample);
 				float middleFoamBound = timeFactor - (0.2 * noiseSample);
@@ -116,14 +138,17 @@ Shader "Unlit/WaterSurface"
 				float3 viewDir = normalize(worldPos - _WorldSpaceCameraPos.xyz);
 				float dotProd = saturate(dot(viewDir, sunDir));
 
-				if(dotProd < _SpecularAmount){
+				if(dotProd < 1 - _RefractionAmount){
 					return float4(0, 0, 0, 0);
 				}
 
-				float noiseSample = tex2D(_NoiseTex, (worldPos.xz/_SpecularSpread) + (_Time.x * _SpecularSpeed)).r;
-				if(noiseSample > _SpecularDensity){
+				float timeFactor = _Time * _RefractionSpeed;
+				float noiseSampleX = tex2D(_RefractionNoiseHorizontal, float2(worldPos.x + timeFactor, worldPos.z) / _RefractionSpread).r;
+				float noiseSampleZ = tex2D(_RefractionNoiseHorizontal, float2(worldPos.x, worldPos.z + timeFactor) / _RefractionSpread).r;
+				float noiseSample = noiseSampleX * noiseSampleZ;
+				if(noiseSample > _RefractionDensity){
 					float strength = saturate(1 - (viewerDepth * 2));
-					return float4(_SpecularColor.rgb * strength, 1);
+					return float4(_RefractionColor.rgb * strength, 1);
 				}
 				return float4(0, 0, 0, 0);
 			}
@@ -133,12 +158,17 @@ Shader "Unlit/WaterSurface"
 				float3 viewDir = normalize(worldPos - _WorldSpaceCameraPos.xyz);
 				float ref = reflect(-viewDir, worldNormal);
 				float dotProd = saturate(dot(ref, sunDir));
-				if(dotProd < 1 - _SpecularAmount){
+
+				if(dotProd < 1 - _ReflectionAmount){
 					return float4(0, 0, 0, 0);
 				}
-				float noiseSample = tex2D(_NoiseTex, (worldPos.xz/_SpecularSpread) + (_Time.x * _SpecularSpeed)).r;
-				if(noiseSample > _SpecularDensity){
-					return float4(_SpecularColor.rgb * depth, 1);
+				
+				float timeFactor = _Time * _ReflectionSpeed;
+				float noiseSampleX = tex2D(_RefractionNoiseHorizontal, float2(worldPos.x + timeFactor, worldPos.z) / _ReflectionSpread).r;
+				float noiseSampleZ = tex2D(_RefractionNoiseHorizontal, float2(worldPos.x, worldPos.z + timeFactor) / _ReflectionSpread).r;
+				float noiseSample = noiseSampleX * noiseSampleZ;
+				if(noiseSample > _ReflectionDensity){
+					return float4(_ReflectionColor.rgb * depth, 1);
 				}
 				return float4(0, 0, 0, 0);
 			}
@@ -155,10 +185,9 @@ Shader "Unlit/WaterSurface"
 				fixed depthFading = saturate((abs(pow(depth, _DepthPow))) / _DepthFactor);
 				col = lerp(_ShalowColor, _DeepColor, (depthFading * depthFading));
 
-				float noiseSample = tex2Dlod(_NoiseTex, float4(i.texCoord.xz, 0, 0));
 				col += applyFoam(depth, i.worldPos.xz);
 				col *= getLightIncidence(i.normal, 0.35);
-				// col += applySunReflection(i.worldPos, i.normal, depth);
+				col += applySunReflection(i.worldPos, i.normal, depth);
 
 				return float4(col.rgb, depthFading);
 			}
@@ -177,12 +206,12 @@ Shader "Unlit/WaterSurface"
 				float sinTimeX = sin(_Time + i.worldPos.x) * 0.5 + 0.5;
 				float sinTimeZ = sin(_Time + i.worldPos.z) * 0.5 + 0.5;
 
-				float4 col = unity_FogColor + (inverseDepthFactor * inverseDepthFactor);
+				float4 col = unity_FogColor + pow(inverseDepthFactor, 2);
 				// col += applyFoam(depth, i.worldPos.xz);
 				col += applySunRefraction(i.worldPos, i.normal, viewerDepth);
 				col *= getLightIncidence(-i.normal, 0.8);
 
-				return float4(col.rgb, viewerDepth);
+				return float4(col.rgb, saturate(0.4 + viewerDepth));
 			}
 
 			fragmentInput vert (vertexInput v)
@@ -194,7 +223,7 @@ Shader "Unlit/WaterSurface"
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				o.texCoord = v.texCoord;
 
-				float noiseSample = tex2Dlod(_NoiseTex, float4(v.texCoord.xy, 0, 0));
+				float noiseSample = tex2Dlod(_WavesNoise, float4(v.texCoord.xy, 0, 0));
   			o.vertex.y += sin((_Time * _WaveSpeed) + noiseSample) * _WaveAmp + _ExtraHeight;
 
 				o.screenPos = ComputeScreenPos(o.vertex);

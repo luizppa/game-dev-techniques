@@ -65,6 +65,14 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void Update()
   {
+    if (Input.GetKeyDown(KeyCode.L))
+    {
+      environmentManager.SetDayNightCycleSpeed(30f);
+    }
+    if (Input.GetKeyDown(KeyCode.K))
+    {
+      environmentManager.SetDayNightCycleSpeed(0.25f);
+    }
     UpdateEffects();
     Action();
     Rotate();
