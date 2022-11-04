@@ -313,4 +313,9 @@ public class SurfaceManager : MonoBehaviour
   {
     return elevation;
   }
+
+  public Transform GetPlayerTransform()
+  {
+    return playerPosition;
+  }
 }

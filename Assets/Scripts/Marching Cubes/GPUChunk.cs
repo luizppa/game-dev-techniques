@@ -47,6 +47,7 @@ public class GPUChunk : MonoBehaviour
   private SurfaceManager surfaceManager = null;
   private MeshFilter meshFilter = null;
   private MeshCollider meshCollider = null;
+  private GameObject boid = null;
 
   // Buffers
   ComputeBuffer trianglesBudffer = null;
@@ -57,6 +58,8 @@ public class GPUChunk : MonoBehaviour
 
   // Props
   [SerializeField] List<GameObject> grassPrefabs = new List<GameObject>();
+  [SerializeField] GameObject boidUnitPrefab = null;
+  [SerializeField] uint boidsNumber = 100;
 
   void Start()
   {
@@ -69,6 +72,11 @@ public class GPUChunk : MonoBehaviour
   void OnDisable()
   {
     ReleaseBuffers();
+  }
+
+  void OnDestroy()
+  {
+    Destroy(boid);
   }
 
   private void GetConfig()
@@ -120,6 +128,7 @@ public class GPUChunk : MonoBehaviour
   {
     GenerateDensity();
     GenerateMesh();
+    GenerateBoids();
   }
 
   void GenerateDensity()
@@ -152,6 +161,25 @@ public class GPUChunk : MonoBehaviour
     Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
     vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
     GenerateVegetation(vegetationCount[0], generatedVegetation);
+  }
+
+  void GenerateBoids()
+  {
+    if (boidUnitPrefab != null)
+    {
+      float size = chunkSize * chunkScale;
+
+      boid = new GameObject();
+      boid.name = "Boids " + this.name;
+
+      Boid boidComponent = boid.AddComponent<Boid>();
+      boidComponent.SetUnitPrefab(boidUnitPrefab);
+      boidComponent.SetUnits(boidsNumber);
+
+      Vector3 chunkCenter = transform.position + new Vector3(size / 2, (size / 2) - 2, size / 2);
+      boidComponent.SetNavigationBounds(new Bounds(chunkCenter, new Vector3(size, size - 4f, size)));
+      boidComponent.SetSpawnBounds(new Bounds(chunkCenter + (Vector3.up * (size - 5) / 2f), new Vector3(size, 1, size)));
+    }
   }
 
   private int SetupDensityComputeShader()

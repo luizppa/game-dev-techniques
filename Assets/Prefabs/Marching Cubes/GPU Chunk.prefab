@@ -102,6 +102,8 @@ MonoBehaviour:
   grassPrefabs:
   - {fileID: 1000010624020320, guid: 8f736346d6454a145819ab8157ae4535, type: 3}
   - {fileID: 1000010624020320, guid: eed944aa3c9fbb642b0f53ffb006b1a7, type: 3}
+  boidUnitPrefab: {fileID: 9177517828484293633, guid: 38d92f5d21ab91f48b2715c785c844d5, type: 3}
+  boidsNumber: 5
 --- !u!64 &-1180322890218020128
 MeshCollider:
   m_ObjectHideFlags: 0
