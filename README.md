@@ -1,7 +1,7 @@
 <h2 align="center">🎮</h2>
 <h1 align="center">Game Development Techniques</h1>
 
-Hi! My name is Luiz, I am an aspring game developer and this is a repository where I will be putting the projects I will create throughout my journey. I will be trying to roughly follow [this roadmap](https://github.com/utilForever/game-developer-roadmap) by [Chris Ohk](https://github.com/utilForever). Many of the projects you will see here are inspired by two of my favorite content creators, I absolutely recommend you to check them out:
+Hi! My name is Luiz, I am an aspring game developer and in this repository I will be putting the projects I will create throughout my journey. I will be trying to roughly follow [this roadmap](https://github.com/utilForever/game-developer-roadmap) by [Chris Ohk](https://github.com/utilForever). Many of the projects you will see here are inspired by two of my favorite content creators, I absolutely recommend you to check them out:
 
 * [Freya Holmér](https://www.youtube.com/c/Acegikmo)
 * [Sebastian Lague](https://www.youtube.com/c/SebastianLague)
@@ -19,6 +19,7 @@ Whithout further ado, let's get to the projects!
 
 - [🚤 Marching Cubes](#-marching-cubes)
   - [Implementation](#implementation)
+  - [Results](#results)
   - [Learining resources](#learining-resources)
   - [Credits](#credits)
 - [🔮 Compute Shaders](#-compute-shaders)
@@ -32,7 +33,7 @@ Whithout further ado, let's get to the projects!
   <img src="./Docs/marching-cubes-screen-title.png"/>
 </p>
 
-[Marching Cubes](https://en.wikipedia.org/wiki/Marching_cubes) is a procedural polygonization algorithm that will generate natural looking meshes based on a grid of points. It is a very popular technique used in many applications, such as terrain generation, fluid simulation, voxel rendering and many others. The technique was first described by William E. Lorensen and H. E. Cline in 1987.
+[Marching Cubes](https://en.wikipedia.org/wiki/Marching_cubes) is a procedural polygonization algorithm that will generate natural looking meshes based on a grid of points. It is a very popular technique used in applications like terrain generation, fluid simulation, voxel rendering and many others. The technique was first described by William E. Lorensen and H. E. Cline in 1987.
 
 The algorithm works by creating a tridimensional grid of points, where each point has a value (often reffered at as "density") that indicates wheter the points is located at the interior or the exterior of the mesh. The code slides (marches) a cube through the grid and creates polygons by interpolition of the position of adjacent points. The polygons are then connected to form a mesh.
 
@@ -42,7 +43,7 @@ The algorithm works by creating a tridimensional grid of points, where each poin
   Image from <a href="http://shamshad-npti.github.io/implicit/curve/2016/01/10/Marching-Cube/">Shamshad Alam's blog</a>
 </p>
 
-There are 256 possible formations for a cube (however, some of them are symmetrical, therefore are redundant and can be reduced to 15 unique formations). Each formation is represented by a 12-bit (one bit per edge, where 1 indicates the presence of a triangle vertex on that adge, whilst 0 represents the absence) integer, where each bit indicates wheter a vertex is inside or outside the mesh.
+There are 256 possible formations for a cube, however, some of them are redundant as they represent rotations of other formations, leaving us with 15 unique formations. Each formation is represented by a 12-bit integer, one bit per edge, where 1 indicates the presence of a triangle vertex on that edge whilst 0 represents the absence.
 
 ### Implementation
 
@@ -50,9 +51,9 @@ My implementation of this algorithm was inspired by [this video by Sebastian Lea
 
 The example presented on the `MarchingCubes.unity` scene has three main mono behavior classes: the surface manager and the CPU and GPU chunks. The surface manager is responsible for creating, deleting and updating the chunks according to the position of the player. The chunk is responsible for generating the mesh and updating it when necessary.
 
-The surface manager is a singleton that is associated with a prefab where you can manage the mesh settings like chunk size, chunk resolution, number of chunks per batch and whatnot. The surface is also where you select whether you want to use the CPU or GPU implementation.
+The surface manager is a singleton that is associated with a prefab where you can manage the mesh settings like chunk size, chunk resolution, number of chunks per batch and whatnot. The surface manager is also where you select whether you want to use the CPU or GPU implementation.
 
-Each chunk generates the values for the points in his grid and uses the tables in `Tables.cs` to generate the mesh triangles accordingly - this is the part I wish to write a compute shader for. The mesh is then updated and rendered. Right now the meshes are generated with RNG for the CPU implementation and with noise maps for the GPU implementation, you will probably notice that the noise map based generation gives us much more organic looking meshes.
+Each chunk generates the values for the points in his grid and uses the tables in `Tables.cs` to generate the mesh triangles accordingly. The mesh is then updated and rendered. Right now the meshes are generated with RNG for the CPU implementation and with noise maps for the GPU implementation, you will probably notice that the noise map based generation gives us much more organic looking meshes.
 
 You can check out a video of the result for the [first version here](https://youtu.be/SCsOzZVZ7ic), when I had not yet implemented the GPU version, and the [second version here](https://youtu.be/UXGe814-oxA), using compute shaders and with an enhanced environment. On the screen shots below you can also see the difference between the CPU (left) and GPU (right) implementations.
 
@@ -84,6 +85,13 @@ To make the resulting terrain even more intricate, I also implemented position w
 
 Just to add some polish to the scene I also got a new model for the submarine, implemented a few effects like the water surface foam and underwater fog, detailed vegetation and particle effects. This is still a work in progress but once I'm done I will probably make a more detailed video showcasing the final result as well as going through the algorithm and the implementation.
 
+### Results
+* [First version using CPU](https://youtu.be/SCsOzZVZ7ic)
+* [Implementation of compute shaders](https://youtu.be/UXGe814-oxA)
+* [Surface warping and water surface](https://youtu.be/A4ovcl4IxEs)
+* [Water shader and day/night cycle](https://youtu.be/hS4G8Fr6Fnw)
+* [Fish schools](https://youtu.be/FTN0Y8puQPk)
+
 ### Learining resources
 
 * [Polygonising a scalar field](http://paulbourke.net/geometry/polygonise/)
@@ -103,9 +111,9 @@ Just to add some polish to the scene I also got a new model for the submarine, i
 
 Compute shaders are a way to write programs that run on the GPU instead of the CPU. They can drastically increase the performance of many applications, especially those that contains heavy operations that can be parallelized. They are most commonly used for rendering, mesh generation and physics simulations, but there are plenty of ther scenarios where one could use them.
 
-Unity supports a few languages for compute shader implementation, among them are [HLSL](https://learn.microsoft.com/pt-br/windows/win32/direct3dhlsl/dx-graphics-hlsl) and GLSL. On your C# code you can provide data for the shader scripts and read back the results, this powerfull feature will allow you to send in information from the objects in your scene, as well as things like transformation matrices and configuration parameters.
+Unity supports a few languages for compute shader implementation like [HLSL](https://learn.microsoft.com/pt-br/windows/win32/direct3dhlsl/dx-graphics-hlsl) and GLSL. On your C# code you can provide data for the shader scripts and then read back the results, this powerfull feature will allow you to send in information from the objects in your scene, as well as things like transformation matrices and configuration parameters.
 
-For now we will try to implement a ray tracer, the basic idea is to simulate rays bouncing around the scene and calculating the color of each pixel based on the surfaces the ray for that pixel hits. In real life, light rays are shot from light sources and travel in a similar way until they reach a spectator's eye, but in a computer we can't really do that because we would have to simulate so many light rays that it would be nearly impossible to do it in real time. Fortunately, we don't have to, as [Helmholtz reciprocity principle](https://en.wikipedia.org/wiki/Helmholtz_reciprocity) notes that the light that reaches our eyes is the same light that was emitted by the light source. This means that we can simulate the light by shooting rays the other way around, from the spectator's eye to the light source, this way we avoid having to calculate rays that would never reach the camera anyways.
+For now we will try to implement a ray tracer, the basic idea is to simulate rays bouncing around the scene and calculate the color of each pixel based on the surfaces the ray for that pixel hits. In real life, light rays are shot from light sources and travel in a similar way until they reach a spectator's eye, but in a computer we can't really do that because we would have to simulate so many light rays that it would be nearly impossible to do it in real time. Fortunately, we don't have to, as [Helmholtz reciprocity principle](https://en.wikipedia.org/wiki/Helmholtz_reciprocity) notes that the light that reaches our eyes is the same light that was emitted by the light source. This means that we can simulate the light by shooting rays the other way around, from the spectator's eye to the light source, this way we avoid having to calculate rays that would never reach the camera anyways.
 
 The way light bounces of objects depends on their material properties, we will be focusing on albedo and specular reflections, smoothness/glossyness and emission. The albedo channel of the material determines the color of the object, while the specular channel determines how much light is reflected by the object (well, technically, the albedo value also determines light reflection, but in a different way), the smoothness or glossyness determines how sharp reflections look on a surface and finally, emission is the light that is irradiated from the object.
 
@@ -127,7 +135,7 @@ Now you may notice that this gives us very nice reflections, however, the shadow
 L( x, w<sub>0</sub> ) = Le( x, w<sub>0</sub> ) + ∫<sub>Ω</sub> f<sub>r</sub>( x, w<sub>i</sub>, w<sub>0</sub> ) ( w<sub>i</sub> • n ) L( x, w<sub>i</sub> ) dw<sub>i</sub>
 </h4>
 
-I won't go into too much details because this is not a tutorial nor am I an expert, but the forementioned article discusses this equation bit by bit. The simple idea is that we have to sum the light that comes from all directions into the point we want to define the color for, to add insult to injury, note that this equation is recursive, which means that we have to calculate the light that comes from all directions, and then calculate the light that comes from all directions of those directions, and so on. This is a very expensive operation and we can't really calculate the integral for that, so we use a probabilistic method called [Monte Carlo integration](https://en.wikipedia.org/wiki/Monte_Carlo_integration) to sample the scene in real time. This gives us a noisy image for a while but very quickly it converges to a nice scene with light emissions and photorealistic textures like the image bellow.
+I won't go into too much details because this is not a tutorial nor am I an expert, but the forementioned article discusses this equation bit by bit. The simple idea is that we have to sum the light that comes from all directions into the point we want to define the color for, to add insult to injury, note that this equation is recursive, which means that we have to calculate the light that comes from all directions, and then calculate the light that comes from all directions of those directions, and so on. This is a very expensive operation and we can't really compute the integral for that, so we use a probabilistic method called [Monte Carlo integration](https://en.wikipedia.org/wiki/Monte_Carlo_integration) to sample the scene in real time. This gives us a noisy image for a while but very quickly it converges to a nice scene with light emissions and photorealistic textures like the image bellow.
 
 <p align="center">
   <img src="./Docs/ray-tracing-screen-capture-5.png"/>
