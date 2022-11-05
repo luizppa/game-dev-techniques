@@ -58,7 +58,7 @@ public class GPUChunk : MonoBehaviour
 
   // Props
   [SerializeField] List<GameObject> grassPrefabs = new List<GameObject>();
-  [SerializeField] GameObject boidUnitPrefab = null;
+  [SerializeField] List<GameObject> boidUnitPrefabs = new List<GameObject>();
   [SerializeField] uint boidsNumber = 100;
 
   void Start()
@@ -165,7 +165,7 @@ public class GPUChunk : MonoBehaviour
 
   void GenerateBoids()
   {
-    if (boidUnitPrefab != null)
+    if (boidUnitPrefabs.Count > 0)
     {
       float size = chunkSize * chunkScale;
 
@@ -173,7 +173,7 @@ public class GPUChunk : MonoBehaviour
       boid.name = "Boids " + this.name;
 
       Boid boidComponent = boid.AddComponent<Boid>();
-      boidComponent.SetUnitPrefab(boidUnitPrefab);
+      boidComponent.SetUnitPrefab(boidUnitPrefabs[Random.Range(0, boidUnitPrefabs.Count)]);
       boidComponent.SetUnits(boidsNumber);
 
       Vector3 chunkCenter = transform.position + new Vector3(size / 2, (size / 2) - 2, size / 2);
