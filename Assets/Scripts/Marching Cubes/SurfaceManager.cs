@@ -9,7 +9,7 @@ public enum GenerationTechology
   GPU
 }
 
-public class SurfaceManager : MonoBehaviour
+public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
 {
   [SerializeField] int chunksPerDirection = 1;
   [SerializeField] Transform playerPosition = null;
@@ -32,6 +32,7 @@ public class SurfaceManager : MonoBehaviour
   public List<Texture2D> noiseMaps = new List<Texture2D>();
 
   private GameObject[,] chunks = null;
+  private Dictionary<string, ChunkData> chunkDataCache = new Dictionary<string, ChunkData>();
   private float previousIsoLevel = 0f;
   private int previousSeed = 0;
   private float previousElevation = 0f;
@@ -39,21 +40,14 @@ public class SurfaceManager : MonoBehaviour
   private Vector2Int centralPosition = new Vector2Int(0, 0);
   private Vector2Int previousCentralPosition;
 
-  void Awake()
+  override protected void Awake()
   {
+    base.Awake();
     GenerateNoiseMaps();
   }
 
   void Start()
   {
-    if (FindObjectsOfType<SurfaceManager>().Length > 1)
-    {
-      Destroy(gameObject);
-    }
-    else
-    {
-      DontDestroyOnLoad(gameObject);
-    }
     GenerateNoiseMaps();
     InitializeProperties();
     CreateChunks();
@@ -64,10 +58,16 @@ public class SurfaceManager : MonoBehaviour
     if (SceneManager.GetActiveScene().name != "MarchingCubes")
     {
       Destroy(gameObject);
+      return;
+    }
+
+    if (ShouldReload())
+    {
+      UpdateProperties();
+      ReloadChunks();
     }
     else if (ShouldUpdate())
     {
-      UpdateProperties();
       UpdateChunks();
     }
   }
@@ -117,7 +117,12 @@ public class SurfaceManager : MonoBehaviour
   {
     centralPosition = GetCentralPosition();
 
-    return centralPosition - previousCentralPosition != Vector2.zero || previousIsoLevel != isoLevel || previousSeed != seed || previousElevation != elevation;
+    return centralPosition - previousCentralPosition != Vector2.zero;
+  }
+
+  private bool ShouldReload()
+  {
+    return previousIsoLevel != isoLevel || previousSeed != seed || previousElevation != elevation;
   }
 
   private Vector2Int GetCentralPosition()
@@ -136,7 +141,7 @@ public class SurfaceManager : MonoBehaviour
     previousElevation = elevation;
   }
 
-  private void CreateChunks()
+  private void CreateChunks(bool reload = false)
   {
     GameObject chunkPrefab = GetPrefab();
     if (chunkPrefab != null)
@@ -145,6 +150,11 @@ public class SurfaceManager : MonoBehaviour
       {
         for (int z = -chunksPerDirection; z <= chunksPerDirection; z++)
         {
+          if (reload)
+          {
+            Destroy(chunks[chunksPerDirection + x, chunksPerDirection + z]);
+            chunks[chunksPerDirection + x, chunksPerDirection + z] = null;
+          }
           if (chunks[chunksPerDirection + x, chunksPerDirection + z] == null)
           {
             chunks[chunksPerDirection + x, chunksPerDirection + z] = CreateChunk(chunkPrefab, centralPosition.x + x, centralPosition.y + z);
@@ -152,6 +162,12 @@ public class SurfaceManager : MonoBehaviour
         }
       }
     }
+  }
+
+  void ReloadChunks()
+  {
+    chunkDataCache.Clear();
+    CreateChunks(true);
   }
 
   private void UpdateChunks()
@@ -267,9 +283,20 @@ public class SurfaceManager : MonoBehaviour
     {
       GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkSize - 1) * chunkScale, 0f, z * (chunkSize - 1) * chunkScale), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
+      chunk.GetComponent<GPUChunk>().SetId(":" + x + ":" + z);
       return chunk;
     }
     return null;
+  }
+
+  public void SetChunkCache(string chunkId, ChunkData chunkData)
+  {
+    chunkDataCache[chunkId] = chunkData;
+  }
+
+  public bool GetChunkCache(string chunkId, out ChunkData chunkData)
+  {
+    return chunkDataCache.TryGetValue(chunkId, out chunkData);
   }
 
   private GameObject GetPrefab()

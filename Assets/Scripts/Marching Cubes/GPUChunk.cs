@@ -11,6 +11,12 @@ struct Triangle
   public Vector3 padding;
 };
 
+public struct ChunkData
+{
+  public float[] vertices;
+  public Mesh mesh;
+}
+
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
 [RequireComponent(typeof(MeshCollider))]
@@ -31,6 +37,7 @@ public class GPUChunk : MonoBehaviour
   private Vector3[] vegetation = null;
 
   // Configs
+  private string id;
   private int chunkSize = 4;
   private int seed = 42;
   private float isoLevel = 0f;
@@ -126,8 +133,18 @@ public class GPUChunk : MonoBehaviour
 
   void Generate()
   {
-    GenerateDensity();
-    GenerateMesh();
+    ChunkData chunkCache;
+    if (surfaceManager.GetChunkCache(id, out chunkCache))
+    {
+      vertices = chunkCache.vertices;
+      meshFilter.mesh = chunkCache.mesh;
+    }
+    else
+    {
+      GenerateDensity();
+      GenerateMesh();
+      surfaceManager.SetChunkCache(id, new ChunkData { vertices = vertices, mesh = meshFilter.mesh });
+    }
     GenerateBoids();
   }
 
@@ -304,5 +321,10 @@ public class GPUChunk : MonoBehaviour
     int y = ((idx - x) / chunkSize) % chunkSize;
     int z = ((((idx - x) / chunkSize) - y) / chunkSize) % chunkSize;
     return new Vector3(x, y, z);
+  }
+
+  public void SetId(string id)
+  {
+    this.id = id;
   }
 }

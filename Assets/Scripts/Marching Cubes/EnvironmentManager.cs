@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class EnvironmentManager : MonoBehaviour
+public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
 {
   [SerializeField] Transform playerPosition = null;
 
@@ -28,14 +28,6 @@ public class EnvironmentManager : MonoBehaviour
 
   void Start()
   {
-    if (FindObjectsOfType<EnvironmentManager>().Length > 1)
-    {
-      Destroy(gameObject);
-    }
-    else
-    {
-      DontDestroyOnLoad(gameObject);
-    }
     if (gameCamera == null)
     {
       gameCamera = Camera.main;

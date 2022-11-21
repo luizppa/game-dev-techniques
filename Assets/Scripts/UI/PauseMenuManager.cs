@@ -7,11 +7,6 @@ public class PauseMenuManager : MonoBehaviour
   [SerializeField] GameObject pauseMenuCanvas;
   private GameObject pauseMenuInstance;
 
-  void Start()
-  {
-
-  }
-
   void Update()
   {
     if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Joystick1Button7))
