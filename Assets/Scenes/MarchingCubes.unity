@@ -455,6 +455,9 @@ MonoBehaviour:
   horizontalLookAxis: Look X
   verticalLookAxis: Look Y
   ascendAxis: Ascend
+  terraformRadius: 5
+  terraformStrength: 0.5
+  terraformInterval: 0.1
   proppeler: {fileID: 319376204}
   lights:
   - {fileID: 84104681}

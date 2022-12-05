@@ -4,6 +4,7 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel DistributeDensity
 #pragma kernel GenerateMesh
+#pragma kernel Terraform
 
 // Create a RenderTexture with enableRandomWrite flag and set it
 // with cs.SetTexture
@@ -31,6 +32,9 @@ uint _ChunkSize;
 float _IsoLevel;
 float _Scale;
 float _Elevation;
+float3 _TerraformPosition;
+float _TerraformRadius;
+float _TerraformStrength;
 
 // ====================== Constructors ====================== //
 
@@ -285,4 +289,20 @@ void GenerateMesh (uint3 id : SV_DispatchThreadID)
 	bool hasVegetation = bufferIndex % vegetationSparsity == 0;
 	CalculateVoxelGeneratedVertices(id, cubeIndex, generatedVertices);
 	GenerateVoxelTriangles(cubeIndex, generatedVertices, hasVegetation);
+}
+
+[numthreads(threads, threads, threads)]
+void Terraform (uint3 id : SV_DispatchThreadID)
+{
+	if(id.x >= _ChunkSize || id.y >= _ChunkSize || id.z >= _ChunkSize){
+		return;
+	}
+
+	uint idx = PositionToBufferIndex(id);
+	float distance = length(_TerraformPosition - id);
+	float density = _ChunkVertices[idx];
+	if(distance < _TerraformRadius){
+		float falloff = saturate(1.0 - (distance / _TerraformRadius));
+		_ChunkVertices[idx] = density - (_TerraformStrength * falloff);
+	}
 }

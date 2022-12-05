@@ -55,6 +55,7 @@ public class GPUChunk : MonoBehaviour
   private MeshFilter meshFilter = null;
   private MeshCollider meshCollider = null;
   private GameObject boid = null;
+  private List<GameObject> vegetationInstances = new List<GameObject>();
 
   // Buffers
   ComputeBuffer trianglesBudffer = null;
@@ -156,7 +157,7 @@ public class GPUChunk : MonoBehaviour
     verticesBuffer.GetData(vertices);
   }
 
-  void GenerateMesh()
+  void GenerateMesh(bool generateVegetation = true)
   {
     verticesBuffer.SetData(vertices);
     int kernel = SetupMeshComputeShader();
@@ -172,12 +173,26 @@ public class GPUChunk : MonoBehaviour
     GeneratePolygons(trianglesCount[0], generatedTriangles);
 
     // Get vegetation
-    ComputeBuffer.CopyCount(vegetationBuffer, vegetationBufferCount, 0);
-    int[] vegetationCount = new int[1];
-    vegetationBufferCount.GetData(vegetationCount);
-    Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
-    vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
-    GenerateVegetation(vegetationCount[0], generatedVegetation);
+    if(generateVegetation){
+      ComputeBuffer.CopyCount(vegetationBuffer, vegetationBufferCount, 0);
+      int[] vegetationCount = new int[1];
+      vegetationBufferCount.GetData(vegetationCount);
+      Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
+      vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
+      GenerateVegetation(vegetationCount[0], generatedVegetation);
+    }
+  }
+
+  public void Terraform(Vector3 position, float radius, float strength)
+  {
+    Vector3 localPosition = transform.InverseTransformPoint(position);
+
+    verticesBuffer.SetData(vertices);
+    int kernel = SetupTerraformComputeShader(localPosition, radius, strength);
+    int numThreadsPerGroup = Mathf.CeilToInt(chunkSize - 1 / (float)threadsCount);
+    meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
+    verticesBuffer.GetData(vertices);
+    GenerateMesh(false);
   }
 
   void GenerateBoids()
@@ -248,6 +263,22 @@ public class GPUChunk : MonoBehaviour
     return kernel;
   }
 
+  private int SetupTerraformComputeShader(Vector3 position, float radius, float strength)
+  {
+    int kernel = meshGenerator.FindKernel("Terraform");
+
+    // Init data
+    verticesBuffer.SetData(vertices);
+
+    // Terraform properties
+    meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
+    meshGenerator.SetVector("_TerraformPosition", position);
+    meshGenerator.SetFloat("_TerraformRadius", radius);
+    meshGenerator.SetFloat("_TerraformStrength", strength);
+
+    return kernel;
+  }
+
   private void GeneratePolygons(int trianglesCount, Triangle[] generatedTriangles)
   {
     int[] meshTriangles = new int[trianglesCount * 3];
@@ -275,6 +306,11 @@ public class GPUChunk : MonoBehaviour
 
   private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
   {
+    foreach(GameObject vegetation in vegetationInstances)
+    {
+      Destroy(vegetation);
+    }
+    vegetationInstances.Clear();
     if (grassPrefabs.Count > 0)
     {
       for (int i = 0; i < vegetationCount; i++)
@@ -282,6 +318,7 @@ public class GPUChunk : MonoBehaviour
         Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
         GameObject grass = Instantiate(grassPrefabs[Random.Range(0, grassPrefabs.Count)], pos, Quaternion.identity, transform);
         grass.transform.Rotate(0, Random.Range(0, 360), 0);
+        vegetationInstances.Add(grass);
       }
     }
   }

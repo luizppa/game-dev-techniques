@@ -17,6 +17,11 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   [SerializeField] string verticalLookAxis = "Look Y";
   [SerializeField] string ascendAxis = "Ascend";
 
+  [Header("Terraform")]
+  [SerializeField] float terraformRadius = 5f;
+  [SerializeField] float terraformStrength = 0.5f;
+  [SerializeField] float terraformInterval = 0.5f;
+
   [Header("Effects")]
   [SerializeField] Rotate proppeler = null;
   [SerializeField] List<Light> lights = new List<Light>();
@@ -35,12 +40,14 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   private float health;
 
   private bool lightState = true;
+  private bool canTerraform = true;
   private Vector2 firstPersonRotation = Vector2.zero;
 
   private Rigidbody rb = null;
   private AudioSource audioSource = null;
   private CameraManager cameraManager = null;
   private EnvironmentManager environmentManager = null;
+  private LineRenderer lineRenderer = null;
 
 
   // ================================ Unity messages ================================ //
@@ -49,13 +56,14 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     health = maxHealth;
     rb = GetComponent<Rigidbody>();
     audioSource = GetComponent<AudioSource>();
+    lineRenderer = GetComponent<LineRenderer>();
     if (gameCamera == null)
     {
       gameCamera = Camera.main;
     }
     cameraManager = gameCamera.GetComponent<CameraManager>();
     cameraManager.AddListener(this);
-    environmentManager = FindObjectOfType<EnvironmentManager>();
+    environmentManager = EnvironmentManager.Instance;
   }
 
   void FixedUpdate()
@@ -164,6 +172,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   void Action()
   {
     ControlLights();
+    Terraform();
   }
 
   void ControlLights()
@@ -176,6 +185,40 @@ public class SubmarineControl : MonoBehaviour, CameraListener
         light.enabled = lightState;
       }
     }
+  }
+
+  void Terraform()
+  {
+    if(!canTerraform) return;
+    if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button8))
+    {
+      RaycastHit hit;
+      if (Physics.Raycast(transform.position, gameCamera.transform.forward, out hit, 10f))
+      {
+        if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
+        {
+          GPUChunk chunk = hit.collider.gameObject.GetComponent<GPUChunk>();
+          if (chunk != null)
+          {
+            DrawTerraformEffect(hit.point);
+            chunk.Terraform(hit.point, terraformRadius, terraformStrength);
+            StartCoroutine(TerraformCooldown());
+          }
+        }
+      }
+    }
+  }
+
+  void DrawTerraformEffect(Vector3 position)
+  {
+    lineRenderer.SetPositions(new Vector3[] { transform.position, position });
+  }
+
+  IEnumerator TerraformCooldown()
+  {
+    canTerraform = false;
+    yield return new WaitForSeconds(terraformInterval);
+    canTerraform = true;
   }
 
   // ================================ Side effects ================================ //
