@@ -197,13 +197,13 @@ public class SubmarineControl : MonoBehaviour, CameraListener
       {
         if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
         {
-          GPUChunk chunk = hit.collider.gameObject.GetComponent<GPUChunk>();
-          if (chunk != null)
+          List<GPUChunk> chunks = GetTerraformAffectedChunks(hit.point);
+          foreach (GPUChunk chunk in chunks)
           {
-            DrawTerraformEffect(hit.point);
             chunk.Terraform(hit.point, terraformRadius, terraformStrength);
-            StartCoroutine(TerraformCooldown());
           }
+          canTerraform = false;
+          StartCoroutine(TerraformCooldown());
         }
       }
     }
@@ -214,9 +214,25 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     lineRenderer.SetPositions(new Vector3[] { transform.position, position });
   }
 
+  List<GPUChunk> GetTerraformAffectedChunks(Vector3 position)
+  {
+    List<GPUChunk> chunks = new List<GPUChunk>();
+    foreach (Collider collider in Physics.OverlapSphere(position, terraformRadius))
+    {
+      if (collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
+      {
+        GPUChunk chunk = collider.gameObject.GetComponent<GPUChunk>();
+        if (chunk != null)
+        {
+          chunks.Add(chunk);
+        }
+      }
+    }
+    return chunks;
+  }
+
   IEnumerator TerraformCooldown()
   {
-    canTerraform = false;
     yield return new WaitForSeconds(terraformInterval);
     canTerraform = true;
   }

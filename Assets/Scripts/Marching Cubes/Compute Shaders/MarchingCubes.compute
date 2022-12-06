@@ -298,6 +298,8 @@ void Terraform (uint3 id : SV_DispatchThreadID)
 		return;
 	}
 
+	if(id.y == _ChunkSize -1 || id.y == 0) return;
+
 	uint idx = PositionToBufferIndex(id);
 	float distance = length(_TerraformPosition - id);
 	float density = _ChunkVertices[idx];
