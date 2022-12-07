@@ -34,7 +34,7 @@ public class TerraformControler : MonoBehaviour
 
 	void Update()
 	{
-		if(Input.GetKeyDown(KeyCode.F)){
+		if(Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Joystick1Button3)){
 			ToggleMode();
 		}
 		if(Application.isPlaying && canTerraform && CheckInput()){
@@ -62,7 +62,7 @@ public class TerraformControler : MonoBehaviour
 
 	bool CheckInput()
 	{
-		return Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button8);
+		return Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button5);
 	}
 
 	void Terraform()
