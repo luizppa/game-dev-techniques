@@ -9,15 +9,21 @@ public enum TerraformMode
     Remove = -1
 }
 
+[RequireComponent(typeof(LineRenderer))]
 public class TerraformControler : MonoBehaviour
 {
 
   [Header("Terraform")]
 	[SerializeField] TerraformMode mode = TerraformMode.Remove;
+	[SerializeField] float terraformRange = 10f;
   [SerializeField] float terraformRadius = 5f;
   [SerializeField] float terraformStrength = 0.5f;
   [SerializeField] float terraformInterval = 0.1f;
 	[SerializeField] LayerMask terraformLayer;
+
+	[Header("Laser")]
+	[SerializeField] Color addColor = Color.green;
+	[SerializeField] Color removeColor = Color.red;
 
 	[Header("UI")]
 	[SerializeField] Image modeImage = null;
@@ -26,19 +32,28 @@ public class TerraformControler : MonoBehaviour
 
   private bool canTerraform = true;
 	private SurfaceManager surfaceManager = null;
+	private LineRenderer lineRenderer = null;
 	
 	void Start()
 	{
 		surfaceManager = SurfaceManager.Instance;
+		lineRenderer = GetComponent<LineRenderer>();
 	}
 
 	void Update()
 	{
+		if(!Application.isPlaying){
+			return;
+		}
+
 		if(Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Joystick1Button3)){
 			ToggleMode();
 		}
-		if(Application.isPlaying && canTerraform && CheckInput()){
+		if(CheckInput()){
 			Terraform();
+		}
+		else{
+			ClearTerraformEffect();
 		}
 		UpdateUi();
 	}
@@ -68,37 +83,39 @@ public class TerraformControler : MonoBehaviour
 	void Terraform()
 	{
 		RaycastHit hit;
-		if (Physics.Raycast(transform.position, Camera.main.transform.forward, out hit, 10f, terraformLayer))
+		if (Physics.Raycast(transform.position, Camera.main.transform.forward, out hit, terraformRange, terraformLayer))
 		{
-			// List<GPUChunk> chunks = GetTerraformAffectedChunks(hit.point);
-			List<GPUChunk> chunks = surfaceManager.GetChunksInRadius(hit.point, terraformRadius);
-			foreach (GPUChunk chunk in chunks)
-			{
-				chunk.Terraform(hit.point, terraformRadius, terraformStrength, mode);
+			DrawTerraformEffect(hit.point);
+			
+			if(canTerraform){
+				List<GPUChunk> chunks = surfaceManager.GetChunksInRadius(hit.point, terraformRadius);
+				foreach (GPUChunk chunk in chunks)
+				{
+					chunk.Terraform(hit.point, terraformRadius, terraformStrength, mode);
+				}
+				canTerraform = false;
+				StartCoroutine(TerraformCooldown());
 			}
-			canTerraform = false;
-			StartCoroutine(TerraformCooldown());
+		}
+		else{
+			ClearTerraformEffect();
 		}
   }
 
   void DrawTerraformEffect(Vector3 position)
   {
-    // lineRenderer.SetPositions(new Vector3[] { transform.position, position });
+		Color color = mode == TerraformMode.Add ? addColor : removeColor;
+
+		lineRenderer.material.SetVector("_LaserOrigin", transform.position);
+		lineRenderer.material.SetColor("_Color", color);
+		lineRenderer.positionCount = 2;
+    lineRenderer.SetPositions(new Vector3[] { transform.position, position });
   }
 
-  List<GPUChunk> GetTerraformAffectedChunks(Vector3 position)
-  {
-    List<GPUChunk> chunks = new List<GPUChunk>();
-    foreach (Collider collider in Physics.OverlapSphere(position, terraformRadius, LayerMask.GetMask("Terrain")))
-    {
-      GPUChunk chunk = collider.gameObject.GetComponent<GPUChunk>();
-      if (chunk != null)
-      {
-        chunks.Add(chunk);
-      }
-    }
-    return chunks;
-  }
+	void ClearTerraformEffect(){
+		lineRenderer.positionCount = 0;
+		lineRenderer.SetPositions(new Vector3[] {});
+	}
 
   IEnumerator TerraformCooldown()
   {

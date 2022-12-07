@@ -39,8 +39,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   private float health;
 
-  private bool lightState = true;
-  // private bool canTerraform = true;
+  private bool lightState = false;
   private Vector2 firstPersonRotation = Vector2.zero;
 
   private Rigidbody rb = null;
@@ -64,6 +63,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     cameraManager = gameCamera.GetComponent<CameraManager>();
     cameraManager.AddListener(this);
     environmentManager = EnvironmentManager.Instance;
+    UpdateLights();
   }
 
   void FixedUpdate()
@@ -179,56 +179,16 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.Joystick1Button9))
     {
       lightState = !lightState;
-      foreach (Light light in lights)
-      {
-        light.enabled = lightState;
-      }
+      UpdateLights();
     }
   }
 
-  // void Terraform()
-  // {
-  //   if(!canTerraform) return;
-  //   if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button8))
-  //   {
-  //     RaycastHit hit;
-  //     if (Physics.Raycast(transform.position, gameCamera.transform.forward, out hit, 10f, LayerMask.GetMask("Terrain")))
-  //     {
-  //       List<GPUChunk> chunks = GetTerraformAffectedChunks(hit.point);
-  //       foreach (GPUChunk chunk in chunks)
-  //       {
-  //         chunk.Terraform(hit.point, terraformRadius, terraformStrength, TerraformMode.Add);
-  //       }
-  //       canTerraform = false;
-  //       StartCoroutine(TerraformCooldown());
-  //     }
-  //   }
-  // }
-
-  // void DrawTerraformEffect(Vector3 position)
-  // {
-  //   lineRenderer.SetPositions(new Vector3[] { transform.position, position });
-  // }
-
-  // List<GPUChunk> GetTerraformAffectedChunks(Vector3 position)
-  // {
-  //   List<GPUChunk> chunks = new List<GPUChunk>();
-  //   foreach (Collider collider in Physics.OverlapSphere(position, terraformRadius, LayerMask.GetMask("Terrain")))
-  //   {
-  //     GPUChunk chunk = collider.gameObject.GetComponent<GPUChunk>();
-  //     if (chunk != null)
-  //     {
-  //       chunks.Add(chunk);
-  //     }
-  //   }
-  //   return chunks;
-  // }
-
-  // IEnumerator TerraformCooldown()
-  // {
-  //   yield return new WaitForSeconds(terraformInterval);
-  //   canTerraform = true;
-  // }
+  void UpdateLights(){
+    foreach (Light light in lights)
+    {
+      light.enabled = lightState;
+    }
+  }
 
   // ================================ Side effects ================================ //
   void PlayCollisionEffects(float relativeVelocity, ContactPoint[] contacts)
