@@ -19,6 +19,7 @@ Whithout further ado, let's get to the projects!
 
 - [🚤 Marching Cubes](#-marching-cubes)
   - [Implementation](#implementation)
+    - [Terraforming](#terraforming)
   - [Results](#results)
   - [Learining resources](#learining-resources)
   - [Credits](#credits)
@@ -26,6 +27,8 @@ Whithout further ado, let's get to the projects!
   - [Implementation](#implementation-1)
   - [Learning Resources](#learning-resources)
 - [🪅 Convex Decomposition](#-convex-decomposition)
+- [🎭 Procedural Animation](#-procedural-animation)
+- [🏢 Interior Mapping](#-interior-mapping)
 
 ## 🚤 Marching Cubes
 
@@ -84,6 +87,16 @@ To make the resulting terrain even more intricate, I also implemented position w
 </p>
 
 Just to add some polish to the scene I also got a new model for the submarine, implemented a few effects like the water surface foam and underwater fog, detailed vegetation and particle effects. This is still a work in progress but once I'm done I will probably make a more detailed video showcasing the final result as well as going through the algorithm and the implementation.
+#### Terraforming
+
+One very cool feature that can be easily implemented when you use marching cubes for terrain generation is terraforming. Since our mesh is based on a grid of weighted points, to create a terraforming effect you can simply add or remove from the density of the points in a certain area. If we then update the mesh we will get a nice smooth transition between the old and the new terrain. To a smoother effect you can have some kind of fall off rate.
+
+For my implementation, I used raycasting to determine the center of the terraforming area and defined a radius, strength and tick interval. Next I use the radius and the raycast hit point to determine which chunks are to be affected by the terraforming. Then for each point in the affected chunks I calculate the fall off value based on the inver interpolation of the position of the point and the center of the terraforming area. The fall off value is then multiplied by the strength and added (or removed, depends wheter we are adding or removing terrain) to the density of the point. Finally, the mesh is updated. To avoid stressing the GPU too much, I only update the densities on a fixed interval based on the tick frequency. See the results on the gifs below.
+
+<p align="center">
+  <img width="45%" src="./Docs/marching-cubes-terraforming-1.gif"/>
+  <img width="45%" src="./Docs/marching-cubes-terraforming-3.gif"/>
+</p>
 
 ### Results
 * [First version using CPU](https://youtu.be/SCsOzZVZ7ic)
@@ -154,6 +167,18 @@ The noise effect can be reduced by implementing denoising algorithms, which have
 * [Rearchitecting Spatiotemporal Resampling for Production](https://research.nvidia.com/publication/2021-07_rearchitecting-spatiotemporal-resampling-production) (paper)
 
 ## 🪅 Convex Decomposition
+
+<p align="center">
+  🚧 Under construction 🚧
+</p>
+
+## 🎭 Procedural Animation
+
+<p align="center">
+  🚧 Under construction 🚧
+</p>
+
+## 🏢 Interior Mapping
 
 <p align="center">
   🚧 Under construction 🚧
