@@ -35,6 +35,7 @@ float _Elevation;
 float3 _TerraformPosition;
 float _TerraformRadius;
 float _TerraformStrength;
+int _TerraformDirection;
 
 // ====================== Constructors ====================== //
 
@@ -305,6 +306,6 @@ void Terraform (uint3 id : SV_DispatchThreadID)
 	float density = _ChunkVertices[idx];
 	if(distance < _TerraformRadius){
 		float falloff = saturate(1.0 - (distance / _TerraformRadius));
-		_ChunkVertices[idx] = density - (_TerraformStrength * falloff);
+		_ChunkVertices[idx] = density + (_TerraformStrength * falloff * _TerraformDirection);
 	}
 }

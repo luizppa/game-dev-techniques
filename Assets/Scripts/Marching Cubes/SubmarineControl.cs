@@ -18,9 +18,9 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   [SerializeField] string ascendAxis = "Ascend";
 
   [Header("Terraform")]
-  [SerializeField] float terraformRadius = 5f;
-  [SerializeField] float terraformStrength = 0.5f;
-  [SerializeField] float terraformInterval = 0.5f;
+  // [SerializeField] float terraformRadius = 5f;
+  // [SerializeField] float terraformStrength = 0.5f;
+  // [SerializeField] float terraformInterval = 0.5f;
 
   [Header("Effects")]
   [SerializeField] Rotate proppeler = null;
@@ -40,7 +40,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   private float health;
 
   private bool lightState = true;
-  private bool canTerraform = true;
+  // private bool canTerraform = true;
   private Vector2 firstPersonRotation = Vector2.zero;
 
   private Rigidbody rb = null;
@@ -73,14 +73,6 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void Update()
   {
-    if (Input.GetKeyDown(KeyCode.L))
-    {
-      environmentManager.SetDayNightCycleSpeed(30f);
-    }
-    if (Input.GetKeyDown(KeyCode.K))
-    {
-      environmentManager.SetDayNightCycleSpeed(0.25f);
-    }
     UpdateEffects();
     Action();
     Rotate();
@@ -127,12 +119,6 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     }
 
     rb.useGravity = !IsSubmerged();
-    if (IsCloseToSurface())
-    {
-      float distance = transform.position.y - environmentManager.GetWaterLevel();
-      float force = -(2.5f * distance) * Time.deltaTime * 60f;
-      rb.AddForce(Vector3.up * force, ForceMode.Acceleration);
-    }
   }
 
   void Rotate()
@@ -171,8 +157,21 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void Action()
   {
+    ControlDayNightCycle();
     ControlLights();
-    Terraform();
+    // Terraform();
+  }
+
+  void ControlDayNightCycle()
+  {
+    if (Input.GetKeyDown(KeyCode.L))
+    {
+      environmentManager.SetDayNightCycleSpeed(30f);
+    }
+    if (Input.GetKeyDown(KeyCode.K))
+    {
+      environmentManager.SetDayNightCycleSpeed(0.25f);
+    }
   }
 
   void ControlLights()
@@ -187,55 +186,49 @@ public class SubmarineControl : MonoBehaviour, CameraListener
     }
   }
 
-  void Terraform()
-  {
-    if(!canTerraform) return;
-    if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button8))
-    {
-      RaycastHit hit;
-      if (Physics.Raycast(transform.position, gameCamera.transform.forward, out hit, 10f))
-      {
-        if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
-        {
-          List<GPUChunk> chunks = GetTerraformAffectedChunks(hit.point);
-          foreach (GPUChunk chunk in chunks)
-          {
-            chunk.Terraform(hit.point, terraformRadius, terraformStrength);
-          }
-          canTerraform = false;
-          StartCoroutine(TerraformCooldown());
-        }
-      }
-    }
-  }
+  // void Terraform()
+  // {
+  //   if(!canTerraform) return;
+  //   if (Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button8))
+  //   {
+  //     RaycastHit hit;
+  //     if (Physics.Raycast(transform.position, gameCamera.transform.forward, out hit, 10f, LayerMask.GetMask("Terrain")))
+  //     {
+  //       List<GPUChunk> chunks = GetTerraformAffectedChunks(hit.point);
+  //       foreach (GPUChunk chunk in chunks)
+  //       {
+  //         chunk.Terraform(hit.point, terraformRadius, terraformStrength, TerraformMode.Add);
+  //       }
+  //       canTerraform = false;
+  //       StartCoroutine(TerraformCooldown());
+  //     }
+  //   }
+  // }
 
-  void DrawTerraformEffect(Vector3 position)
-  {
-    lineRenderer.SetPositions(new Vector3[] { transform.position, position });
-  }
+  // void DrawTerraformEffect(Vector3 position)
+  // {
+  //   lineRenderer.SetPositions(new Vector3[] { transform.position, position });
+  // }
 
-  List<GPUChunk> GetTerraformAffectedChunks(Vector3 position)
-  {
-    List<GPUChunk> chunks = new List<GPUChunk>();
-    foreach (Collider collider in Physics.OverlapSphere(position, terraformRadius))
-    {
-      if (collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
-      {
-        GPUChunk chunk = collider.gameObject.GetComponent<GPUChunk>();
-        if (chunk != null)
-        {
-          chunks.Add(chunk);
-        }
-      }
-    }
-    return chunks;
-  }
+  // List<GPUChunk> GetTerraformAffectedChunks(Vector3 position)
+  // {
+  //   List<GPUChunk> chunks = new List<GPUChunk>();
+  //   foreach (Collider collider in Physics.OverlapSphere(position, terraformRadius, LayerMask.GetMask("Terrain")))
+  //   {
+  //     GPUChunk chunk = collider.gameObject.GetComponent<GPUChunk>();
+  //     if (chunk != null)
+  //     {
+  //       chunks.Add(chunk);
+  //     }
+  //   }
+  //   return chunks;
+  // }
 
-  IEnumerator TerraformCooldown()
-  {
-    yield return new WaitForSeconds(terraformInterval);
-    canTerraform = true;
-  }
+  // IEnumerator TerraformCooldown()
+  // {
+  //   yield return new WaitForSeconds(terraformInterval);
+  //   canTerraform = true;
+  // }
 
   // ================================ Side effects ================================ //
   void PlayCollisionEffects(float relativeVelocity, ContactPoint[] contacts)

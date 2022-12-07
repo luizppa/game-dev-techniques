@@ -311,6 +311,26 @@ public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
     }
   }
 
+  public List<GPUChunk> GetChunksInRadius(Vector3 center, float radius){
+    List<GPUChunk> chunksInRadius = new List<GPUChunk>();
+    float actualSize = (chunkSize - 1) * chunkScale;
+    Vector3 dimension = Vector3.one * actualSize;
+
+    if(generationTechnology != GenerationTechology.GPU) return chunksInRadius;
+
+    foreach (GameObject chunkObj in chunks){
+      GPUChunk chunk = chunkObj.GetComponent<GPUChunk>();
+
+      if (chunk != null){
+        Bounds chunkBounds = new Bounds(chunkObj.transform.position + (dimension / 2f), dimension);
+        if((center - chunkBounds.ClosestPoint(center)).magnitude <= radius){
+          chunksInRadius.Add(chunk);
+        }
+      }
+    }
+    return chunksInRadius;
+  }
+
   public List<Texture2D> GetNoiseMaps()
   {
     return noiseMaps;

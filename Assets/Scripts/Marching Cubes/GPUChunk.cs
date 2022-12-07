@@ -84,12 +84,13 @@ public class GPUChunk : MonoBehaviour
 
   void OnDestroy()
   {
+    surfaceManager.SetChunkCache(id, new ChunkData { vertices = vertices, mesh = meshFilter.mesh });
     Destroy(boid);
   }
 
   private void GetConfig()
   {
-    surfaceManager = FindObjectOfType<SurfaceManager>();
+    surfaceManager = SurfaceManager.Instance;
     if (surfaceManager != null)
     {
       chunkSize = surfaceManager.GetChunkSize();
@@ -139,12 +140,12 @@ public class GPUChunk : MonoBehaviour
     {
       vertices = chunkCache.vertices;
       meshFilter.mesh = chunkCache.mesh;
+      meshCollider.sharedMesh = meshFilter.mesh;
     }
     else
     {
       GenerateDensity();
       GenerateMesh();
-      surfaceManager.SetChunkCache(id, new ChunkData { vertices = vertices, mesh = meshFilter.mesh });
     }
     GenerateBoids();
   }
@@ -183,12 +184,12 @@ public class GPUChunk : MonoBehaviour
     }
   }
 
-  public void Terraform(Vector3 position, float radius, float strength)
+  public void Terraform(Vector3 position, float radius, float strength, TerraformMode mode)
   {
     Vector3 localPosition = transform.InverseTransformPoint(position);
 
     verticesBuffer.SetData(vertices);
-    int kernel = SetupTerraformComputeShader(localPosition, radius, strength);
+    int kernel = SetupTerraformComputeShader(localPosition, radius, strength, mode);
     int numThreadsPerGroup = Mathf.CeilToInt(chunkSize - 1 / (float)threadsCount);
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
     verticesBuffer.GetData(vertices);
@@ -263,7 +264,7 @@ public class GPUChunk : MonoBehaviour
     return kernel;
   }
 
-  private int SetupTerraformComputeShader(Vector3 position, float radius, float strength)
+  private int SetupTerraformComputeShader(Vector3 position, float radius, float strength, TerraformMode mode)
   {
     int kernel = meshGenerator.FindKernel("Terraform");
 
@@ -275,6 +276,7 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.SetVector("_TerraformPosition", position);
     meshGenerator.SetFloat("_TerraformRadius", radius);
     meshGenerator.SetFloat("_TerraformStrength", strength);
+    meshGenerator.SetInt("_TerraformDirection", ((int)mode));
 
     return kernel;
   }
@@ -343,7 +345,8 @@ public class GPUChunk : MonoBehaviour
       }
     }
     Gizmos.color = Color.white;
-    Vector3 dimension = new Vector3(chunkSize - 1, chunkSize - 1, chunkSize - 1) * chunkScale;
+    float actualSize = (chunkSize - 1) * chunkScale;
+    Vector3 dimension = Vector3.one * actualSize;
     Gizmos.DrawWireCube(transform.position + dimension / 2f, dimension);
   }
 
