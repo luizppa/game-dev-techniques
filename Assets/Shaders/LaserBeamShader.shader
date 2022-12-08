@@ -9,8 +9,10 @@ Shader "Unlit/LaserBeamShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags {"Queue"="Transparent" "IgnoreProjector"="True" "RenderType"="Transparent"}
         LOD 100
+
+        Blend SrcAlpha OneMinusSrcAlpha
 
         Pass
         {
@@ -50,8 +52,9 @@ Shader "Unlit/LaserBeamShader"
                 // sample the texture
                 float time = _Time.y * _LaserSpeed;
                 float distance = length(_LaserOrigin - i.wsPosition);
-                float opacity = ((time - distance) % _LaserPeriod)/_LaserPeriod;
-                fixed4 col = _Color + opacity;
+                float opacity = sin((distance / _LaserPeriod) + time) * 0.5 + 0.5;
+                // float opacity = ((time - distance) % _LaserPeriod)/_LaserPeriod;
+                fixed4 col = fixed4(_Color.rgb, opacity);
                 return col;
             }
             ENDCG

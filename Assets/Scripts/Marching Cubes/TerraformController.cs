@@ -10,7 +10,7 @@ public enum TerraformMode
 }
 
 [RequireComponent(typeof(LineRenderer))]
-public class TerraformControler : MonoBehaviour
+public class TerraformController : MonoBehaviour
 {
 
   [Header("Terraform")]
@@ -24,6 +24,7 @@ public class TerraformControler : MonoBehaviour
 	[Header("Laser")]
 	[SerializeField] Color addColor = Color.green;
 	[SerializeField] Color removeColor = Color.red;
+	[SerializeField] float laserSpeed = 10f;
 
 	[Header("UI")]
 	[SerializeField] Image modeImage = null;
@@ -42,7 +43,7 @@ public class TerraformControler : MonoBehaviour
 
 	void Update()
 	{
-		if(!Application.isPlaying){
+		if(!Application.isPlaying || Time.timeScale == 0){
 			return;
 		}
 
@@ -105,9 +106,11 @@ public class TerraformControler : MonoBehaviour
   void DrawTerraformEffect(Vector3 position)
   {
 		Color color = mode == TerraformMode.Add ? addColor : removeColor;
+		float speed = mode == TerraformMode.Add ? -laserSpeed : laserSpeed;
 
 		lineRenderer.material.SetVector("_LaserOrigin", transform.position);
 		lineRenderer.material.SetColor("_Color", color);
+		lineRenderer.material.SetFloat("_LaserSpeed", speed * Time.timeScale);
 		lineRenderer.positionCount = 2;
     lineRenderer.SetPositions(new Vector3[] { transform.position, position });
   }

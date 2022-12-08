@@ -737,6 +737,7 @@ MonoBehaviour:
     m_Bits: 64
   addColor: {r: 0, g: 1, b: 0, a: 1}
   removeColor: {r: 1, g: 0, b: 0, a: 1}
+  laserSpeed: 40
   modeImage: {fileID: 1549702511}
   addSprite: {fileID: 21300000, guid: dbd47afd428ae6e46acf14df8476e8db, type: 3}
   removeSprite: {fileID: 21300000, guid: 540b141eb0ec4494d9b42bd9ea32cd93, type: 3}
