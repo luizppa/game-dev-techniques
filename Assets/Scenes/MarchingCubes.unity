@@ -412,7 +412,7 @@ GameObject:
   - component: {fileID: 401656718}
   - component: {fileID: 401656717}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Left Crosshair Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -737,7 +737,7 @@ MonoBehaviour:
     m_Bits: 64
   addColor: {r: 0, g: 1, b: 0, a: 1}
   removeColor: {r: 1, g: 0, b: 0, a: 1}
-  laserSpeed: 40
+  laserSpeed: 25
   modeImage: {fileID: 1549702511}
   addSprite: {fileID: 21300000, guid: dbd47afd428ae6e46acf14df8476e8db, type: 3}
   removeSprite: {fileID: 21300000, guid: 540b141eb0ec4494d9b42bd9ea32cd93, type: 3}
@@ -1598,6 +1598,82 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -4473973808820661604, guid: 2b0ce6b6b88384b479495909f5e2a3ab, type: 3}
   m_PrefabInstance: {fileID: 1748433419}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1312820878
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1312820879}
+  - component: {fileID: 1312820881}
+  - component: {fileID: 1312820880}
+  m_Layer: 5
+  m_Name: No Target Icon
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1312820879
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312820878}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1845135078}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1312820880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312820878}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.6981132, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: dfcc201f2cac247418588a8f8601299a, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1312820881
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312820878}
+  m_CullTransparentMesh: 1
 --- !u!1 &1363761970
 GameObject:
   m_ObjectHideFlags: 0
@@ -1610,7 +1686,7 @@ GameObject:
   - component: {fileID: 1363761973}
   - component: {fileID: 1363761972}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Right Crosshair Arrow
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2496,6 +2572,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1845135078}
+  - component: {fileID: 1845135079}
   m_Layer: 5
   m_Name: Crosshair
   m_TagString: Untagged
@@ -2517,6 +2594,7 @@ RectTransform:
   m_Children:
   - {fileID: 401656716}
   - {fileID: 1363761971}
+  - {fileID: 1312820879}
   m_Father: {fileID: 881684228}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -2525,6 +2603,24 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1845135079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845135077}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3757e8aa14b0fc043997887b0787d89e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  terraformController: {fileID: 581364039}
+  leftCrosshairArrow: {fileID: 401656717}
+  rightCrosshairArrow: {fileID: 1363761972}
+  noTargetIcon: {fileID: 1312820880}
+  crosshairCloseScale: 1.3
+  crosshairFarScale: 0.3
 --- !u!1 &2049938442
 GameObject:
   m_ObjectHideFlags: 0

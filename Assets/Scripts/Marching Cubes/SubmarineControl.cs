@@ -176,7 +176,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void ControlLights()
   {
-    if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.Joystick1Button9))
+    if (Input.GetKeyDown(KeyCode.Mouse1) || Input.GetKeyDown(KeyCode.JoystickButton9))
     {
       lightState = !lightState;
       UpdateLights();

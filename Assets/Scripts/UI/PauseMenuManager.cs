@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class PauseMenuManager : SingletonMonoBehaviour<PauseMenuManager>
@@ -9,7 +7,7 @@ public class PauseMenuManager : SingletonMonoBehaviour<PauseMenuManager>
 
   void Update()
   {
-    if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.Joystick1Button7))
+    if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton7))
     {
       TogglePauseMenu();
     }

@@ -34,6 +34,8 @@ public class TerraformController : MonoBehaviour
   private bool canTerraform = true;
 	private SurfaceManager surfaceManager = null;
 	private LineRenderer lineRenderer = null;
+	private RaycastHit hit;
+	private bool isHit = false;
 	
 	void Start()
 	{
@@ -47,7 +49,9 @@ public class TerraformController : MonoBehaviour
 			return;
 		}
 
-		if(Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.Joystick1Button3)){
+		CalculateHit();
+
+		if(Input.GetKeyDown(KeyCode.F) || Input.GetKeyDown(KeyCode.JoystickButton3)){
 			ToggleMode();
 		}
 		if(CheckInput()){
@@ -57,6 +61,10 @@ public class TerraformController : MonoBehaviour
 			ClearTerraformEffect();
 		}
 		UpdateUi();
+	}
+
+	void CalculateHit(){
+		isHit = Physics.Raycast(transform.position, Camera.main.transform.forward, out hit, terraformRange, terraformLayer);
 	}
 
 	void ToggleMode(){
@@ -78,13 +86,12 @@ public class TerraformController : MonoBehaviour
 
 	bool CheckInput()
 	{
-		return Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Joystick1Button5);
+		return Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.JoystickButton5);
 	}
 
 	void Terraform()
 	{
-		RaycastHit hit;
-		if (Physics.Raycast(transform.position, Camera.main.transform.forward, out hit, terraformRange, terraformLayer))
+		if (isHit)
 		{
 			DrawTerraformEffect(hit.point);
 			
@@ -125,4 +132,30 @@ public class TerraformController : MonoBehaviour
     yield return new WaitForSeconds(terraformInterval);
     canTerraform = true;
   }
+
+	public Vector3 GetHitPosition(){
+		if(isHit){
+			return hit.point;
+		}
+		else{
+			return Vector3.zero;
+		}
+	}
+
+	public float GetHitDistance(){
+		if(isHit){
+			return hit.distance;
+		}
+		else{
+			return 0f;
+		}
+	}
+
+	public bool IsHit(){
+		return isHit;
+	}
+
+	public float GetRange(){
+		return terraformRange;
+	}
 }
