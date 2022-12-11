@@ -25,6 +25,8 @@ public class TerraformController : MonoBehaviour
 	[SerializeField] Color addColor = Color.green;
 	[SerializeField] Color removeColor = Color.red;
 	[SerializeField] float laserSpeed = 10f;
+	[SerializeField] GameObject addParticlesPrefab = null;
+	[SerializeField] GameObject removeParticlesPrefab = null;
 
 	[Header("UI")]
 	[SerializeField] Image modeImage = null;
@@ -35,6 +37,7 @@ public class TerraformController : MonoBehaviour
 	private SurfaceManager surfaceManager = null;
 	private LineRenderer lineRenderer = null;
 	private RaycastHit hit;
+	private GameObject particles = null;
 	private bool isHit = false;
 	
 	void Start()
@@ -72,6 +75,11 @@ public class TerraformController : MonoBehaviour
 			mode = TerraformMode.Remove;
 		}else{
 			mode = TerraformMode.Add;
+		}
+
+		if(particles != null && isHit){
+			ClearParticleEffect();
+			UpdateParticleEffect(hit.point);
 		}
 	}
 
@@ -120,11 +128,34 @@ public class TerraformController : MonoBehaviour
 		lineRenderer.material.SetFloat("_LaserSpeed", speed * Time.timeScale);
 		lineRenderer.positionCount = 2;
     lineRenderer.SetPositions(new Vector3[] { transform.position, position });
+		
+		UpdateParticleEffect(position);
   }
+
+	void UpdateParticleEffect(Vector3 position){
+		Vector3 particlesPosition = Vector3.MoveTowards(position, transform.position, 0.5f);
+
+		if(particles == null){
+			GameObject particlesPrefab = mode == TerraformMode.Add ? addParticlesPrefab : removeParticlesPrefab;
+			particles = Instantiate(particlesPrefab, particlesPosition, Quaternion.identity);
+		}
+		else{
+			particles.transform.position = particlesPosition;
+		}
+	}
 
 	void ClearTerraformEffect(){
 		lineRenderer.positionCount = 0;
 		lineRenderer.SetPositions(new Vector3[] {});
+		ClearParticleEffect();
+	}
+
+	void ClearParticleEffect(){
+		if(particles != null){
+			ParticleSystem particleComponent = particles.GetComponent<ParticleSystem>();
+			particleComponent.Stop();
+			particles = null;
+		}
 	}
 
   IEnumerator TerraformCooldown()
