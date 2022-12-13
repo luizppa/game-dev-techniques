@@ -16,14 +16,10 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   [SerializeField] string horizontalLookAxis = "Look X";
   [SerializeField] string verticalLookAxis = "Look Y";
   [SerializeField] string ascendAxis = "Ascend";
-
-  [Header("Terraform")]
-  // [SerializeField] float terraformRadius = 5f;
-  // [SerializeField] float terraformStrength = 0.5f;
-  // [SerializeField] float terraformInterval = 0.5f;
+  [SerializeField] Vector2 lookSensitivity = Vector2.one;
 
   [Header("Effects")]
-  [SerializeField] Rotate proppeler = null;
+  [SerializeField] Rotate propeller = null;
   [SerializeField] List<Light> lights = new List<Light>();
   [SerializeField] ParticleSystem waterParticles = null;
   [SerializeField] List<AudioClip> impactSounds = new List<AudioClip>();
@@ -73,9 +69,13 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void Update()
   {
+    if(!Application.isPlaying || Time.timeScale == 0){
+      return;
+    }
     UpdateEffects();
     Action();
     Rotate();
+    Cursor.lockState = CursorLockMode.Locked;
   }
 
   void OnCollisionEnter(Collision other)
@@ -123,8 +123,8 @@ public class SubmarineControl : MonoBehaviour, CameraListener
 
   void Rotate()
   {
-    firstPersonRotation.x += Input.GetAxis(horizontalLookAxis) * Time.deltaTime * 2500;
-    firstPersonRotation.y -= Input.GetAxis(verticalLookAxis) * Time.deltaTime * 1500f;
+    firstPersonRotation.x += Input.GetAxis(horizontalLookAxis) * lookSensitivity.x;
+    firstPersonRotation.y -= Input.GetAxis(verticalLookAxis) * lookSensitivity.y;
     if (cameraManager.IsFirstPerson())
     {
       transform.rotation = Quaternion.Euler(firstPersonRotation.y, firstPersonRotation.x, 0f);
@@ -150,7 +150,7 @@ public class SubmarineControl : MonoBehaviour, CameraListener
       waterParticles.Play();
     }
 
-    proppeler.SetSpeed(rb.velocity.magnitude);
+    propeller.SetSpeed(rb.velocity.magnitude);
   }
 
   // ================================ Actions ================================ //
@@ -159,7 +159,6 @@ public class SubmarineControl : MonoBehaviour, CameraListener
   {
     ControlDayNightCycle();
     ControlLights();
-    // Terraform();
   }
 
   void ControlDayNightCycle()

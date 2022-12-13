@@ -532,7 +532,8 @@ MonoBehaviour:
   horizontalLookAxis: Look X
   verticalLookAxis: Look Y
   ascendAxis: Ascend
-  proppeler: {fileID: 319376204}
+  lookSensitivity: {x: 2, y: 1}
+  propeller: {fileID: 319376204}
   lights:
   - {fileID: 84104681}
   - {fileID: 2115213193}

@@ -151,11 +151,12 @@ public class TerraformController : MonoBehaviour
 	}
 
 	void ClearParticleEffect(){
-		if(particles != null){
-			ParticleSystem particleComponent = particles.GetComponent<ParticleSystem>();
-			particleComponent.Stop();
-			particles = null;
+		if(particles == null){
+			return;
 		}
+		ParticleSystem particleComponent = particles.GetComponent<ParticleSystem>();
+		particleComponent.Stop();
+		particles = null;
 	}
 
   IEnumerator TerraformCooldown()
