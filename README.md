@@ -15,17 +15,17 @@ I would also recommend you to check out this other creators who do not (necessar
 * [Dani](https://www.youtube.com/c/DaniDev)
 * [Stylized Station](https://www.youtube.com/c/StylizedStation)
 
-Whithout further ado, let's get to the projects!
+Without further ado, let's get to the projects!
 
 - [🚤 Marching Cubes](#-marching-cubes)
   - [Implementation](#implementation)
     - [Terraforming](#terraforming)
   - [Results](#results)
-  - [Learining resources](#learining-resources)
+  - [Learning resources](#learning-resources)
   - [Credits](#credits)
 - [🔮 Compute Shaders](#-compute-shaders)
   - [Implementation](#implementation-1)
-  - [Learning Resources](#learning-resources)
+  - [Learning Resources](#learning-resources-1)
 - [🪅 Convex Decomposition](#-convex-decomposition)
 - [🎭 Procedural Animation](#-procedural-animation)
 - [🏢 Interior Mapping](#-interior-mapping)
@@ -105,11 +105,11 @@ For my implementation, I used raycasting to determine the center of the terrafor
 * [Water shader and day/night cycle](https://youtu.be/hS4G8Fr6Fnw)
 * [Fish schools](https://youtu.be/FTN0Y8puQPk)
 
-### Learining resources
+### Learning resources
 
 * [Polygonising a scalar field](http://paulbourke.net/geometry/polygonise/)
 * [Generating Complex Procedural Terrains Using the GPU](https://developer.nvidia.com/gpugems/gpugems3/part-i-geometry/chapter-1-generating-complex-procedural-terrains-using-gpu)
-* [Marching Cubes: a High Resolution 3D Surface Costruction Algorithm](https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf) (the original papper for the algorithm)
+* [Marching Cubes: a High Resolution 3D Surface Construction Algorithm](https://people.eecs.berkeley.edu/~jrs/meshpapers/LorensenCline.pdf) (the original paper for the algorithm)
 
 ### Credits
 
