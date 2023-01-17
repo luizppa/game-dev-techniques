@@ -6,11 +6,10 @@ using UnityEditor;
 [CustomEditor(typeof(ProceduralLimb)), CanEditMultipleObjects]
 class ProceduralLimbEditor : Editor
 {
-  private bool editingControl = false;
+  private bool editingPivots = false;
 
-  private void OnLostFocus()
+  void OnDestroy()
   {
-    editingControl = false;
     Tools.hidden = false;
   }
 
@@ -20,9 +19,9 @@ class ProceduralLimbEditor : Editor
 
     base.OnInspectorGUI();
 
-    if (GUILayout.Button(editingControl ? "Finish Edition" : "Edit in Scene"))
+    if (GUILayout.Button(editingPivots ? "Finish Edition" : "Edit in Scene"))
     {
-      editingControl = !editingControl;
+      editingPivots = !editingPivots;
     }
   }
 
@@ -30,16 +29,19 @@ class ProceduralLimbEditor : Editor
   {
     ProceduralLimb segment = (ProceduralLimb)target;
 
-    if (editingControl)
+    if (editingPivots)
     {
       Tools.hidden = true;
+
       EditorGUI.BeginChangeCheck();
       Vector3 newControlPosition = Handles.PositionHandle(segment.controlPoint, Quaternion.identity);
+      Vector3 newPolePosition = Handles.PositionHandle(segment.pole, Quaternion.identity);
 
       if (EditorGUI.EndChangeCheck())
       {
-        Undo.RecordObject(segment, "Change Control Point");
+        Undo.RecordObject(segment, "Change Kinematics Points");
         segment.controlPoint = newControlPosition;
+        segment.pole = newPolePosition;
       }
     }
     else

@@ -8,6 +8,8 @@ public class ProceduralLimb : MonoBehaviour
 {
   // Position of _controlPoint is relative to body
   [SerializeField] Vector3 _controlPoint = Vector3.right;
+  [SerializeField] bool usePole = false;
+  [SerializeField] Vector3 _pole = Vector3.up + (Vector3.right / 2f);
   [SerializeField] int boneCount = 3;
   [SerializeField] public Transform body = null;
 
@@ -24,14 +26,27 @@ public class ProceduralLimb : MonoBehaviour
       {
         return _controlPoint;
       }
-      else
-      {
-        return body.TransformPoint(_controlPoint);
-      }
+      return body.TransformPoint(_controlPoint);
     }
     set
     {
       _controlPoint = body.InverseTransformPoint(value);
+    }
+  }
+
+  public Vector3 pole
+  {
+    get
+    {
+      if (body == null)
+      {
+        return _pole;
+      }
+      return body.TransformPoint(_pole);
+    }
+    set
+    {
+      _pole = body.InverseTransformPoint(value);
     }
   }
 
@@ -130,6 +145,11 @@ public class ProceduralLimb : MonoBehaviour
         break;
       }
     }
+
+    if (usePole)
+    {
+      PoleVector();
+    }
   }
 
   void ForwardKinematics()
@@ -151,6 +171,24 @@ public class ProceduralLimb : MonoBehaviour
       bonePositions[i] = target;
       Vector3 direction = (bonePositions[i - 1] - bonePositions[i]).normalized;
       target = bonePositions[i] + (direction * boneLengths[i - 1]);
+    }
+  }
+
+  void PoleVector()
+  {
+    for (int i = 1; i < boneCount; i++)
+    {
+      Plane plane = new Plane(bonePositions[i + 1] - bonePositions[i - 1], bonePositions[i - 1]);
+      Vector3 projectedPole = plane.ClosestPointOnPlane(pole);
+
+      if (Vector3.Distance(projectedPole, bonePositions[i - 1]) < 0.1f)
+      {
+        continue;
+      }
+
+      Vector3 projectedBone = plane.ClosestPointOnPlane(bonePositions[i]);
+      float angle = Vector3.SignedAngle(projectedBone - bonePositions[i - 1], projectedPole - bonePositions[i - 1], plane.normal);
+      bonePositions[i] = Quaternion.AngleAxis(angle, plane.normal) * (bonePositions[i] - bonePositions[i - 1]) + bonePositions[i - 1];
     }
   }
 
@@ -182,6 +220,8 @@ public class ProceduralLimb : MonoBehaviour
   {
     Gizmos.color = Color.green;
     Gizmos.DrawSphere(controlPoint, 0.05f);
+    Gizmos.color = Color.blue;
+    Gizmos.DrawSphere(pole, 0.05f);
     Handles.color = Color.red;
 
     Transform current = transform;
@@ -195,27 +235,15 @@ public class ProceduralLimb : MonoBehaviour
     }
 
     Handles.matrix = Matrix4x4.identity;
-    for (int i = 0; i < boneCount; i++)
-    {
-      Gizmos.DrawLine(bones[i].position, bones[i + 1].position);
-    }
-
+    Gizmos.color = Color.red;
     for (int i = 0; i <= boneCount; i++)
     {
       Handles.Label(bones[i].position, "Bone " + i.ToString() + ": " + bones[i].name);
-      Gizmos.DrawCube(bones[i].position, Vector3.one * .1f);
-    }
-
-    Handles.color = Color.blue;
-    Gizmos.color = Color.blue;
-    for (int i = 0; i < boneCount; i++)
-    {
-      Gizmos.DrawLine(bonePositions[i], bonePositions[i + 1]);
-    }
-
-    for (int i = 0; i <= boneCount; i++)
-    {
       Gizmos.DrawCube(bonePositions[i], Vector3.one * .1f);
+      if (i < boneCount)
+      {
+        Gizmos.DrawLine(bonePositions[i], bonePositions[i + 1]);
+      }
     }
   }
 }
