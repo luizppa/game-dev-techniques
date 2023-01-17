@@ -55,6 +55,11 @@ public class ProceduralLimb : MonoBehaviour
   private float[] boneLengths;
   private float limbLength = 0f;
 
+  // private Vector3[] startDirectionSuccessive;
+  // private Quaternion[] startRotationBone;
+  // private Quaternion startRotationTarget;
+  // private Quaternion startRotationRoot;
+
   bool isControlReachable
   {
     get
@@ -84,6 +89,8 @@ public class ProceduralLimb : MonoBehaviour
     bones = new Transform[boneCount + 1];
     bonePositions = new Vector3[boneCount + 1];
     boneLengths = new float[boneCount];
+    // startDirectionSuccessive = new Vector3[boneCount + 1];
+    // startRotationBone = new Quaternion[boneCount + 1];
     limbLength = 0f;
 
     Transform currentBone = transform;
@@ -111,12 +118,6 @@ public class ProceduralLimb : MonoBehaviour
     }
 
     CopyPositions();
-
-    // Debug.Log("Control is reachable: " + isControlReachable);
-    // Debug.Log("Bone 0 position: " + bones[boneCount].position);
-    // Debug.Log("Body position: " + body.position);
-
-    // Do stuff
     if (isControlReachable)
     {
       InverseKinematics();
@@ -129,7 +130,6 @@ public class ProceduralLimb : MonoBehaviour
         bonePositions[i] = bonePositions[i - 1] + direction * boneLengths[i - 1];
       }
     }
-
     SetPositions();
     RotateSegments();
   }
@@ -180,13 +180,13 @@ public class ProceduralLimb : MonoBehaviour
     {
       Plane plane = new Plane(bonePositions[i + 1] - bonePositions[i - 1], bonePositions[i - 1]);
       Vector3 projectedPole = plane.ClosestPointOnPlane(pole);
+      Vector3 projectedBone = plane.ClosestPointOnPlane(bonePositions[i]);
 
-      if (Vector3.Distance(projectedPole, bonePositions[i - 1]) < 0.1f)
+      if (Vector3.Distance(projectedPole, bonePositions[i - 1]) < 0.1f || Vector3.Distance(projectedBone, bonePositions[i - 1]) < 0.1f)
       {
         continue;
       }
 
-      Vector3 projectedBone = plane.ClosestPointOnPlane(bonePositions[i]);
       float angle = Vector3.SignedAngle(projectedBone - bonePositions[i - 1], projectedPole - bonePositions[i - 1], plane.normal);
       bonePositions[i] = Quaternion.AngleAxis(angle, plane.normal) * (bonePositions[i] - bonePositions[i - 1]) + bonePositions[i - 1];
     }
