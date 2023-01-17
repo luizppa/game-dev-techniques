@@ -14,7 +14,6 @@ GameObject:
   - component: {fileID: 6163357231415103915}
   - component: {fileID: 6163357231415103916}
   - component: {fileID: 6163357231415103917}
-  - component: {fileID: 6163357231415103927}
   m_Layer: 0
   m_Name: Spider Leg
   m_TagString: Untagged
@@ -885,16 +884,3 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
---- !u!114 &6163357231415103927
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6163357231415103918}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 89dd73fe2a0aa2b4d9d95dae4c1d443d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  controlPoint: {x: 1, y: 0, z: 0}

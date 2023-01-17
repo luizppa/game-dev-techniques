@@ -13,9 +13,9 @@ public enum DecompositionMethod
 public class ConvexMeshBuilder : MonoBehaviour
 {
   [SerializeField] MeshFilter meshFilter = null;
-  [SerializeField] DecompositionMethod method = DecompositionMethod.TREE_SEARCH;
+  // [SerializeField] DecompositionMethod method = DecompositionMethod.TREE_SEARCH;
   [SerializeField] ConcavityMetric metric = ConcavityMetric.HAUSDORFF;
-  [SerializeField] float treshold = 0.5f;
+  [SerializeField] float threshold = 0.5f;
   private Mesh mesh = null;
 
   private Mesh convexHull = null;
@@ -60,7 +60,7 @@ public class ConvexMeshBuilder : MonoBehaviour
     {
       Mesh m = queue.Dequeue();
       float concavity = MeshHelper.CalculateConcavity(m, metric);
-      if (concavity < treshold)
+      if (concavity < threshold)
       {
         meshes.Add(m);
       }
@@ -97,7 +97,7 @@ public class ConvexMeshBuilder : MonoBehaviour
 
     // TODO
     // Select the best child 𝑣* of the root node
-    // bestPlaane = plane for 𝑣*
+    // bestPlane = plane for 𝑣*
 
     return bestPlane;
   }

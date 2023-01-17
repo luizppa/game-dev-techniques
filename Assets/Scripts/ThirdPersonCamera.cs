@@ -216,7 +216,7 @@ public class ThirdPersonCamera : MonoBehaviour
     }
   }
 
-  private void OnDrawGizmos()
+  private void OnDrawGizmosSelected()
   {
     if (follow != null && showGizmos)
     {
