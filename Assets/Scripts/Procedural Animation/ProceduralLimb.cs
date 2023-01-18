@@ -6,7 +6,7 @@ using UnityEditor;
 [ExecuteInEditMode]
 public class ProceduralLimb : MonoBehaviour
 {
-  // Position of _controlPoint is relative to body
+  [Tooltip("Position of the control point in local space of the limb")]
   [SerializeField] Vector3 _controlPoint = Vector3.right;
   [SerializeField] bool usePole = false;
   [SerializeField] Vector3 _pole = Vector3.up + (Vector3.right / 2f);
@@ -17,7 +17,9 @@ public class ProceduralLimb : MonoBehaviour
   [SerializeField] int solverIterations = 1;
   [SerializeField] float solverTolerance = 0.01f;
 
-  // Position of controlPoint is relative to world
+  /**
+   * @property Control point in world space
+  **/
   public Vector3 controlPoint
   {
     get
@@ -216,12 +218,22 @@ public class ProceduralLimb : MonoBehaviour
     }
   }
 
+  public void SetControlFromLimbSpace(Vector3 control)
+  {
+    _controlPoint = control;
+  }
+
   void OnDrawGizmosSelected()
   {
     Gizmos.color = Color.green;
     Gizmos.DrawSphere(controlPoint, 0.05f);
-    Gizmos.color = Color.blue;
-    Gizmos.DrawSphere(pole, 0.05f);
+
+    if (usePole)
+    {
+      Gizmos.color = Color.blue;
+      Gizmos.DrawSphere(pole, 0.05f);
+    }
+
     Handles.color = Color.red;
 
     Transform current = transform;
