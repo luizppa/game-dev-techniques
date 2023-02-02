@@ -28,12 +28,15 @@ Without further ado, let's get to the projects!
   - [Learning Resources](#learning-resources-1)
 - [🪅 Convex Decomposition](#-convex-decomposition)
 - [🎭 Procedural Animation](#-procedural-animation)
+- [Implementation](#implementation-2)
+  - [Inverse Kinematics](#inverse-kinematics)
 - [🏢 Interior Mapping](#-interior-mapping)
 
 ## 🚤 Marching Cubes
 
 <p align="center">
-  <img src="./Docs/marching-cubes-screen-title.png"/>
+  <img width="100%" src="./Docs/marching-cubes-thumbnail.png"/>
+  I made a video essay about this topic, you can check it out <a href="https://youtu.be/5asO5m9wgg8">here</a>!
 </p>
 
 [Marching Cubes](https://en.wikipedia.org/wiki/Marching_cubes) is a procedural polygonization algorithm that will generate natural looking meshes based on a grid of points. It is a very popular technique used in applications like terrain generation, fluid simulation, voxel rendering and many others. The technique was first described by William E. Lorensen and H. E. Cline in 1987.
@@ -86,7 +89,7 @@ To make the resulting terrain even more intricate, I also implemented position w
   <img width="90%" src="./Docs/marching-cubes-screen-capture-14.png"/>
 </p>
 
-Just to add some polish to the scene I also got a new model for the submarine, implemented a few effects like the water surface foam and underwater fog, detailed vegetation and particle effects. This is still a work in progress but once I'm done I will probably make a more detailed video showcasing the final result as well as going through the algorithm and the implementation.
+Just to add some polish to the scene I also got a new model for the submarine, implemented a few effects like the water surface foam and underwater fog, detailed vegetation and particle effects. I will probably be continuously evolving this project as I come up with new ideas, but for an overview of the central concepts, check out the video essay linked in the results section!
 #### Terraforming
 
 One very cool feature that can be easily implemented when you use marching cubes for terrain generation is terraforming. Since our mesh is based on a grid of weighted points, to create a terraforming effect you can simply add or remove from the density of the points in a certain area. If we then update the mesh we will get a nice smooth transition between the old and the new terrain. To a smoother effect you can have some kind of fall off rate.
@@ -104,6 +107,7 @@ For my implementation, I used raycasting to determine the center of the terrafor
 * [Surface warping and water surface](https://youtu.be/A4ovcl4IxEs)
 * [Water shader and day/night cycle](https://youtu.be/hS4G8Fr6Fnw)
 * [Fish schools](https://youtu.be/FTN0Y8puQPk)
+* [Video Essay](https://youtu.be/5asO5m9wgg8)
 
 ### Learning resources
 
@@ -173,6 +177,17 @@ The noise effect can be reduced by implementing denoising algorithms, which have
 </p>
 
 ## 🎭 Procedural Animation
+
+
+
+## Implementation
+
+
+### Inverse Kinematics
+
+...
+
+---
 
 <p align="center">
   🚧 Under construction 🚧
