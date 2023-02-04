@@ -28,8 +28,8 @@ Without further ado, let's get to the projects!
   - [Learning Resources](#learning-resources-1)
 - [🪅 Convex Decomposition](#-convex-decomposition)
 - [🎭 Procedural Animation](#-procedural-animation)
-- [Implementation](#implementation-2)
-  - [Inverse Kinematics](#inverse-kinematics)
+  - [Implementation](#implementation-2)
+    - [Inverse Kinematics](#inverse-kinematics)
 - [🏢 Interior Mapping](#-interior-mapping)
 
 ## 🚤 Marching Cubes
@@ -178,16 +178,17 @@ The noise effect can be reduced by implementing denoising algorithms, which have
 
 ## 🎭 Procedural Animation
 
+Procedural animation is a very interesting topic, and it is something that I have been wanting to explore for a while. It allows us to control and animate objects in a very natural way, by defining a set of rules that govern the behavior of different segments of the object.
 
+### Implementation
 
-## Implementation
+For this project, I based myself on a few resources I could find online. Initially, my goal is to simply control a spider like object and make it walk around, but I will try to expand on this idea and make it more interesting on the future.
 
+[This video](https://www.youtube.com/watch?v=e6Gjhr1IP6w) illustrates the idea I will try to follow. The spider has four limbs, which one with three bones that follow a few rules. To control these bones, we must use something called [Inverse Kinematics](https://en.wikipedia.org/wiki/Inverse_kinematics), which is a technique to move objects based on a pivot, a target point and a pole. The pivot is a point that defines the origin of the limb, the target is used to define the point the limb should reach for, it is where the limb should end if possible and finally the pole define the rules of how the limb will bend. This video: "[FK and IK Explained - Which One to Use and When?](https://www.youtube.com/watch?v=0a9qIj7kwiA&list=WL&index=18)" helps to understand what is inverse kinematics and how it is different from the more traditional forward kinematics. 
 
-### Inverse Kinematics
+#### Inverse Kinematics
 
-...
-
----
+To implement inverse kinematics, I based myself on the following video: [C# Inverse Kinematics in Unity 🎓](https://www.youtube.com/watch?v=qqOAzn05fvk). The idea is to iterate over the bones multiple times back and forth, each time we move the bones closer to the desired position and stop once we are close enough or once we reach a maximum number of iterations.
 
 <p align="center">
   🚧 Under construction 🚧
