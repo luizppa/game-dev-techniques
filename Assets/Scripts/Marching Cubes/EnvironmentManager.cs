@@ -17,6 +17,8 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   [SerializeField] float waterLevel = 50f;
 
   [Header("Fog Settings")]
+  [SerializeField] float dryLandFogDensity = .1f;
+  [SerializeField] Color dryLandFogColor = Color.white;
   [SerializeField] float startFogHeight = 35f;
   [SerializeField] Color startFogColor = new Color(0.168f, 0.325f, 0.952f, 1f);
   [SerializeField] float startFogDensity = 0.06f;
@@ -69,15 +71,18 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   {
     if (playerPosition)
     {
-      if (gameCamera.transform.position.y - 0.2 <= waterLevel)
+      if (gameCamera.transform.position.y - waterLevel <= 0.2)
       {
         float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
         RenderSettings.fogColor = Color.Lerp(startFogColor, endFogColor, fogHeight) * sun.intensity;
         RenderSettings.fogDensity = Mathf.Lerp(startFogDensity, endFogDensity, fogHeight);
+        RenderSettings.fogMode = FogMode.ExponentialSquared;
       }
       else
       {
-        RenderSettings.fogDensity = 0f;
+        RenderSettings.fogColor = dryLandFogColor;
+        RenderSettings.fogDensity = dryLandFogDensity;
+        RenderSettings.fogMode = FogMode.ExponentialSquared;
       }
     }
   }
