@@ -21,7 +21,7 @@ struct Triangle {
 
 RWStructuredBuffer<float> _ChunkVertices;
 AppendStructuredBuffer<Triangle> _ChunkTriangles;
-AppendStructuredBuffer<float3> _ChunkVegetation;
+AppendStructuredBuffer<float4> _ChunkVegetation;
 Texture2D<float4> _NoiseMapVol1;
 Texture2D<float4> _NoiseMapVol2;
 Texture2D<float4> _NoiseMapVol3;
@@ -230,14 +230,14 @@ void CalculateVoxelGeneratedVertices(uint3 id, int cubeIndex, inout float3 gener
 */
 void GenerateTriangleVegetation(Triangle tri){
 	float3 ctr = GetCentroid(tri);
+	float vegetationValue = _NoiseMapVol3.SampleLevel(TrilinearRepeat, ctr.xz * .001, 0).r;
+
+  if(vegetationValue < (1.0 - vegetationDensity)) return;
+
 	float3 normal = GetNormal(tri);
 	float3 up = float3(0, 1, 0);
 	float dotProd = dot(normal, up);
-	if(dotProd < 0.70) return;
-	float vegetationValue = _NoiseMapVol3.SampleLevel(TrilinearRepeat, ctr.xz * .001, 0).r;
-	if(vegetationValue > (1.0 - vegetationDensity)) {
-		_ChunkVegetation.Append(ctr); 
-	}
+  _ChunkVegetation.Append(float4(ctr, dotProd));
 }
 
 /**

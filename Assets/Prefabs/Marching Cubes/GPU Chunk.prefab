@@ -102,6 +102,31 @@ MonoBehaviour:
   grassPrefabs:
   - {fileID: 1000010624020320, guid: 8f736346d6454a145819ab8157ae4535, type: 3}
   - {fileID: 1000010624020320, guid: eed944aa3c9fbb642b0f53ffb006b1a7, type: 3}
+  shallowWaterPrefabs:
+  - {fileID: 2956547890565415137, guid: 19edae7355d9d5348a22e8171f4fe804, type: 3}
+  - {fileID: 299119517353601714, guid: 4fe2c2558a7e72e4ba3fddbc06f49fe8, type: 3}
+  - {fileID: 3498612876469660974, guid: 368a46b4df1e73647a406ec41c8172a7, type: 3}
+  treePrefabs:
+  - {fileID: 8352528819138939674, guid: cd8f0c8a533632a4e9c4be0f7e488fae, type: 3}
+  - {fileID: 1503862950938334494, guid: d3f3747cdb6417d498f247f995928629, type: 3}
+  - {fileID: 7642110362619502857, guid: ff6a3d07f6bb3714d91e1d5807a6c4b5, type: 3}
+  rockPrefabs:
+  - {fileID: 4169096484274329770, guid: 3f12c5aeffadbfb48a73664c32368166, type: 3}
+  - {fileID: 3687889715272500597, guid: e4bb1a93e0e00b64ab87d67600b73962, type: 3}
+  - {fileID: 2172011278761168382, guid: 68b2ea95dbcf0794e8c3adbd84732e2f, type: 3}
+  bushPrefabs:
+  - {fileID: 2929350452209706237, guid: c811cf1682684c54e8f48a7c8e9b11a2, type: 3}
+  - {fileID: 8823583796762959344, guid: a08a1a9365acd064fb50d546c6bbbd99, type: 3}
+  - {fileID: 738434795985466190, guid: af8800b8927645a40af3adc130eaba5d, type: 3}
+  flowerPrefabs:
+  - {fileID: 4231934276589130732, guid: 6fdb38de0b69a3a43bf2cb41d9dd4ad5, type: 3}
+  - {fileID: 8098908393891633942, guid: 2b6d05725ad455444814d327aa876797, type: 3}
+  - {fileID: 211635571440773538, guid: 99fba29648d2aea46b7eda39deb5dea3, type: 3}
+  coralPrefabs:
+  - {fileID: 5520249894133469308, guid: c77aa62004c36cc49a88bd28ac99a5d5, type: 3}
+  - {fileID: 3715862363592957083, guid: 491cd767de5197b4894e3e1cbf59c023, type: 3}
+  - {fileID: 7759116744408691268, guid: 1f789e5e139caed4386ea18bd69f979e, type: 3}
+  - {fileID: 870402154063181157, guid: 983c466cba795884c9f458b0696c562c, type: 3}
   boidUnitPrefabs:
   - {fileID: 9177517828484293633, guid: 38d92f5d21ab91f48b2715c785c844d5, type: 3}
   - {fileID: 5913243512480856371, guid: b9ea5bcc96d323745b29f662a0866725, type: 3}

@@ -27,6 +27,8 @@ public class GPUChunk : MonoBehaviour
   private const int maxTrianglesPerVoxel = 5;
   private const int triangleMemorySize = sizeof(float) * 3 * 4;
   private const int vector3MemorySize = sizeof(float) * 3;
+  private const int vector4MemorySize = sizeof(float) * 4;
+
 
   // Compute shader
   [SerializeField] ComputeShader meshGenerator = null;
@@ -58,7 +60,7 @@ public class GPUChunk : MonoBehaviour
   private List<GameObject> vegetationInstances = new List<GameObject>();
 
   // Buffers
-  ComputeBuffer trianglesBudffer = null;
+  ComputeBuffer trianglesBuffer = null;
   ComputeBuffer trianglesCountBuffer = null;
   ComputeBuffer verticesBuffer = null;
   ComputeBuffer vegetationBuffer = null;
@@ -66,6 +68,13 @@ public class GPUChunk : MonoBehaviour
 
   // Props
   [SerializeField] List<GameObject> grassPrefabs = new List<GameObject>();
+  [SerializeField] List<GameObject> shallowWaterPrefabs = new List<GameObject>();
+  [SerializeField] List<GameObject> treePrefabs = new List<GameObject>();
+  [SerializeField] List<GameObject> rockPrefabs = new List<GameObject>();
+  [SerializeField] List<GameObject> bushPrefabs = new List<GameObject>();
+  [SerializeField] List<GameObject> flowerPrefabs = new List<GameObject>();
+  [SerializeField] List<GameObject> coralPrefabs = new List<GameObject>();
+
   [SerializeField] List<GameObject> boidUnitPrefabs = new List<GameObject>();
   [SerializeField] uint boidsNumber = 100;
 
@@ -73,7 +82,7 @@ public class GPUChunk : MonoBehaviour
   {
     GetConfig();
     InitializeProperties();
-    InitializaBuffers();
+    InitializeBuffers();
     Generate();
   }
 
@@ -115,18 +124,18 @@ public class GPUChunk : MonoBehaviour
     vegetation = new Vector3[maxTrianglesNumber];
   }
 
-  private void InitializaBuffers()
+  private void InitializeBuffers()
   {
-    trianglesBudffer = new ComputeBuffer(maxTrianglesNumber, triangleMemorySize, ComputeBufferType.Append);
+    trianglesBuffer = new ComputeBuffer(maxTrianglesNumber, triangleMemorySize, ComputeBufferType.Append);
     trianglesCountBuffer = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
     verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
-    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, vector3MemorySize, ComputeBufferType.Append);
+    vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, vector4MemorySize, ComputeBufferType.Append);
     vegetationBufferCount = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
   }
 
   private void ReleaseBuffers()
   {
-    trianglesBudffer.Release();
+    trianglesBuffer.Release();
     trianglesCountBuffer.Release();
     vegetationBuffer.Release();
     vegetationBufferCount.Release();
@@ -166,19 +175,20 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.Dispatch(kernel, numThreadsPerGroup, numThreadsPerGroup, numThreadsPerGroup);
 
     // Get triangles
-    ComputeBuffer.CopyCount(trianglesBudffer, trianglesCountBuffer, 0);
+    ComputeBuffer.CopyCount(trianglesBuffer, trianglesCountBuffer, 0);
     int[] trianglesCount = new int[1];
     trianglesCountBuffer.GetData(trianglesCount);
     Triangle[] generatedTriangles = new Triangle[trianglesCount[0]];
-    trianglesBudffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
+    trianglesBuffer.GetData(generatedTriangles, 0, 0, generatedTriangles.Length);
     GeneratePolygons(trianglesCount[0], generatedTriangles);
 
     // Get vegetation
-    if(generateVegetation){
+    if (generateVegetation)
+    {
       ComputeBuffer.CopyCount(vegetationBuffer, vegetationBufferCount, 0);
       int[] vegetationCount = new int[1];
       vegetationBufferCount.GetData(vegetationCount);
-      Vector3[] generatedVegetation = new Vector3[vegetationCount[0]];
+      Vector4[] generatedVegetation = new Vector4[vegetationCount[0]];
       vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
       GenerateVegetation(vegetationCount[0], generatedVegetation);
     }
@@ -241,7 +251,7 @@ public class GPUChunk : MonoBehaviour
 
     // Init data
     verticesBuffer.SetData(vertices);
-    trianglesBudffer.SetCounterValue(0);
+    trianglesBuffer.SetCounterValue(0);
     vegetationBuffer.SetCounterValue(0);
 
     // Noise maps
@@ -251,7 +261,7 @@ public class GPUChunk : MonoBehaviour
 
     // Buffers
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
-    meshGenerator.SetBuffer(kernel, "_ChunkTriangles", trianglesBudffer);
+    meshGenerator.SetBuffer(kernel, "_ChunkTriangles", trianglesBuffer);
     meshGenerator.SetBuffer(kernel, "_ChunkVegetation", vegetationBuffer);
 
     // Configs
@@ -306,23 +316,123 @@ public class GPUChunk : MonoBehaviour
     meshCollider.sharedMesh = mesh;
   }
 
-  private void GenerateVegetation(int vegetationCount, Vector3[] generatedVegetation)
+  private void GenerateVegetation(int vegetationCount, Vector4[] generatedVegetation)
   {
-    foreach(GameObject vegetation in vegetationInstances)
+    foreach (GameObject vegetation in vegetationInstances)
     {
       Destroy(vegetation);
     }
     vegetationInstances.Clear();
+    Random.InitState(seed);
+
     if (grassPrefabs.Count > 0)
     {
       for (int i = 0; i < vegetationCount; i++)
       {
-        Vector3 pos = transform.position + (generatedVegetation[i] * chunkScale);
-        GameObject grass = Instantiate(grassPrefabs[Random.Range(0, grassPrefabs.Count)], pos, Quaternion.identity, transform);
-        grass.transform.Rotate(0, Random.Range(0, 360), 0);
-        vegetationInstances.Add(grass);
+        Vector3 pos = transform.position + (Vector4ToVector3(generatedVegetation[i]) * chunkScale);
+        float dotProd = generatedVegetation[i].w;
+
+        if (pos.y >= EnvironmentManager.Instance.GetWaterLevel())
+        {
+          InsertDryLandVegetation(pos, dotProd);
+        }
+        else
+        {
+          InsertUnderwaterVegetation(pos, dotProd);
+        }
       }
     }
+  }
+
+  void InsertDryLandVegetation(Vector3 pos, float dotProd)
+  {
+    GameObject prefab = null;
+    float angle = 0f;
+    float scale = 1f;
+
+    float random = Random.Range(0f, 1f);
+
+    if (random < 0.3)
+    {
+      if (treePrefabs.Count <= 0)
+      {
+        return;
+      }
+      prefab = treePrefabs[Random.Range(0, treePrefabs.Count)];
+    }
+    else if (random < 0.6)
+    {
+      if (rockPrefabs.Count <= 0)
+      {
+        return;
+      }
+      prefab = rockPrefabs[Random.Range(0, rockPrefabs.Count)];
+      scale = Random.Range(0.5f, 1.5f);
+    }
+    else
+    {
+      if (bushPrefabs.Count <= 0)
+      {
+        return;
+      }
+      prefab = bushPrefabs[Random.Range(0, grassPrefabs.Count)];
+    }
+
+    GameObject vegetation = Instantiate(prefab, pos, Quaternion.identity, transform);
+    vegetation.transform.Rotate(0, Random.Range(0f, 360f), angle);
+    vegetation.transform.localScale *= scale;
+    vegetationInstances.Add(vegetation);
+  }
+
+  void InsertUnderwaterVegetation(Vector3 pos, float dotProd)
+  {
+    GameObject prefab = null;
+    float angle = 0f;
+    float scale = 1f;
+
+    if (EnvironmentManager.Instance.GetWaterLevel() - pos.y < 2f)
+    {
+      if (shallowWaterPrefabs.Count <= 0)
+      {
+        return;
+      }
+      prefab = shallowWaterPrefabs[Random.Range(0, shallowWaterPrefabs.Count)];
+      scale = 3f;
+    }
+    else if (dotProd > 0.7f)
+    {
+      if (grassPrefabs.Count <= 0)
+      {
+        return;
+      }
+      prefab = grassPrefabs[Random.Range(0, grassPrefabs.Count)];
+      scale = .6f;
+    }
+    else if (dotProd < -0.3f)
+    {
+      if (coralPrefabs.Count <= 0)
+      {
+        return;
+      }
+      prefab = coralPrefabs[Random.Range(0, coralPrefabs.Count)];
+      angle = 180f;
+      scale = 3f;
+    }
+
+    if (prefab == null)
+    {
+      return;
+    }
+
+    GameObject vegetation = Instantiate(prefab, pos, Quaternion.identity, transform);
+    vegetation.transform.Rotate(0, 0, angle);
+    vegetation.transform.localScale *= scale;
+    vegetationInstances.Add(vegetation);
+  }
+
+  private Vector3 Vector4ToVector3(Vector4 vec)
+  {
+    return new Vector3(vec.x, vec.y, vec.z);
   }
 
   void OnDrawGizmosSelected()
@@ -355,7 +465,7 @@ public class GPUChunk : MonoBehaviour
     return x + (y * chunkSize) + (z * chunkSize * chunkSize);
   }
 
-  public Vector3 BurfferIndexToPosition(int idx)
+  public Vector3 BufferIndexToPosition(int idx)
   {
     int x = idx % chunkSize;
     int y = ((idx - x) / chunkSize) % chunkSize;
