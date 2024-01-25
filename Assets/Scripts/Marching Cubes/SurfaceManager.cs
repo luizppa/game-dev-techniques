@@ -78,26 +78,9 @@ public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
     for (int i = 0; i < noiseLevels; i++)
     {
       float scale = Mathf.Pow(10f, i + 1);
-      Texture2D noiseMap = new Texture2D(noiseResolution.x, noiseResolution.y);
-      for (int x = 0; x < noiseResolution.x; x++)
-      {
-        for (int y = 0; y < noiseResolution.y; y++)
-        {
-          noiseMap.SetPixel(x, y, CalculateNoiseColor(x, y, scale));
-        }
-      }
-      noiseMap.Apply();
+      Texture2D noiseMap = NoiseUtils.GenerateNoiseMap(noiseResolution, scale, seed);
       noiseMaps.Add(noiseMap);
     }
-  }
-
-  private Color CalculateNoiseColor(int x, int y, float scale)
-  {
-    float xCord = (float)x / noiseResolution.x * scale;
-    float yCord = (float)y / noiseResolution.y * scale;
-
-    float sample = Mathf.PerlinNoise(seed + xCord, seed + yCord);
-    return new Color(sample, sample, sample);
   }
 
   void InitializeProperties()
@@ -283,6 +266,7 @@ public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
     {
       GameObject chunk = Instantiate(chunkPrefab, new Vector3(x * (chunkSize - 1) * chunkScale, 0f, z * (chunkSize - 1) * chunkScale), Quaternion.identity);
       chunk.name = "Chunk " + x + ", " + z;
+      chunk.GetComponent<MeshRenderer>().material.SetTexture("_BiomeMap", EnvironmentManager.Instance.GetBiomeMap());
       chunk.GetComponent<GPUChunk>().SetId(":" + x + ":" + z);
       return chunk;
     }
@@ -329,6 +313,11 @@ public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
       }
     }
     return chunksInRadius;
+  }
+
+  public GameObject GetGPUChunkPrefab()
+  {
+    return GPUChunkPrefab;
   }
 
   public List<Texture2D> GetNoiseMaps()

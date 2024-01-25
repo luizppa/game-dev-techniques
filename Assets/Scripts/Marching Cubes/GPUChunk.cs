@@ -54,6 +54,7 @@ public class GPUChunk : MonoBehaviour
 
   // Refferences
   private SurfaceManager surfaceManager = null;
+  private EnvironmentManager environmentManager = null;
   private MeshFilter meshFilter = null;
   private MeshCollider meshCollider = null;
   private GameObject boid = null;
@@ -100,6 +101,7 @@ public class GPUChunk : MonoBehaviour
   private void GetConfig()
   {
     surfaceManager = SurfaceManager.Instance;
+    environmentManager = EnvironmentManager.Instance;
     if (surfaceManager != null)
     {
       chunkSize = surfaceManager.GetChunkSize();
@@ -233,6 +235,9 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.SetTexture(kernel, "_NoiseMapVol1", noiseMaps[0]);
     meshGenerator.SetTexture(kernel, "_NoiseMapVol2", noiseMaps[1]);
     meshGenerator.SetTexture(kernel, "_NoiseMapVol3", noiseMaps[2]);
+
+    // Biome map
+    meshGenerator.SetTexture(kernel, "_BiomeMap", environmentManager.GetBiomeMap());
 
     // Buffers
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);

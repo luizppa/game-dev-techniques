@@ -25,6 +25,7 @@ AppendStructuredBuffer<float4> _ChunkVegetation;
 Texture2D<float4> _NoiseMapVol1;
 Texture2D<float4> _NoiseMapVol2;
 Texture2D<float4> _NoiseMapVol3;
+Texture2D<float4> _BiomeMap;
 SamplerState TrilinearRepeat;
 
 float3 _ChunkPosition;
@@ -112,7 +113,7 @@ float3 LerpPosition(float3 a, float3 b, float t){
 
 
 /**
- * Generates and octave of nois with
+ * Generates an octave of noise with
  * the given parameters for frequency and amplitude
  * the value is capped at `cap`
 */
@@ -124,24 +125,61 @@ float GetOctave(float3 position, float frequency, float amplitude, float cap)
 }
 
 /**
+ * Generates a 2D octave of noise with
+ * the given parameters for frequency and amplitude
+ * the value is capped at `cap`
+*/
+float Get2DOctave(float3 position, float frequency, float amplitude, float cap)
+{
+  float level1 = _NoiseMapVol1.SampleLevel(TrilinearRepeat, position.xz * frequency, 0).x;
+  float level2 = _NoiseMapVol2.SampleLevel(TrilinearRepeat, position.xy * frequency, 0).x;
+  float octave = level1 * level2;
+
+	octave = pow(octave, 1.0/3.0) * amplitude;
+	if(octave > cap) octave = cap;
+	return octave;
+}
+
+/**
+ * Generates a 3D octave of noise with
+ * the given parameters for frequency and amplitude
+ * the value is capped at `cap`
+*/
+float Get3DOctave(float3 position, float frequency, float amplitude, float cap)
+{
+  float bias = 12.0;
+  float level1 = _NoiseMapVol1.SampleLevel(TrilinearRepeat, position.xz * frequency, 0).x;
+  float level2 = _NoiseMapVol2.SampleLevel(TrilinearRepeat, position.yz * frequency, 0).x;
+  float level3 = _NoiseMapVol3.SampleLevel(TrilinearRepeat, position.xy * frequency, 0).x;
+  float octave = pow(level1, bias) * level2 * level3;
+
+	octave = pow(octave, 1.0/(bias + 2.0)) * amplitude;
+	if(octave > cap) octave = cap;
+	return octave;
+}
+
+/**
  * Gets the warp value for the 2D position
 */
 float3 GetWarp(float2 position, float frequency, float amplitude)
 {
 	return _NoiseMapVol2.SampleLevel(TrilinearRepeat, position * frequency, 0).xyz * amplitude;
-} 
+}
 
 /**
- * Returns the density value of
- * the vertex at (x, y, z) on the chunk
- * at position _ChunkPosition
-*/
-float CalculateDensity(uint3 id) 
+  * Sample the biome map at the given position
+  */
+float3 GetBiome(float3 position)
 {
-	if(id.y >= _ChunkSize - 1) return _IsoLevel - 1;
+  return _BiomeMap.SampleLevel(TrilinearRepeat, position.xz * 0.0005, 0).xyz;
+}
 
-	float3 chunkSpace = float3(id);
-	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
+float HardFloor(float3 worldSpace){
+  float hardFloor = _Elevation;
+  return saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize;
+}
+
+float WarpedMeadowsDensity(float3 worldSpace, float3 chunkSpace){
 	float3 warp = float3(0, 0, 0);
 	float density = -chunkSpace.y - 24.0;
  
@@ -163,10 +201,60 @@ float CalculateDensity(uint3 id)
 	density += GetOctave(worldSpace, .5, 0.2, 0.2);
 	density += GetOctave(worldSpace, .8, 0.1, 0.1);
 
-	float hardFloor = _Elevation;
-	density += saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize; 
+	density += HardFloor(worldSpace);
 
 	return density;
+}
+
+float StoneValleyDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -1.0 * (_ChunkSize + 18.0);
+
+	// Upper octaves
+	density += Get3DOctave(worldSpace, .001, 42.0, 38.0);
+	density += Get3DOctave(worldSpace, .003, 22.0, 16.0);
+	density += Get3DOctave(worldSpace, .005, 15.0, 8.0);
+
+	// Lower octaves
+	density += Get3DOctave(worldSpace, .008, 8.0, 4.0);
+	density += Get3DOctave(worldSpace, .01, 6.0, 2.0);
+	density += Get3DOctave(worldSpace, .05, 0.8, 0.8);
+	density += Get3DOctave(worldSpace, .1, 0.4, 0.4);
+	density += Get3DOctave(worldSpace, .5, 0.2, 0.2);
+	density += Get3DOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float TwistedHills(float3 worldSpace, float3 chunkSpace, float biomeLevel){
+  float t = InverseLerp(0.46, 0.54, biomeLevel);
+  return ((1.0 - t) * WarpedMeadowsDensity(worldSpace, chunkSpace)) + (t * StoneValleyDensity(worldSpace, chunkSpace));
+}
+
+/**
+ * Returns the density value of
+ * the vertex at (x, y, z) on the chunk
+ * at position _ChunkPosition
+*/
+float CalculateDensity(uint3 id) 
+{
+	if(id.y >= _ChunkSize - 1) return _IsoLevel - 1;
+
+	float3 chunkSpace = float3(id);
+	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
+
+  float biome = GetBiome(worldSpace).x;
+
+  if(GetBiome(worldSpace).x < 0.46){
+    return WarpedMeadowsDensity(worldSpace, chunkSpace);
+  }
+  else if (GetBiome(worldSpace).x < 0.54){
+    return TwistedHills(worldSpace, chunkSpace, biome);
+  }
+  else{
+    return StoneValleyDensity(worldSpace, chunkSpace);
+  }
 }
 
 // ====================== Marching Cubes ====================== //

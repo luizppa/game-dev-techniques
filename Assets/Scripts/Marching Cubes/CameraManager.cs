@@ -26,10 +26,10 @@ public class CameraManager : MonoBehaviour
 
   void Update()
   {
-    ToogleView();
+    ToggleView();
   }
 
-  void ToogleView()
+  void ToggleView()
   {
     if (Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.JoystickButton4))
     {

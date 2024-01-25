@@ -24,6 +24,7 @@ Shader "Unlit/WaterSurface"
 		_FoamNoise("Foam Noise Texture", 2D) = "white" {}
 		_RefractionNoiseHorizontal("Refraction Noise Texture 1", 2D) = "white" {}
 		_RefractionNoiseVertical("Refraction Noise Texture 2", 2D) = "white" {}
+    _ReflectionNoiseTexture("Reflection Noise Texture", 2D) = "white" {}
 
 		// Refraction
 		_RefractionAmount("Refraction Amount", float) = 1
@@ -92,6 +93,7 @@ Shader "Unlit/WaterSurface"
 			sampler2D _FoamNoise;
 			sampler2D _RefractionNoiseHorizontal;
 			sampler2D _RefractionNoiseVertical;
+      sampler2D _ReflectionNoiseTexture;
 
 			float _RefractionAmount;
 			float _RefractionSpread;
@@ -162,15 +164,20 @@ Shader "Unlit/WaterSurface"
 				if(dotProd < 1 - _ReflectionAmount){
 					return float4(0, 0, 0, 0);
 				}
+
+				float3 cameraPos = _WorldSpaceCameraPos;
+        float maxViewDistance = 32.0;
+        float viewDistance = length(worldPos - cameraPos);
+        float viewerDepth = saturate(viewDistance / maxViewDistance);
 				
 				float timeFactor = _Time * _ReflectionSpeed;
-				float noiseSampleX = tex2D(_RefractionNoiseHorizontal, float2(worldPos.x + timeFactor, worldPos.z) / _ReflectionSpread).r;
-				float noiseSampleZ = tex2D(_RefractionNoiseHorizontal, float2(worldPos.x, worldPos.z + timeFactor) / _ReflectionSpread).r;
-				float noiseSample = noiseSampleX * noiseSampleZ;
-				if(noiseSample > _ReflectionDensity){
-					return float4(_ReflectionColor.rgb * depth, 1);
-				}
-				return float4(0, 0, 0, 0);
+				float noiseSampleX = tex2D(_ReflectionNoiseTexture, float2(worldPos.x + timeFactor, worldPos.z) * 0.3 / _ReflectionSpread).r;
+				float noiseSampleY = tex2D(_ReflectionNoiseTexture, float2(worldPos.z + timeFactor, worldPos.x) * 0.3 / _ReflectionSpread).r;
+				float noiseSample = sqrt(noiseSampleX * noiseSampleY);
+        if(noiseSample < 0.35){
+          return float4(0, 0, 0, 0);
+        }
+        return float4(_ReflectionColor.rgb * sqrt(noiseSample) * (1 - viewerDepth), 1);
 			}
 
 			float getLightIncidence(float3 normal, float offset)
@@ -223,8 +230,11 @@ Shader "Unlit/WaterSurface"
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				o.texCoord = v.texCoord;
 
-				float noiseSample = tex2Dlod(_WavesNoise, float4(v.texCoord.xy, 0, 0));
-  			o.vertex.y += sin((_Time * _WaveSpeed) + noiseSample) * _WaveAmp + _ExtraHeight;
+				float noiseSample = tex2Dlod(_WavesNoise, float4(o.worldPos.xz * 0.1, 0, 0));
+        float waveFunction = sin(_Time * _WaveSpeed);
+        float wave = waveFunction * (noiseSample * _WaveAmp + _ExtraHeight);
+  			o.vertex.y += wave;
+        o.worldPos.y += wave;
 
 				o.screenPos = ComputeScreenPos(o.vertex);
 				COMPUTE_EYEDEPTH(o.screenPos.z);

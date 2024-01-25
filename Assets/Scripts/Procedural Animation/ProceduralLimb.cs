@@ -246,16 +246,16 @@ public class ProceduralLimb : MonoBehaviour
       Handles.DrawWireCube(Vector3.up * .5f, Vector3.one);
     }
 
-    Handles.matrix = Matrix4x4.identity;
-    Gizmos.color = Color.red;
-    for (int i = 0; i <= boneCount; i++)
-    {
-      Handles.Label(bones[i].position, "Bone " + i.ToString() + ": " + bones[i].name);
-      Gizmos.DrawCube(bonePositions[i], Vector3.one * .1f);
-      if (i < boneCount)
-      {
-        Gizmos.DrawLine(bonePositions[i], bonePositions[i + 1]);
-      }
-    }
+    // Handles.matrix = Matrix4x4.identity;
+    // Gizmos.color = Color.red;
+    // for (int i = 0; i <= boneCount; i++)
+    // {
+    //   Handles.Label(bones[i].position, "Bone " + i.ToString() + ": " + bones[i].name);
+    //   Gizmos.DrawCube(bonePositions[i], Vector3.one * .1f);
+    //   if (i < boneCount)
+    //   {
+    //     Gizmos.DrawLine(bonePositions[i], bonePositions[i + 1]);
+    //   }
+    // }
   }
 }

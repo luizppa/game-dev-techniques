@@ -28,6 +28,7 @@ public class WaterSurface : MonoBehaviour
 
   void GenerateMesh()
   {
+    float e = 0.001f;
     mesh = new Mesh();
 
     List<Vector3> vertices = new List<Vector3>();
@@ -89,8 +90,8 @@ public class WaterSurface : MonoBehaviour
     }
 
     // Back wall
-    vertices.Add(new Vector3(0, 0.1f, 0));
-    vertices.Add(new Vector3(size.x, 0.1f, 0));
+    vertices.Add(new Vector3(0, e, 0));
+    vertices.Add(new Vector3(size.x, e, 0));
     vertices.Add(new Vector3(0, -100, 0));
     vertices.Add(new Vector3(size.x, -100, 0));
 
@@ -103,8 +104,8 @@ public class WaterSurface : MonoBehaviour
     triangles.Add(vertices.Count - 3);
 
     // Front wall
-    vertices.Add(new Vector3(0, 0.1f, size.y));
-    vertices.Add(new Vector3(size.x, 0.1f, size.y));
+    vertices.Add(new Vector3(0, e, size.y));
+    vertices.Add(new Vector3(size.x, e, size.y));
     vertices.Add(new Vector3(0, -100, size.y));
     vertices.Add(new Vector3(size.x, -100, size.y));
 
@@ -117,8 +118,8 @@ public class WaterSurface : MonoBehaviour
     triangles.Add(vertices.Count - 2);
 
     // Left wall
-    vertices.Add(new Vector3(0, 0.1f, 0));
-    vertices.Add(new Vector3(0, 0.1f, size.y));
+    vertices.Add(new Vector3(0, e, 0));
+    vertices.Add(new Vector3(0, e, size.y));
     vertices.Add(new Vector3(0, -100, 0));
     vertices.Add(new Vector3(0, -100, size.y));
 
@@ -131,8 +132,8 @@ public class WaterSurface : MonoBehaviour
     triangles.Add(vertices.Count - 2);
 
     // Right wall
-    vertices.Add(new Vector3(size.x, 0.1f, 0));
-    vertices.Add(new Vector3(size.x, 0.1f, size.y));
+    vertices.Add(new Vector3(size.x, e, 0));
+    vertices.Add(new Vector3(size.x, e, size.y));
     vertices.Add(new Vector3(size.x, -100, 0));
     vertices.Add(new Vector3(size.x, -100, size.y));
 
