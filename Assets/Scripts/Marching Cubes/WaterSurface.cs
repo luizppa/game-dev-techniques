@@ -28,7 +28,7 @@ public class WaterSurface : MonoBehaviour
 
   void GenerateMesh()
   {
-    float e = 0.001f;
+    float e = 0.1f;
     mesh = new Mesh();
 
     List<Vector3> vertices = new List<Vector3>();
@@ -37,9 +37,23 @@ public class WaterSurface : MonoBehaviour
     // Facing up triangles
     for (int x = 0; x < size.x; x++)
     {
+      float xAdder = 0;
+      if(x == 0){
+        xAdder = -e;
+      }
+      else if(x == size.x - 1){
+        xAdder = e;
+      }
       for (int z = 0; z < size.y; z++)
       {
-        vertices.Add(new Vector3(x, 0, z));
+        float zAdder = 0;
+        if(z == 0){
+          zAdder = -e;
+        }
+        else if(z == size.y - 1){
+          zAdder = e;
+        }
+        vertices.Add(new Vector3(x + xAdder, 0, z + zAdder));
       }
     }
     for (int x = 0; x < size.x - 1; x++)
@@ -65,9 +79,23 @@ public class WaterSurface : MonoBehaviour
     int offset = vertices.Count;
     for (int x = 0; x < size.x; x++)
     {
+      float xOffset = 0;
+      if(x == 0){
+        xOffset = -e;
+      }
+      else if(x == size.x - 1){
+        xOffset = e;
+      }
       for (int z = 0; z < size.y; z++)
       {
-        vertices.Add(new Vector3(x, 0, z));
+        float zOffset = 0;
+        if(z == 0){
+          zOffset = -e;
+        }
+        else if(z == size.y - 1){
+          zOffset = e;
+        }
+        vertices.Add(new Vector3(x + xOffset, 0, z + zOffset));
       }
     }
     for (int x = 0; x < size.x - 1; x++)

@@ -8,6 +8,10 @@ using UnityEngine.UI;
 public struct Biome {
   [SerializeField] public string name;
 
+  [Header("Water Settings")]
+  [SerializeField] public Color shallowColor;
+  [SerializeField] public Color deepColor;
+
   [Header("Fog Settings")]
   [SerializeField] public Color startFogColor;
   [SerializeField] public float startFogDensity;
@@ -60,6 +64,7 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   };
 
   private Camera gameCamera = null;
+  private Material waterMaterial = null;
 
   override protected void Awake()
   {
@@ -88,7 +93,8 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     }
     if (waterSurface)
     {
-      waterSurface.GetComponent<MeshRenderer>().sharedMaterial.SetTexture("_ReflectionNoiseTexture", reflectionMap);
+      waterMaterial = waterSurface.GetComponent<MeshRenderer>().material;
+      waterMaterial.SetTexture("_ReflectionNoiseTexture", reflectionMap);
     }
   }
 
@@ -122,19 +128,24 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   {
     if (playerPosition)
     {
+      Biome biome = GetBiomeAtPosition(playerPosition.position);
       if (gameCamera.transform.position.y - waterLevel <= 0.2)
       {
-        Biome biome = GetBiomeAtPosition(playerPosition.position);
         float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
-        RenderSettings.fogColor = Color.Lerp(biome.startFogColor, biome.endFogColor, fogHeight) * sun.intensity;
+        Color fogColor = Color.Lerp(biome.startFogColor, biome.endFogColor, fogHeight) * sun.intensity;
+        RenderSettings.fogColor = fogColor;
         RenderSettings.fogDensity = Mathf.Lerp(biome.startFogDensity, biome.endFogDensity, fogHeight);
         RenderSettings.fogMode = FogMode.ExponentialSquared;
       }
       else
       {
         RenderSettings.fogColor = dryLandFogColor;
+        RenderSettings.skybox.SetColor("_EquatorColor", biome.deepColor);
+        RenderSettings.skybox.SetColor("_GroundColor", biome.deepColor);
         RenderSettings.fogDensity = dryLandFogDensity;
         RenderSettings.fogMode = FogMode.ExponentialSquared;
+        waterMaterial.SetColor("_ShallowColor", biome.shallowColor);
+        waterMaterial.SetColor("_DeepColor", biome.deepColor);
       }
     }
   }
@@ -168,7 +179,9 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
         startFogColor = Color.Lerp(biomes[0].startFogColor, biomes[1].startFogColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
         startFogDensity = Mathf.Lerp(biomes[0].startFogDensity, biomes[1].startFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
         endFogColor = Color.Lerp(biomes[0].endFogColor, biomes[1].endFogColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        endFogDensity = Mathf.Lerp(biomes[0].endFogDensity, biomes[1].endFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue))
+        endFogDensity = Mathf.Lerp(biomes[0].endFogDensity, biomes[1].endFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
+        shallowColor = Color.Lerp(biomes[0].shallowColor, biomes[1].shallowColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
+        deepColor = Color.Lerp(biomes[0].deepColor, biomes[1].deepColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue))
       };
       return transitionBiome;
     }
