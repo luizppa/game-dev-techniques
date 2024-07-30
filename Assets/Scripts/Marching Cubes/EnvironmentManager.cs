@@ -42,26 +42,17 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
 
 
   [Header("Biome Settings")]
-  [SerializeField] Texture2D biomeMap = null;
+  [SerializeField] List<string> biomeFeatures = new List<string>{
+    "Temperature",
+    "Seismic Activity",
+    "Erosion",
+    "Precipitation"
+  };
+  [SerializeField] List<Texture2D> biomeMaps = new List<Texture2D>();
   [SerializeField] int biomesSeed = 0;
   [SerializeField] float biomesScale = 1f;
   [SerializeField] int biomesSize = 256;
-  [SerializeField] List<Biome> biomes = new List<Biome>{
-    new Biome {
-      name = "Warped Meadows",
-      startFogColor = new Color(0.168f, 0.325f, 0.952f, 1f),
-      startFogDensity = 0.03f,
-      endFogColor = new Color(0.015f, 0.063f, 0.254f, 1f),
-      endFogDensity = 0.05f
-    },
-    new Biome {
-      name = "Stone Fields",
-      startFogColor = new Color(0.168f, 0.325f, 0.952f, 1f),
-      startFogDensity = 0.06f,
-      endFogColor = new Color(0.015f, 0.063f, 0.254f, 1f),
-      endFogDensity = 0.15f
-    }
-  };
+  [SerializeField] BiomeData biomeData = new BiomeData();
 
   private Camera gameCamera = null;
   private Material waterMaterial = null;
@@ -69,10 +60,10 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   override protected void Awake()
   {
     base.Awake();
-    if(!biomeMap)
+
+    while(biomeMaps.Count < biomeFeatures.Count)
     {
-      biomeMap = NoiseUtils.GenerateNoiseMap(new Vector2Int(biomesSize, biomesSize), biomesScale, biomesSeed);
-      // biomeMap = Texture2D.redTexture;
+      biomeMaps.Add(NoiseUtils.GenerateNoiseMap(new Vector2Int(biomesSize, biomesSize), biomesScale, biomesSeed));
     }
     if(!reflectionMap)
     {
@@ -161,29 +152,15 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     return waterLevel;
   }
 
-  public Texture2D GetBiomeMap(){
-    return biomeMap;
+  public Texture2D GetBiomeMap(string feature = "Temperature"){
+    return biomeMaps[biomeFeatures.IndexOf(feature)];
   }
 
   public Biome GetBiomeAtPosition(Vector3 position){
-    float biomeValue = biomeMap.GetPixelBilinear(position.x * 0.0005f, position.z * 0.0005f).r;
-    if(biomeValue < 0.46f){
-      return biomes[0];
+    float[] features = new float[biomeFeatures.Count];
+    for(int i = 0; i < biomeFeatures.Count; i++){
+      features[i] = biomeMaps[i].GetPixelBilinear(position.x * 0.0005f, position.z * 0.0005f).r;
     }
-    else if(biomeValue > 0.54f){
-      return biomes[1];
-    }
-    else{
-      Biome transitionBiome = new Biome{
-        name = "Transition Biome",
-        startFogColor = Color.Lerp(biomes[0].startFogColor, biomes[1].startFogColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        startFogDensity = Mathf.Lerp(biomes[0].startFogDensity, biomes[1].startFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        endFogColor = Color.Lerp(biomes[0].endFogColor, biomes[1].endFogColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        endFogDensity = Mathf.Lerp(biomes[0].endFogDensity, biomes[1].endFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        shallowColor = Color.Lerp(biomes[0].shallowColor, biomes[1].shallowColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        deepColor = Color.Lerp(biomes[0].deepColor, biomes[1].deepColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue))
-      };
-      return transitionBiome;
-    }
+    return biomeData.GetBiome(features);
   }
 }

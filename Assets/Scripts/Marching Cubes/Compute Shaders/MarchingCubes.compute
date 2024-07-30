@@ -12,11 +12,29 @@ static const int threads = 8;
 static const uint vegetationSparsity = 8;
 static const float vegetationDensity = 0.4;
 
+static const float LOW_FEATURE_LEVEL = .48;
+static const float HIGH_FEATURE_LEVEL = .52;
+
+static const uint featureCount = 4;
+static const uint biomeCount = 16; // 2^featureCount
+ 
 struct Triangle {
 	float3 a;
 	float3 b;
 	float3 c;
-	float3 padding;
+	float3 padding; // padding to align to 16 bytes
+};
+
+struct BiomeNode {
+  float t; // interpolation value for siblings
+};
+
+struct BiomeTree {
+  BiomeNode nodes[16];
+};
+
+struct BiomeInterpolation {
+  float values[16];
 };
 
 RWStructuredBuffer<float> _ChunkVertices;
@@ -25,7 +43,12 @@ AppendStructuredBuffer<float4> _ChunkVegetation;
 Texture2D<float4> _NoiseMapVol1;
 Texture2D<float4> _NoiseMapVol2;
 Texture2D<float4> _NoiseMapVol3;
-Texture2D<float4> _BiomeMap;
+
+Texture2D<float4> _ErosionMap;
+Texture2D<float4> _TemperatureMap;
+Texture2D<float4> _PrecipitationMap;
+Texture2D<float4> _SeismicMap;
+ 
 SamplerState TrilinearRepeat;
 
 float3 _ChunkPosition;
@@ -47,6 +70,20 @@ Triangle CreateTriangle(float3 a, float3 b, float3 c) {
 	tri.c = c;
 	tri.padding = float3(0, 0, 0);
 	return tri;
+}
+
+BiomeNode CreateBiomeNode(float t){
+  BiomeNode node;
+  node.t = t;
+  return node;
+}
+
+BiomeTree CreateBiomeTree(){
+  BiomeTree tree;
+  for (uint i = 0; i < biomeCount; i++){
+    tree.nodes[i] = CreateBiomeNode(1.0);
+  }
+  return tree;
 }
 
 // ====================== Utils ====================== //
@@ -109,6 +146,71 @@ float3 LerpPosition(float3 a, float3 b, float t){
 	return ((1 - t) * a) + (b * t);
 }
 
+// ====================== Biome Interpolation ====================== //
+
+
+
+BiomeTree InterpolateBiomes(float features[4]){
+  // create the root node
+  BiomeTree tree = CreateBiomeTree();
+
+  for (uint depth = 0; depth < featureCount; depth++){
+    for(uint index = 0; index < biomeCount; index = index + biomeCount / pow(2, depth)){
+      BiomeNode node = tree.nodes[index];
+      float t = node.t;
+
+      uint slice = biomeCount / pow(2, depth);
+      uint leftIndex = index;
+      uint rightIndex = index + (slice / 2); 
+
+      float feature = features[depth];
+      if (feature <= LOW_FEATURE_LEVEL){
+        // create the left child with t = 1.0 * parent.t and the right child with t = 0.0
+        tree.nodes[leftIndex].t = 1.0 * t;
+        tree.nodes[rightIndex].t = 0.0;
+      } else if (feature >= HIGH_FEATURE_LEVEL){
+        // create the left child with 0 and the right child with t = 1.0 * parent.t
+        tree.nodes[leftIndex].t = 0.0;
+        tree.nodes[rightIndex].t = 1.0 * t;
+      } else {
+        // calculate t with inverse lerp and create the left and right children
+        float leftT = InverseLerp(LOW_FEATURE_LEVEL, HIGH_FEATURE_LEVEL, feature);
+        tree.nodes[leftIndex].t = leftT * t;
+        tree.nodes[rightIndex].t = (1.0 - leftT) * t;
+      }
+    }
+  }
+
+  return tree;
+}
+
+BiomeInterpolation GetBiomeInterpolationForTree(BiomeTree tree){ 
+  BiomeInterpolation interp;
+
+  for (uint i = 0; i < biomeCount; i++){
+    BiomeNode n = tree.nodes[i];
+    interp.values[i] = n.t;
+  }
+
+  return interp; 
+}
+
+/**
+  * Returns the list of interpolation values for a Biome for an array of features
+  * this will probably be called for each voxel vertex and then the result will be
+  * a list of 16 float values which I can use to derive a biome as:
+  * biome = sum(values[i] * i) for i in 0 to 15
+  * if I can render the result of this into a texture I can use it
+  * to determine biome everywhere else in the code
+  * @param features the array of features for the voxel
+  * @return a list of 16 float values to be used as interpolation values
+  */
+BiomeInterpolation GetBiomeInterp(float features[featureCount]){
+
+  BiomeTree tree = InterpolateBiomes(features);
+  return GetBiomeInterpolationForTree(tree);
+}
+
 // ====================== Density ====================== //
 
 
@@ -169,9 +271,15 @@ float3 GetWarp(float2 position, float frequency, float amplitude)
 /**
   * Sample the biome map at the given position
   */
-float3 GetBiome(float3 position)
+BiomeInterpolation GetBiome(float3 position)
 {
-  return _BiomeMap.SampleLevel(TrilinearRepeat, position.xz * 0.0005, 0).xyz;
+  float biomeStep = 0.00001;
+  float features[4];
+  features[0] = _ErosionMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
+  features[1] = _TemperatureMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
+  features[2] = _PrecipitationMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
+  features[3] = _SeismicMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
+  return GetBiomeInterp(features);
 }
 
 float HardFloor(float3 worldSpace){
@@ -179,7 +287,9 @@ float HardFloor(float3 worldSpace){
   return saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize;
 }
 
-float WarpedMeadowsDensity(float3 worldSpace, float3 chunkSpace){
+// ====================== Biome Functions ====================== //
+
+float RockyMeadowsDensity(float3 worldSpace, float3 chunkSpace){
 	float3 warp = float3(0, 0, 0);
 	float density = -chunkSpace.y - 24.0;
  
@@ -206,17 +316,38 @@ float WarpedMeadowsDensity(float3 worldSpace, float3 chunkSpace){
 	return density;
 }
 
-float StoneValleyDensity(float3 worldSpace, float3 chunkSpace){
-	float density = -1.0 * (_ChunkSize + 18.0);
+float DeepSeaDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	// Upper octaves
+	density += GetOctave(worldSpace, .001, 8.0, 8.0);
+	density += GetOctave(worldSpace, .003, 4.0, 4.0);
+	density += GetOctave(worldSpace, .005, 1.0, 1.0);
+
+	// Lower octaves
+	density += GetOctave(worldSpace, .008, 1.0, 1.0);
+	density += GetOctave(worldSpace, .01, 0.8, 0.8);
+	density += GetOctave(worldSpace, .05, 0.6, 0.6);
+	density += GetOctave(worldSpace, .1, 0.4, 0.4);
+	density += GetOctave(worldSpace, .5, 0.2, 0.2);
+	density += GetOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float CavernsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = chunkSpace.y - 50.0;
 
 	// Upper octaves
 	density += Get3DOctave(worldSpace, .001, 42.0, 38.0);
 	density += Get3DOctave(worldSpace, .003, 22.0, 16.0);
-	density += Get3DOctave(worldSpace, .005, 15.0, 8.0);
+	// density += Get3DOctave(worldSpace, .005, 15.0, 8.0);
 
 	// Lower octaves
 	density += Get3DOctave(worldSpace, .008, 8.0, 4.0);
-	density += Get3DOctave(worldSpace, .01, 6.0, 2.0);
+	density += Get3DOctave(worldSpace, .01, 6.0, 2.0); 
 	density += Get3DOctave(worldSpace, .05, 0.8, 0.8);
 	density += Get3DOctave(worldSpace, .1, 0.4, 0.4);
 	density += Get3DOctave(worldSpace, .5, 0.2, 0.2);
@@ -227,9 +358,204 @@ float StoneValleyDensity(float3 worldSpace, float3 chunkSpace){
   return density;
 }
 
-float TwistedHills(float3 worldSpace, float3 chunkSpace, float biomeLevel){
-  float t = InverseLerp(0.46, 0.54, biomeLevel);
-  return ((1.0 - t) * WarpedMeadowsDensity(worldSpace, chunkSpace)) + (t * StoneValleyDensity(worldSpace, chunkSpace));
+float SerenityFieldsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	// Upper octaves
+	density += Get3DOctave(worldSpace, .001, 42.0, 38.0);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float CanyonsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	// Lower octaves
+  float level1 = pow(GetOctave(worldSpace, .0025, 5.3, 4.0), 3);
+  float level2 = pow(GetOctave(worldSpace, .0025, 5.5, 3.5), 3);
+  float level3 = pow(GetOctave(worldSpace, .0025, 5.7, 2.6), 3);
+  float elevation = max(level1, level2);
+  elevation = max(elevation, level3);
+	density += elevation;
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float SteamingValleyDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	density += pow(Get3DOctave(worldSpace, .004, 6.0, 4.0), 3);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float WastelandDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	// Upper octaves
+	density += Get3DOctave(worldSpace, .001, 42.0, 38.0);
+
+	// Lower octaves
+	density += Get3DOctave(worldSpace, .008, 8.0, 4.0);
+	density += Get3DOctave(worldSpace, .01, 6.0, 2.0); 
+	density += pow(Get3DOctave(worldSpace, .05, 1.0, 1.0), 2);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float BloomingHillsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	// Upper octaves
+  density += GetOctave(worldSpace, .005, 42.0, 42.0);
+
+	// Lower octaves
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float UnderwaterTundraDensity(float3 worldSpace, float3 chunkSpace){
+	float3 warp = float3(0, 0, 0);
+	float density = -chunkSpace.y - 24.0;
+ 
+	// Warp the position
+	warp += GetWarp(worldSpace.xy, 0.00025, 128.0);
+	warp += GetWarp(worldSpace.zy, 0.00025, 128.0);
+	float3 wrappedWorldSpace = worldSpace + warp;
+
+	float level1 = pow(Get3DOctave(wrappedWorldSpace, .0006, 13.0, 8.0), 2);
+  float level2 = pow(Get3DOctave(wrappedWorldSpace, .002, 1.5, 1.5), 4);
+
+  density += max(level1, level2);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float TropicalIslandsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	// Lower octaves
+  float level1 = pow(GetOctave(worldSpace, .0025, 5.3, 4.0), 3);
+  float level2 = pow(GetOctave(worldSpace, .0025, 5.5, 3.5), 3);
+  float level3 = pow(Get3DOctave(worldSpace, .0025, 5.7, 2.6), 3);
+  float elevation = max(level1, level2);
+  elevation = max(elevation, level3);
+	density += elevation;
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float DeadlandsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	density += Get3DOctave(worldSpace, .008, 8.0, 4.0);
+	density += Get3DOctave(worldSpace, .01, 6.0, 2.0); 
+	density += Get3DOctave(worldSpace, .05, 0.8, 0.8);
+	density += Get3DOctave(worldSpace, .1, 0.4, 0.4);
+	density += Get3DOctave(worldSpace, .5, 0.2, 0.2);
+	density += Get3DOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float StoneValleyDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -1.0 * (_ChunkSize + 18.0);
+
+	// Upper octaves
+	density += Get3DOctave(worldSpace, .001, 42.0, 38.0);
+	density += Get3DOctave(worldSpace, .003, 22.0, 16.0);
+	density += Get3DOctave(worldSpace, .005, 15.0, 8.0);
+
+	// Lower octaves
+	density += Get3DOctave(worldSpace, .008, 8.0, 4.0);
+	density += Get3DOctave(worldSpace, .01, 6.0, 2.0); 
+	density += Get3DOctave(worldSpace, .05, 0.8, 0.8);
+	density += Get3DOctave(worldSpace, .1, 0.4, 0.4);
+	density += Get3DOctave(worldSpace, .5, 0.2, 0.2);
+	density += Get3DOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float AcidPlateauDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -1.0 * (_ChunkSize + 18.0);
+
+	// Upper octaves
+	density += Get3DOctave(worldSpace, .001, 42.0, 38.0);
+	density += Get3DOctave(worldSpace, .003, 22.0, 16.0);
+	density += Get3DOctave(worldSpace, .005, 15.0, 8.0);
+
+	// Lower octaves
+	density += Get3DOctave(worldSpace, .008, 8.0, 4.0);
+	density += Get3DOctave(worldSpace, .01, 6.0, 2.0); 
+	density += Get3DOctave(worldSpace, .05, 0.8, 0.8);
+	density += Get3DOctave(worldSpace, .1, 0.4, 0.4);
+	density += Get3DOctave(worldSpace, .5, 0.2, 0.2);
+	density += Get3DOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float DarkDeepsDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+	density += GetOctave(worldSpace, .008, 8.0, 4.0);
+	density += GetOctave(worldSpace, .01, 6.0, 2.0); 
+	density += GetOctave(worldSpace, .05, 0.8, 0.8);
+	density += GetOctave(worldSpace, .1, 0.4, 0.4);
+	density += GetOctave(worldSpace, .5, 0.2, 0.2);
+	density += GetOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
+}
+
+float NowhereDensity(float3 worldSpace, float3 chunkSpace){
+	float density = -chunkSpace.y;
+
+  return density;
+}
+
+float ScarletVeilDensity(float3 worldSpace, float3 chunkSpace){
+	float density = 60 - chunkSpace.y;
+
+	// Upper octaves
+	density -= Get3DOctave(worldSpace, .001, 42.0, 38.0);
+	density -= Get3DOctave(worldSpace, .003, 22.0, 16.0);
+	density -= Get3DOctave(worldSpace, .005, 15.0, 8.0);
+
+	// Lower octaves
+	density -= Get3DOctave(worldSpace, .008, 8.0, 4.0);
+	density -= Get3DOctave(worldSpace, .01, 6.0, 2.0); 
+	density -= Get3DOctave(worldSpace, .05, 0.8, 0.8);
+	density -= Get3DOctave(worldSpace, .1, 0.4, 0.4);
+	density -= Get3DOctave(worldSpace, .5, 0.2, 0.2);
+	density -= Get3DOctave(worldSpace, .8, 0.1, 0.1);
+
+	density += HardFloor(worldSpace);
+
+  return density;
 }
 
 /**
@@ -237,24 +563,40 @@ float TwistedHills(float3 worldSpace, float3 chunkSpace, float biomeLevel){
  * the vertex at (x, y, z) on the chunk
  * at position _ChunkPosition
 */
-float CalculateDensity(uint3 id) 
+float CalculateDensity(uint3 id)
 {
-	if(id.y >= _ChunkSize - 1) return _IsoLevel - 1;
+	if(id.y >= _ChunkSize - 1) return _IsoLevel - 1; 
 
 	float3 chunkSpace = float3(id);
 	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
 
-  float biome = GetBiome(worldSpace).x;
+  BiomeInterpolation interp = GetBiome(worldSpace);
 
-  if(GetBiome(worldSpace).x < 0.46){
-    return WarpedMeadowsDensity(worldSpace, chunkSpace);
-  }
-  else if (GetBiome(worldSpace).x < 0.54){
-    return TwistedHills(worldSpace, chunkSpace, biome);
-  }
-  else{
-    return StoneValleyDensity(worldSpace, chunkSpace);
-  }
+  float density = 0.0;
+
+  density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[0]);
+  density += (DeepSeaDensity(worldSpace, chunkSpace) * interp.values[1]);
+  density += (CavernsDensity(worldSpace, chunkSpace) * interp.values[2]);
+  density += (SerenityFieldsDensity(worldSpace, chunkSpace) * interp.values[3]);
+  density += (CanyonsDensity(worldSpace, chunkSpace) * interp.values[4]);
+  density += (SteamingValleyDensity(worldSpace, chunkSpace) * interp.values[5]);
+  density += (WastelandDensity(worldSpace, chunkSpace) * interp.values[6]);
+  density += (BloomingHillsDensity(worldSpace, chunkSpace) * interp.values[7]);
+  density += (UnderwaterTundraDensity(worldSpace, chunkSpace) * interp.values[8]);
+  density += (TropicalIslandsDensity(worldSpace, chunkSpace) * interp.values[9]);
+  density += (DeadlandsDensity(worldSpace, chunkSpace) * interp.values[10]);
+  density += (StoneValleyDensity(worldSpace, chunkSpace) * interp.values[11]);
+  density += (AcidPlateauDensity(worldSpace, chunkSpace) * interp.values[12]);
+  density += (DarkDeepsDensity(worldSpace, chunkSpace) * interp.values[13]);
+  density += (NowhereDensity(worldSpace, chunkSpace) * interp.values[14]);
+  density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[15]);
+
+  // // density = -chunkSpace.y;
+  // for (uint i = 0; i < 16; i++){
+  //   density += 2 * interp.values[i]; 
+  // }
+
+  return density;
 }
 
 // ====================== Marching Cubes ====================== //

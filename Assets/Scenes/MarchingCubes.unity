@@ -701,8 +701,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mode: -1
   terraformRange: 20
-  terraformRadius: 5
-  terraformStrength: 1
+  terraformRadius: 10
+  terraformStrength: 10
   terraformInterval: 0.1
   terraformLayer:
     serializedVersion: 2
@@ -8425,6 +8425,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 705507994}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMap
+      value: 
+      objectReference: {fileID: 2800000, guid: 0203ce2dd53a36446a76073e001a74fa, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeSeed
       value: 1236
       objectReference: {fileID: 0}
@@ -8641,12 +8645,48 @@ PrefabInstance:
       value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[0]
+      value: 
+      objectReference: {fileID: 2800000, guid: 2968d6179f88a4945a31de62eabf829c, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[1]
+      value: 
+      objectReference: {fileID: 2800000, guid: 6117cd5d992e4664581876be7ebc949f, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[2]
+      value: 
+      objectReference: {fileID: 2800000, guid: da3b267b24113b74a9cf7fee07d573dc, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[3]
+      value: 
+      objectReference: {fileID: 2800000, guid: c7f4a43b600fcfe42bd3f52f1f37f620, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: sunColor.m_NumColorKeys
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomes.Array.data[1].name
       value: Stone Fields
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeFeatures.Array.data[0]
+      value: Erosion
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeFeatures.Array.data[1]
+      value: Temperature
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeFeatures.Array.data[2]
+      value: Precipitation
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeFeatures.Array.data[3]
+      value: Seismic Activity
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomes.Array.data[0].deepColor.a

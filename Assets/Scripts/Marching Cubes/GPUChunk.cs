@@ -52,7 +52,7 @@ public class GPUChunk : MonoBehaviour
   private int verticesNumber = 0;
   private int maxTrianglesNumber = 0;
 
-  // Refferences
+  // References
   private SurfaceManager surfaceManager = null;
   private EnvironmentManager environmentManager = null;
   private MeshFilter meshFilter = null;
@@ -236,8 +236,11 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.SetTexture(kernel, "_NoiseMapVol2", noiseMaps[1]);
     meshGenerator.SetTexture(kernel, "_NoiseMapVol3", noiseMaps[2]);
 
-    // Biome map
-    meshGenerator.SetTexture(kernel, "_BiomeMap", environmentManager.GetBiomeMap());
+    // Biome maps
+    meshGenerator.SetTexture(kernel, "_ErosionMap", environmentManager.GetBiomeMap("Erosion"));
+    meshGenerator.SetTexture(kernel, "_TemperatureMap", environmentManager.GetBiomeMap("Temperature"));
+    meshGenerator.SetTexture(kernel, "_PrecipitationMap", environmentManager.GetBiomeMap("Precipitation"));
+    meshGenerator.SetTexture(kernel, "_SeismicMap", environmentManager.GetBiomeMap("Seismic Activity"));
 
     // Buffers
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
@@ -351,8 +354,7 @@ public class GPUChunk : MonoBehaviour
 
   void InsertDryLandVegetation(Vector3 pos, float dotProd)
   {
-    GameObject prefab = null;
-    float angle = 0f;
+    GameObject prefab;
     float scale = 1f;
 
     float random = Random.Range(0f, 1f);
@@ -384,7 +386,7 @@ public class GPUChunk : MonoBehaviour
     }
 
     GameObject vegetation = Instantiate(prefab, pos, Quaternion.identity, transform);
-    vegetation.transform.Rotate(0, Random.Range(0f, 360f), angle);
+    vegetation.transform.Rotate(0, Random.Range(0f, 360f), 0f);
     vegetation.transform.localScale *= scale;
     vegetationInstances.Add(vegetation);
   }
@@ -392,7 +394,7 @@ public class GPUChunk : MonoBehaviour
   void InsertUnderwaterVegetation(Vector3 pos, float dotProd)
   {
     GameObject prefab = null;
-    float angle = 0f;
+    float angle = Mathf.Acos(dotProd) * Mathf.Rad2Deg;
     float scale = 1f;
 
     if (EnvironmentManager.Instance.GetWaterLevel() - pos.y < 2f)
@@ -402,6 +404,7 @@ public class GPUChunk : MonoBehaviour
         return;
       }
       prefab = shallowWaterPrefabs[Random.Range(0, shallowWaterPrefabs.Count)];
+      angle = 0f;
       scale = 3f;
     }
     else if (dotProd > 0.7f)
@@ -420,7 +423,7 @@ public class GPUChunk : MonoBehaviour
         return;
       }
       prefab = coralPrefabs[Random.Range(0, coralPrefabs.Count)];
-      angle = 180f;
+      // angle = 180f;
       scale = 3f;
     }
 
@@ -429,8 +432,11 @@ public class GPUChunk : MonoBehaviour
       return;
     }
 
+
     GameObject vegetation = Instantiate(prefab, pos, Quaternion.identity, transform);
-    vegetation.transform.Rotate(0, 0, angle);
+    Vector3 normal = Quaternion.AngleAxis(-angle, vegetation.transform.forward) * vegetation.transform.up;
+    vegetation.transform.Rotate(0, Random.Range(0f, 360f), 0f);
+    vegetation.transform.up = normal;
     vegetation.transform.localScale *= scale;
     vegetationInstances.Add(vegetation);
   }

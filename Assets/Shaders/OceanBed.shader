@@ -61,28 +61,6 @@ Shader "Custom/OceanBed"
           return (value - from) / (to - from);
         }
 
-        float4 warpedMeadowsSurface(Input IN){
-            // Albedo comes from a texture tinted by color
-            float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
-
-            float3 color = float3(angle * 0.9, .2, 1 - (angle * angle * 0.7));
-            if(angle > 0.93){
-                color = float3(angle * 0.75, angle * 0.68, angle * 0.2);
-            }
-            return (tex2D (_MainTex, IN.uv_MainTex) * float4(color.rgb, 1));
-        }
-
-        float4 stoneValleySurface(Input IN){
-            // Albedo comes from a texture tinted by color
-            float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
-
-            float3 color = float3(angle * 0.2, angle * 0.2, angle * 0.2);
-            if(angle > 0.8){
-                color = float3(angle * 0.1, (angle * angle * 0.9), .2);
-            }
-            return (tex2D (_MainTex, IN.uv_MainTex) * float4(color.rgb, 1));
-        }
-
         float4 applyCaustics(Input IN){
             float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
             float time = _Time.x * _CausticsSpeed;
@@ -95,20 +73,86 @@ Shader "Custom/OceanBed"
             return float4(causticsFactor, causticsFactor, causticsFactor, 0) * angle;
         }
 
+        // ====================== Biome Functions ====================== //
+
+        float4 rockyMeadowsSurface(Input IN){
+          // Albedo comes from a texture tinted by color
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+
+          float3 color = float3(angle * 0.9, .2, 1 - (angle * angle * 0.7));
+          if(angle > 0.93){
+              color = float3(angle * 0.75, angle * 0.68, angle * 0.2);
+          }
+          return (tex2D (_MainTex, IN.uv_MainTex) * float4(color.rgb, 1));
+        }
+
+        float4 deepSeaSurface(Input IN){
+        }
+
+        float4 cavernsSurface(Input IN){
+        }
+
+        float4 serenityFieldsSurface(Input IN){
+        }
+
+        float4 canyonsSurface(Input IN){
+        }
+
+        float4 steamingValleySurface(Input IN){
+        }
+
+        float4 wastelandSurface(Input IN){
+        }
+
+        float4 bloomingHillsSurface(Input IN){
+        }
+
+        float4 underwaterTundraSurface(Input IN){
+        }
+
+        float4 tropicalIslandsSurface(Input IN){
+        }
+
+        float4 deadlandsSurface(Input IN){
+        }
+
+        float4 stoneValleySurface(Input IN){
+          // Albedo comes from a texture tinted by color
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+
+          float3 color = float3(angle * 0.2, angle * 0.2, angle * 0.2);
+          if(angle > 0.8){
+              color = float3(angle * 0.1, (angle * angle * 0.9), .2);
+          }
+          return (tex2D (_MainTex, IN.uv_MainTex) * float4(color.rgb, 1));
+        }
+
+        float4 acidPlateauSurface(Input IN){
+        }
+
+        float4 darkDeepsSurface(Input IN){
+        }
+
+        float4 nowhereSurface(Input IN){;
+        }
+
+        float4 scarletVeilSurface(Input IN){
+        }
+
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
             float biome = tex2D (_BiomeMap, IN.wPos.xz * 0.0005).r;
             float4 color = float4(0.2, 0.8, 0.2, 1);
 
             if(biome < 0.46){
-                color = warpedMeadowsSurface(IN);
+                color = rockyMeadowsSurface(IN);
             }
             else if(biome > 0.54){
                 color = stoneValleySurface(IN);
             }
             else{
                 float t = invLerp(0.46, 0.54, biome);
-                color = ((1 - t) * warpedMeadowsSurface(IN)) + (t * stoneValleySurface(IN));
+                color = ((1 - t) * rockyMeadowsSurface(IN)) + (t * stoneValleySurface(IN));
             }
             if(IN.wPos.y <= _CausticsStart && IN.wPos.y >= _CausticsEnd){
               color += applyCaustics(IN);
