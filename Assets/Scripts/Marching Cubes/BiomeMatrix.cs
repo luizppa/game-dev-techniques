@@ -202,6 +202,9 @@ class BiomeData
     target.endFogDensity += source.endFogDensity * t;
     target.shallowColor += source.shallowColor * t;
     target.deepColor += source.deepColor * t;
+    string sourceNameComposition = (t * 100f).ToString("0.0")+"% "+source.name;
+    if(target.name == "Blank") target.name = sourceNameComposition;
+    else target.name = target.name+", "+sourceNameComposition;
     return target;
   }
   
@@ -210,8 +213,11 @@ class BiomeData
     // Debug.Log(features);
     Biome biome = blankBiome;
     for(int i = 0; i < interpolations; i++){
-      biome = AddBiomeFraction(biome, biomes[i], features[i]);
+      if(features[i] > 0f){
+        biome = AddBiomeFraction(biome, biomes[i], features[i]);
+      }
     }
+    Debug.Log(biome.name);
     return biome;
   }
 }

@@ -12,11 +12,8 @@ static const int threads = 8;
 static const uint vegetationSparsity = 8;
 static const float vegetationDensity = 0.4;
 
-static const float LOW_FEATURE_LEVEL = .40;
-static const float HIGH_FEATURE_LEVEL = .60;
-
-static const uint featureCount = 4;
-static const uint biomeCount = 16; // 2^featureCount
+static const uint FEATURE_COUNT = 4;
+static const uint BIOME_COUNT = 16; // 2^FEATURE_COUNT
  
 struct Triangle {
 	float3 a;
@@ -61,6 +58,9 @@ uint _ChunkSize;
 float _IsoLevel;
 float _Scale;
 float _Elevation;
+float _LowFeatureThreshold;
+float _HighFeatureThreshold;
+float _BiomeStep;
 float3 _TerraformPosition;
 float _TerraformRadius;
 float _TerraformStrength;
@@ -85,7 +85,7 @@ BiomeNode CreateBiomeNode(float t){
 
 BiomeTree CreateBiomeTree(){
   BiomeTree tree;
-  for (uint i = 0; i < biomeCount; i++){
+  for (uint i = 0; i < BIOME_COUNT; i++){
     tree.nodes[i] = CreateBiomeNode(1.0);
   }
   return tree;
@@ -159,27 +159,27 @@ BiomeTree InterpolateBiomes(float features[4]){
   // create the root node
   BiomeTree tree = CreateBiomeTree();
 
-  for (uint depth = 0; depth < featureCount; depth++){
-    for(uint index = 0; index < biomeCount; index = index + biomeCount / pow(2, depth)){
+  for (uint depth = 0; depth < FEATURE_COUNT; depth++){
+    for(uint index = 0; index < BIOME_COUNT; index = index + BIOME_COUNT / pow(2, depth)){
       BiomeNode node = tree.nodes[index];
       float t = node.t;
 
-      uint slice = biomeCount / pow(2, depth);
+      uint slice = BIOME_COUNT / pow(2, depth);
       uint leftIndex = index;
       uint rightIndex = index + (slice / 2); 
 
       float feature = features[depth];
-      if (feature <= LOW_FEATURE_LEVEL){
+      if (feature <= _LowFeatureThreshold){
         // create the left child with t = 1.0 * parent.t and the right child with t = 0.0
         tree.nodes[leftIndex].t = 1.0 * t;
         tree.nodes[rightIndex].t = 0.0;
-      } else if (feature >= HIGH_FEATURE_LEVEL){
+      } else if (feature >= _HighFeatureThreshold){
         // create the left child with 0 and the right child with t = 1.0 * parent.t
         tree.nodes[leftIndex].t = 0.0;
         tree.nodes[rightIndex].t = 1.0 * t;
       } else {
         // calculate t with inverse lerp and create the left and right children
-        float leftT = InverseLerp(HIGH_FEATURE_LEVEL, LOW_FEATURE_LEVEL, feature);
+        float leftT = InverseLerp(_HighFeatureThreshold, _LowFeatureThreshold, feature);
         tree.nodes[leftIndex].t = leftT * t;
         tree.nodes[rightIndex].t = (1.0 - leftT) * t;
       }
@@ -192,7 +192,7 @@ BiomeTree InterpolateBiomes(float features[4]){
 BiomeInterpolation GetBiomeInterpolationForTree(BiomeTree tree){ 
   BiomeInterpolation interp;
 
-  for (uint i = 0; i < biomeCount; i++){
+  for (uint i = 0; i < BIOME_COUNT; i++){
     BiomeNode n = tree.nodes[i];
     interp.values[i] = n.t;
   }
@@ -210,7 +210,7 @@ BiomeInterpolation GetBiomeInterpolationForTree(BiomeTree tree){
   * @param features the array of features for the voxel
   * @return a list of 16 float values to be used as interpolation values
   */
-BiomeInterpolation GetBiomeInterp(float features[featureCount]){
+BiomeInterpolation GetBiomeInterp(float features[FEATURE_COUNT]){
 
   BiomeTree tree = InterpolateBiomes(features);
   return GetBiomeInterpolationForTree(tree);
@@ -278,12 +278,11 @@ float3 GetWarp(float2 position, float frequency, float amplitude)
   */
 BiomeInterpolation GetBiome(float3 position)
 {
-  float biomeStep = 0.00002;
   float features[4];
-  features[0] = _ErosionMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
-  features[1] = _TemperatureMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
-  features[2] = _PrecipitationMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
-  features[3] = _SeismicMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
+  features[0] = _ErosionMap.SampleLevel(TrilinearRepeat, position.xz * _BiomeStep, 0).r;
+  features[1] = _TemperatureMap.SampleLevel(TrilinearRepeat, position.xz * _BiomeStep, 0).r;
+  features[2] = _PrecipitationMap.SampleLevel(TrilinearRepeat, position.xz * _BiomeStep, 0).r;
+  features[3] = _SeismicMap.SampleLevel(TrilinearRepeat, position.xz * _BiomeStep, 0).r;
   return GetBiomeInterp(features);
 }
 
@@ -587,22 +586,22 @@ float CalculateDensity(uint3 id)
 
   float density = 0.0;
 
-  density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[0]);
-  density += (DeepSeaDensity(worldSpace, chunkSpace) * interp.values[1]);
-  density += (CavernsDensity(worldSpace, chunkSpace) * interp.values[2]);
-  density += (SerenityFieldsDensity(worldSpace, chunkSpace) * interp.values[3]);
-  density += (CanyonsDensity(worldSpace, chunkSpace) * interp.values[4]);
-  density += (SteamingValleyDensity(worldSpace, chunkSpace) * interp.values[5]);
-  density += (WastelandDensity(worldSpace, chunkSpace) * interp.values[6]);
-  density += (BloomingHillsDensity(worldSpace, chunkSpace) * interp.values[7]);
-  density += (UnderwaterTundraDensity(worldSpace, chunkSpace) * interp.values[8]);
-  density += (TropicalIslandsDensity(worldSpace, chunkSpace) * interp.values[9]);
-  density += (DeadlandsDensity(worldSpace, chunkSpace) * interp.values[10]);
-  density += (StoneValleyDensity(worldSpace, chunkSpace) * interp.values[11]);
-  density += (AcidPlateauDensity(worldSpace, chunkSpace) * interp.values[12]);
-  density += (DarkDeepsDensity(worldSpace, chunkSpace) * interp.values[13]);
-  density += (NowhereDensity(worldSpace, chunkSpace) * interp.values[14]);
-  density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[15]);
+  if(interp.values[0] > 0.0) density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[0]);
+  if(interp.values[1] > 0.0) density += (DeepSeaDensity(worldSpace, chunkSpace) * interp.values[1]);
+  if(interp.values[2] > 0.0) density += (CavernsDensity(worldSpace, chunkSpace) * interp.values[2]);
+  if(interp.values[3] > 0.0) density += (SerenityFieldsDensity(worldSpace, chunkSpace) * interp.values[3]);
+  if(interp.values[4] > 0.0) density += (CanyonsDensity(worldSpace, chunkSpace) * interp.values[4]);
+  if(interp.values[5] > 0.0) density += (SteamingValleyDensity(worldSpace, chunkSpace) * interp.values[5]);
+  if(interp.values[6] > 0.0) density += (WastelandDensity(worldSpace, chunkSpace) * interp.values[6]);
+  if(interp.values[7] > 0.0) density += (BloomingHillsDensity(worldSpace, chunkSpace) * interp.values[7]);
+  if(interp.values[8] > 0.0) density += (UnderwaterTundraDensity(worldSpace, chunkSpace) * interp.values[8]);
+  if(interp.values[9] > 0.0) density += (TropicalIslandsDensity(worldSpace, chunkSpace) * interp.values[9]);
+  if(interp.values[10] > 0.0) density += (DeadlandsDensity(worldSpace, chunkSpace) * interp.values[10]);
+  if(interp.values[11] > 0.0) density += (StoneValleyDensity(worldSpace, chunkSpace) * interp.values[11]);
+  if(interp.values[12] > 0.0) density += (AcidPlateauDensity(worldSpace, chunkSpace) * interp.values[12]);
+  if(interp.values[13] > 0.0) density += (DarkDeepsDensity(worldSpace, chunkSpace) * interp.values[13]);
+  if(interp.values[14] > 0.0) density += (NowhereDensity(worldSpace, chunkSpace) * interp.values[14]);
+  if(interp.values[15] > 0.0) density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[15]);
 
   // // density = -chunkSpace.y;
   // for (uint i = 0; i < 16; i++){

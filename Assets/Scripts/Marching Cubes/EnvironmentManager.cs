@@ -54,6 +54,10 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   [SerializeField] int biomesSize = 256;
   [SerializeField] BiomeData biomeData = new BiomeData();
 
+  [SerializeField][Range(0f, 1f)] float lowFeatureThreshold = .40f;
+  [SerializeField][Range(0f, 1f)] float highFeatureThreshold = .60f;
+  [SerializeField] float biomeStep = 0.0002f;
+
   private Camera gameCamera = null;
   private Material waterMaterial = null;
   private GPUChunk playerChunk = null;
@@ -119,15 +123,13 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
   }
   
   float[] ResolveBiomeValues(){
-    const float LOW_FEATURE_LEVEL = .40f;
-    const float HIGH_FEATURE_LEVEL = .60f;
     int biomeCount = (int)Mathf.Pow(biomeMaps.Count, 2);
     float[] values = new float[biomeCount];
     float[] features = new float[biomeMaps.Count];
     values[0] = 1.0f;
 
     for(int i = 0; i < biomeMaps.Count; i++){
-      features[i] = biomeMaps[i].GetPixelBilinear(playerPosition.position.x, playerPosition.position.z).r;
+      features[i] = biomeMaps[i].GetPixelBilinear(playerPosition.position.x * biomeStep, playerPosition.position.z * biomeStep).r;
     }
 
     for (int depth = 0; depth < biomeMaps.Count; depth++){
@@ -139,69 +141,24 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
         int rightIndex = index + (slice / 2); 
 
         float feature = features[depth];
-        // Debug.Log(index);
-        // Debug.Log(feature);
-        if (feature <= LOW_FEATURE_LEVEL){
-          // create the left child with t = 1.0 * parent.t and the right child with t = 0.0
+        if (feature <= lowFeatureThreshold){
           values[leftIndex] = 1.0f * t;
           values[rightIndex] = 0.0f;
-        } else if (feature >= HIGH_FEATURE_LEVEL){
-          // create the left child with 0 and the right child with t = 1.0 * parent.t
+        } else if (feature >= highFeatureThreshold){
           values[leftIndex] = 0.0f;
           values[rightIndex] = 1.0f * t;
         } else {
-          // calculate t with inverse lerp and create the left and right children
-          float leftT = Mathf.InverseLerp(HIGH_FEATURE_LEVEL, LOW_FEATURE_LEVEL, feature);
+          float leftT = Mathf.InverseLerp(highFeatureThreshold, lowFeatureThreshold, feature);
           values[leftIndex] = leftT * t;
           values[rightIndex] = (1.0f - leftT) * t;
         }
       }
-      // Debug.Log(string.Join(", ", values));
     }
-
-    Debug.Log(string.Join(", ", features));
-    // Debug.Log(string.Join(", ", values));
 
     return values;
   }
 
   void UpdateBiomeFog(){
-    GPUChunk currentChunk = SurfaceManager.Instance.GetPlayerChunk();
-    if(currentChunk == null) return;
-    int chunkSize = SurfaceManager.Instance.GetChunkSize();
-    playerChunk = currentChunk;
-    // Texture2D biomeValues1 = new Texture2D(chunkSize, chunkSize);
-    // Texture2D biomeValues2 = new Texture2D(chunkSize, chunkSize);
-    // Texture2D biomeValues3 = new Texture2D(chunkSize, chunkSize);
-    // Texture2D biomeValues4 = new Texture2D(chunkSize, chunkSize);
-    
-    // RenderTexture.active = playerChunk.biomeOutput1;
-    // biomeValues1.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
-    // biomeValues1.Apply();
-    // RenderTexture.active = playerChunk.biomeOutput2;
-    // biomeValues2.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
-    // biomeValues2.Apply();
-    // RenderTexture.active = playerChunk.biomeOutput3;
-    // biomeValues3.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
-    // biomeValues3.Apply();
-    // RenderTexture.active = playerChunk.biomeOutput4;
-    // biomeValues4.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
-    // biomeValues4.Apply();
-    // RenderTexture.active = null;
-
-    // Color[] biomeTextures = {
-    //   biomeValues1.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
-    //   biomeValues2.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
-    //   biomeValues3.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
-    //   biomeValues4.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z)
-    // };
-    // float[] biomeValues = {
-    //   biomeTextures[0].r, biomeTextures[0].g, biomeTextures[0].b, biomeTextures[0].a,
-    //   biomeTextures[1].r, biomeTextures[1].g, biomeTextures[1].b, biomeTextures[1].a,
-    //   biomeTextures[2].r, biomeTextures[2].g, biomeTextures[2].b, biomeTextures[2].a,
-    //   biomeTextures[3].r, biomeTextures[3].g, biomeTextures[3].b, biomeTextures[3].a
-    // };
-
     float[] biomeValues = ResolveBiomeValues();
 
     biome = biomeData.GetBiome(biomeValues);
@@ -247,5 +204,17 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
 
   public Texture2D GetBiomeMap(string feature = "Temperature"){
     return biomeMaps[biomeFeatures.IndexOf(feature)];
+  }
+
+  public float GetLowFeatureThreshold(){
+    return lowFeatureThreshold;
+  }
+
+  public float GetHighFeatureThreshold(){
+    return highFeatureThreshold;
+  }
+
+  public float GetBiomeStep(){
+    return biomeStep;
   }
 }

@@ -286,6 +286,11 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.SetTexture(kernel, "_BiomeOutput3", biomeOutput3);
     meshGenerator.SetTexture(kernel, "_BiomeOutput4", biomeOutput4);
 
+    // Biome Features
+    meshGenerator.SetFloat("_LowFeatureThreshold", environmentManager.GetLowFeatureThreshold());
+    meshGenerator.SetFloat("_HighFeatureThreshold", environmentManager.GetHighFeatureThreshold());
+    meshGenerator.SetFloat("_BiomeStep", environmentManager.GetBiomeStep());
+
     // Buffers
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
 

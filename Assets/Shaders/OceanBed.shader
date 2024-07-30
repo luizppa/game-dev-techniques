@@ -209,9 +209,9 @@ Shader "Custom/OceanBed"
 
             color = tex2D (_MainTex, IN.uv_MainTex) * color;
 
-            // if(IN.wPos.y <= _CausticsStart && IN.wPos.y >= _CausticsEnd){
-            //   color += applyCaustics(IN);
-            // }
+            if(IN.wPos.y <= _CausticsStart && IN.wPos.y >= _CausticsEnd){
+              color += applyCaustics(IN);
+            }
             
             o.Albedo = color.rgb;
             // Metallic and smoothness come from slider variables

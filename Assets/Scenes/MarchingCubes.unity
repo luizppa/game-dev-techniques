@@ -8441,6 +8441,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 705507994}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeStep
+      value: 0.0005
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: waterSurface
       value: 
       objectReference: {fileID: 1257507349}
@@ -8448,6 +8452,22 @@ PrefabInstance:
       propertyPath: playerPosition
       value: 
       objectReference: {fileID: 486869166}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[0]
+      value: 
+      objectReference: {fileID: 2800000, guid: b500e18aa3089ec42b875788980e4151, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[1]
+      value: 
+      objectReference: {fileID: 2800000, guid: 8f862b388e6d68b489a68ad224cce6c1, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[2]
+      value: 
+      objectReference: {fileID: 2800000, guid: f5373dbd28d212444ab0ea0744988c82, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[3]
+      value: 
+      objectReference: {fileID: 2800000, guid: 1c894536ed446e447a54e3270f098ae3, type: 3}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[2].deepColor.b
       value: 0.5
