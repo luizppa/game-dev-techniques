@@ -12,8 +12,8 @@ static const int threads = 8;
 static const uint vegetationSparsity = 8;
 static const float vegetationDensity = 0.4;
 
-static const float LOW_FEATURE_LEVEL = .48;
-static const float HIGH_FEATURE_LEVEL = .52;
+static const float LOW_FEATURE_LEVEL = .40;
+static const float HIGH_FEATURE_LEVEL = .60;
 
 static const uint featureCount = 4;
 static const uint biomeCount = 16; // 2^featureCount
@@ -48,6 +48,11 @@ Texture2D<float4> _ErosionMap;
 Texture2D<float4> _TemperatureMap;
 Texture2D<float4> _PrecipitationMap;
 Texture2D<float4> _SeismicMap;
+
+RWTexture2D<float4> _BiomeOutput1;
+RWTexture2D<float4> _BiomeOutput2;
+RWTexture2D<float4> _BiomeOutput3;
+RWTexture2D<float4> _BiomeOutput4;
  
 SamplerState TrilinearRepeat;
 
@@ -174,7 +179,7 @@ BiomeTree InterpolateBiomes(float features[4]){
         tree.nodes[rightIndex].t = 1.0 * t;
       } else {
         // calculate t with inverse lerp and create the left and right children
-        float leftT = InverseLerp(LOW_FEATURE_LEVEL, HIGH_FEATURE_LEVEL, feature);
+        float leftT = InverseLerp(HIGH_FEATURE_LEVEL, LOW_FEATURE_LEVEL, feature);
         tree.nodes[leftIndex].t = leftT * t;
         tree.nodes[rightIndex].t = (1.0 - leftT) * t;
       }
@@ -273,7 +278,7 @@ float3 GetWarp(float2 position, float frequency, float amplitude)
   */
 BiomeInterpolation GetBiome(float3 position)
 {
-  float biomeStep = 0.00001;
+  float biomeStep = 0.00002;
   float features[4];
   features[0] = _ErosionMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
   features[1] = _TemperatureMap.SampleLevel(TrilinearRepeat, position.xz * biomeStep, 0).r;
@@ -285,6 +290,13 @@ BiomeInterpolation GetBiome(float3 position)
 float HardFloor(float3 worldSpace){
   float hardFloor = _Elevation;
   return saturate((hardFloor - worldSpace.y) * 3.0) * _ChunkSize;
+}
+
+void RenderBiomeMap(BiomeInterpolation interp, uint2 texCoord){
+  _BiomeOutput1[texCoord] = float4(interp.values[0], interp.values[1], interp.values[2], interp.values[3]);
+  _BiomeOutput2[texCoord] = float4(interp.values[4], interp.values[5], interp.values[6], interp.values[7]);
+  _BiomeOutput3[texCoord] = float4(interp.values[8], interp.values[9], interp.values[10], interp.values[11]);
+  _BiomeOutput4[texCoord] = float4(interp.values[12], interp.values[13], interp.values[14], interp.values[15]);
 }
 
 // ====================== Biome Functions ====================== //
@@ -571,6 +583,7 @@ float CalculateDensity(uint3 id)
 	float3 worldSpace = _ChunkPosition + (chunkSpace * _Scale);
 
   BiomeInterpolation interp = GetBiome(worldSpace);
+  RenderBiomeMap(interp, id.xz);
 
   float density = 0.0;
 

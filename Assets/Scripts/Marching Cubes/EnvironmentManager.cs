@@ -56,6 +56,8 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
 
   private Camera gameCamera = null;
   private Material waterMaterial = null;
+  private GPUChunk playerChunk = null;
+  private Biome biome = BiomeData.placeholderBiome;
 
   override protected void Awake()
   {
@@ -99,6 +101,7 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     {
       DayNightCycle();
     }
+    UpdateBiomeFog();
     SetFog();
   }
 
@@ -114,30 +117,120 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     RenderSettings.ambientLight = sun.color;
     RenderSettings.ambientIntensity = sun.intensity;
   }
+  
+  float[] ResolveBiomeValues(){
+    const float LOW_FEATURE_LEVEL = .40f;
+    const float HIGH_FEATURE_LEVEL = .60f;
+    int biomeCount = (int)Mathf.Pow(biomeMaps.Count, 2);
+    float[] values = new float[biomeCount];
+    float[] features = new float[biomeMaps.Count];
+    values[0] = 1.0f;
+
+    for(int i = 0; i < biomeMaps.Count; i++){
+      features[i] = biomeMaps[i].GetPixelBilinear(playerPosition.position.x, playerPosition.position.z).r;
+    }
+
+    for (int depth = 0; depth < biomeMaps.Count; depth++){
+      for(int index = 0; index < biomeCount; index = (int)(index + biomeCount / Mathf.Pow(2, depth))){
+        float t = values[index];
+
+        int slice = (int)(biomeCount / Mathf.Pow(2, depth));
+        int leftIndex = index;
+        int rightIndex = index + (slice / 2); 
+
+        float feature = features[depth];
+        // Debug.Log(index);
+        // Debug.Log(feature);
+        if (feature <= LOW_FEATURE_LEVEL){
+          // create the left child with t = 1.0 * parent.t and the right child with t = 0.0
+          values[leftIndex] = 1.0f * t;
+          values[rightIndex] = 0.0f;
+        } else if (feature >= HIGH_FEATURE_LEVEL){
+          // create the left child with 0 and the right child with t = 1.0 * parent.t
+          values[leftIndex] = 0.0f;
+          values[rightIndex] = 1.0f * t;
+        } else {
+          // calculate t with inverse lerp and create the left and right children
+          float leftT = Mathf.InverseLerp(HIGH_FEATURE_LEVEL, LOW_FEATURE_LEVEL, feature);
+          values[leftIndex] = leftT * t;
+          values[rightIndex] = (1.0f - leftT) * t;
+        }
+      }
+      // Debug.Log(string.Join(", ", values));
+    }
+
+    Debug.Log(string.Join(", ", features));
+    // Debug.Log(string.Join(", ", values));
+
+    return values;
+  }
+
+  void UpdateBiomeFog(){
+    GPUChunk currentChunk = SurfaceManager.Instance.GetPlayerChunk();
+    if(currentChunk == null) return;
+    int chunkSize = SurfaceManager.Instance.GetChunkSize();
+    playerChunk = currentChunk;
+    // Texture2D biomeValues1 = new Texture2D(chunkSize, chunkSize);
+    // Texture2D biomeValues2 = new Texture2D(chunkSize, chunkSize);
+    // Texture2D biomeValues3 = new Texture2D(chunkSize, chunkSize);
+    // Texture2D biomeValues4 = new Texture2D(chunkSize, chunkSize);
+    
+    // RenderTexture.active = playerChunk.biomeOutput1;
+    // biomeValues1.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    // biomeValues1.Apply();
+    // RenderTexture.active = playerChunk.biomeOutput2;
+    // biomeValues2.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    // biomeValues2.Apply();
+    // RenderTexture.active = playerChunk.biomeOutput3;
+    // biomeValues3.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    // biomeValues3.Apply();
+    // RenderTexture.active = playerChunk.biomeOutput4;
+    // biomeValues4.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    // biomeValues4.Apply();
+    // RenderTexture.active = null;
+
+    // Color[] biomeTextures = {
+    //   biomeValues1.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+    //   biomeValues2.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+    //   biomeValues3.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+    //   biomeValues4.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z)
+    // };
+    // float[] biomeValues = {
+    //   biomeTextures[0].r, biomeTextures[0].g, biomeTextures[0].b, biomeTextures[0].a,
+    //   biomeTextures[1].r, biomeTextures[1].g, biomeTextures[1].b, biomeTextures[1].a,
+    //   biomeTextures[2].r, biomeTextures[2].g, biomeTextures[2].b, biomeTextures[2].a,
+    //   biomeTextures[3].r, biomeTextures[3].g, biomeTextures[3].b, biomeTextures[3].a
+    // };
+
+    float[] biomeValues = ResolveBiomeValues();
+
+    biome = biomeData.GetBiome(biomeValues);
+  }
 
   void SetFog()
   {
-    if (playerPosition)
+    if (playerPosition == null)
     {
-      Biome biome = GetBiomeAtPosition(playerPosition.position);
-      if (gameCamera.transform.position.y - waterLevel <= 0.2)
-      {
-        float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
-        Color fogColor = Color.Lerp(biome.startFogColor, biome.endFogColor, fogHeight) * sun.intensity;
-        RenderSettings.fogColor = fogColor;
-        RenderSettings.fogDensity = Mathf.Lerp(biome.startFogDensity, biome.endFogDensity, fogHeight);
-        RenderSettings.fogMode = FogMode.ExponentialSquared;
-      }
-      else
-      {
-        RenderSettings.fogColor = dryLandFogColor;
-        RenderSettings.skybox.SetColor("_EquatorColor", biome.deepColor);
-        RenderSettings.skybox.SetColor("_GroundColor", biome.deepColor);
-        RenderSettings.fogDensity = dryLandFogDensity;
-        RenderSettings.fogMode = FogMode.ExponentialSquared;
-        waterMaterial.SetColor("_ShallowColor", biome.shallowColor);
-        waterMaterial.SetColor("_DeepColor", biome.deepColor);
-      }
+      return;
+    }
+    // Biome biome = GetBiomeAtPosition(playerPosition.position);
+    if (gameCamera.transform.position.y - waterLevel <= 0.2)
+    {
+      float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
+      Color fogColor = Color.Lerp(biome.startFogColor, biome.endFogColor, fogHeight) * sun.intensity;
+      RenderSettings.fogColor = fogColor;
+      RenderSettings.fogDensity = Mathf.Lerp(biome.startFogDensity, biome.endFogDensity, fogHeight);
+      RenderSettings.fogMode = FogMode.ExponentialSquared;
+    }
+    else
+    {
+      RenderSettings.fogColor = dryLandFogColor;
+      RenderSettings.skybox.SetColor("_EquatorColor", biome.deepColor);
+      RenderSettings.skybox.SetColor("_GroundColor", biome.deepColor);
+      RenderSettings.fogDensity = dryLandFogDensity;
+      RenderSettings.fogMode = FogMode.ExponentialSquared;
+      waterMaterial.SetColor("_ShallowColor", biome.shallowColor);
+      waterMaterial.SetColor("_DeepColor", biome.deepColor);
     }
   }
 
@@ -154,13 +247,5 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
 
   public Texture2D GetBiomeMap(string feature = "Temperature"){
     return biomeMaps[biomeFeatures.IndexOf(feature)];
-  }
-
-  public Biome GetBiomeAtPosition(Vector3 position){
-    float[] features = new float[biomeFeatures.Count];
-    for(int i = 0; i < biomeFeatures.Count; i++){
-      features[i] = biomeMaps[i].GetPixelBilinear(position.x * 0.0005f, position.z * 0.0005f).r;
-    }
-    return biomeData.GetBiome(features);
   }
 }

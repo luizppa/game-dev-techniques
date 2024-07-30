@@ -15,6 +15,10 @@ public struct ChunkData
 {
   public float[] vertices;
   public Mesh mesh;
+  public RenderTexture biomeOutput1;
+  public RenderTexture biomeOutput2;
+  public RenderTexture biomeOutput3;
+  public RenderTexture biomeOutput4;
 }
 
 [RequireComponent(typeof(MeshFilter))]
@@ -67,6 +71,12 @@ public class GPUChunk : MonoBehaviour
   ComputeBuffer vegetationBuffer = null;
   ComputeBuffer vegetationBufferCount = null;
 
+  // Biome maps
+  public RenderTexture biomeOutput1 = null;
+  public RenderTexture biomeOutput2 = null;
+  public RenderTexture biomeOutput3 = null;
+  public RenderTexture biomeOutput4 = null;
+
   // Props
   [SerializeField] List<GameObject> grassPrefabs = new List<GameObject>();
   [SerializeField] List<GameObject> shallowWaterPrefabs = new List<GameObject>();
@@ -94,7 +104,7 @@ public class GPUChunk : MonoBehaviour
 
   void OnDestroy()
   {
-    surfaceManager.SetChunkCache(id, new ChunkData { vertices = vertices, mesh = meshFilter.mesh });
+    surfaceManager.SetChunkCache(id, new ChunkData { vertices = vertices, mesh = meshFilter.mesh, biomeOutput1 = biomeOutput1, biomeOutput2 = biomeOutput2, biomeOutput3 = biomeOutput3, biomeOutput4 = biomeOutput4 });
     Destroy(boid);
   }
 
@@ -133,6 +143,22 @@ public class GPUChunk : MonoBehaviour
     verticesBuffer = new ComputeBuffer(verticesNumber, sizeof(float));
     vegetationBuffer = new ComputeBuffer(maxTrianglesNumber, vector4MemorySize, ComputeBufferType.Append);
     vegetationBufferCount = new ComputeBuffer(1, sizeof(int), ComputeBufferType.Raw);
+
+    biomeOutput1 = new RenderTexture(32, 32, 0, RenderTextureFormat.ARGBFloat);
+    biomeOutput1.enableRandomWrite = true;
+    biomeOutput1.Create();
+
+    biomeOutput2 = new RenderTexture(32, 32, 0, RenderTextureFormat.ARGBFloat);
+    biomeOutput2.enableRandomWrite = true;
+    biomeOutput2.Create();
+
+    biomeOutput3 = new RenderTexture(32, 32, 0, RenderTextureFormat.ARGBFloat);
+    biomeOutput3.enableRandomWrite = true;
+    biomeOutput3.Create();
+
+    biomeOutput4 = new RenderTexture(32, 32, 0, RenderTextureFormat.ARGBFloat);
+    biomeOutput4.enableRandomWrite = true;
+    biomeOutput4.Create();
   }
 
   private void ReleaseBuffers()
@@ -152,12 +178,16 @@ public class GPUChunk : MonoBehaviour
       vertices = chunkCache.vertices;
       meshFilter.mesh = chunkCache.mesh;
       meshCollider.sharedMesh = meshFilter.mesh;
+      biomeOutput1 = chunkCache.biomeOutput1;
+      biomeOutput2 = chunkCache.biomeOutput2;
+      biomeOutput3 = chunkCache.biomeOutput3;
     }
     else
     {
       GenerateDensity();
       GenerateMesh();
     }
+    SetMaterialBiomeMaps();
     GenerateBoids();
   }
 
@@ -194,6 +224,15 @@ public class GPUChunk : MonoBehaviour
       vegetationBuffer.GetData(generatedVegetation, 0, 0, generatedVegetation.Length);
       GenerateVegetation(vegetationCount[0], generatedVegetation);
     }
+  }
+
+  void SetMaterialBiomeMaps()
+  {
+    Material material = meshFilter.GetComponent<Renderer>().material;
+    material.SetTexture("_BiomeMap1", biomeOutput1);
+    material.SetTexture("_BiomeMap2", biomeOutput2);
+    material.SetTexture("_BiomeMap3", biomeOutput3);
+    material.SetTexture("_BiomeMap4", biomeOutput4);
   }
 
   public void Terraform(Vector3 position, float radius, float strength, TerraformMode mode)
@@ -241,6 +280,11 @@ public class GPUChunk : MonoBehaviour
     meshGenerator.SetTexture(kernel, "_TemperatureMap", environmentManager.GetBiomeMap("Temperature"));
     meshGenerator.SetTexture(kernel, "_PrecipitationMap", environmentManager.GetBiomeMap("Precipitation"));
     meshGenerator.SetTexture(kernel, "_SeismicMap", environmentManager.GetBiomeMap("Seismic Activity"));
+
+    meshGenerator.SetTexture(kernel, "_BiomeOutput1", biomeOutput1);
+    meshGenerator.SetTexture(kernel, "_BiomeOutput2", biomeOutput2);
+    meshGenerator.SetTexture(kernel, "_BiomeOutput3", biomeOutput3);
+    meshGenerator.SetTexture(kernel, "_BiomeOutput4", biomeOutput4);
 
     // Buffers
     meshGenerator.SetBuffer(kernel, "_ChunkVertices", verticesBuffer);
