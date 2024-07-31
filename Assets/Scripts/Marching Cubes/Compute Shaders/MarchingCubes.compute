@@ -543,7 +543,8 @@ float DarkDeepsDensity(float3 worldSpace, float3 chunkSpace){
 }
 
 float NowhereDensity(float3 worldSpace, float3 chunkSpace){
-	float density = -chunkSpace.y;
+	float density = -chunkSpace.y + 2.0;
+	density += Get3DOctave(worldSpace, .05, 1.2, 0.8);
 
   return density;
 }
@@ -586,22 +587,22 @@ float CalculateDensity(uint3 id)
 
   float density = 0.0;
 
-  if(interp.values[0] > 0.0) density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[0]);
-  if(interp.values[1] > 0.0) density += (DeepSeaDensity(worldSpace, chunkSpace) * interp.values[1]);
-  if(interp.values[2] > 0.0) density += (CavernsDensity(worldSpace, chunkSpace) * interp.values[2]);
-  if(interp.values[3] > 0.0) density += (SerenityFieldsDensity(worldSpace, chunkSpace) * interp.values[3]);
-  if(interp.values[4] > 0.0) density += (CanyonsDensity(worldSpace, chunkSpace) * interp.values[4]);
-  if(interp.values[5] > 0.0) density += (SteamingValleyDensity(worldSpace, chunkSpace) * interp.values[5]);
-  if(interp.values[6] > 0.0) density += (WastelandDensity(worldSpace, chunkSpace) * interp.values[6]);
-  if(interp.values[7] > 0.0) density += (BloomingHillsDensity(worldSpace, chunkSpace) * interp.values[7]);
-  if(interp.values[8] > 0.0) density += (UnderwaterTundraDensity(worldSpace, chunkSpace) * interp.values[8]);
-  if(interp.values[9] > 0.0) density += (TropicalIslandsDensity(worldSpace, chunkSpace) * interp.values[9]);
-  if(interp.values[10] > 0.0) density += (DeadlandsDensity(worldSpace, chunkSpace) * interp.values[10]);
-  if(interp.values[11] > 0.0) density += (StoneValleyDensity(worldSpace, chunkSpace) * interp.values[11]);
-  if(interp.values[12] > 0.0) density += (AcidPlateauDensity(worldSpace, chunkSpace) * interp.values[12]);
-  if(interp.values[13] > 0.0) density += (DarkDeepsDensity(worldSpace, chunkSpace) * interp.values[13]);
-  if(interp.values[14] > 0.0) density += (NowhereDensity(worldSpace, chunkSpace) * interp.values[14]);
-  if(interp.values[15] > 0.0) density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[15]);
+  if(interp.values[0]  > 0.0001) density += (RockyMeadowsDensity(worldSpace, chunkSpace) * interp.values[0]);
+  if(interp.values[1]  > 0.0001) density += (DeepSeaDensity(worldSpace, chunkSpace) * interp.values[1]);
+  if(interp.values[2]  > 0.0001) density += (CavernsDensity(worldSpace, chunkSpace) * interp.values[2]);
+  if(interp.values[3]  > 0.0001) density += (SerenityFieldsDensity(worldSpace, chunkSpace) * interp.values[3]);
+  if(interp.values[4]  > 0.0001) density += (CanyonsDensity(worldSpace, chunkSpace) * interp.values[4]);
+  if(interp.values[5]  > 0.0001) density += (SteamingValleyDensity(worldSpace, chunkSpace) * interp.values[5]);
+  if(interp.values[6]  > 0.0001) density += (WastelandDensity(worldSpace, chunkSpace) * interp.values[6]);
+  if(interp.values[7]  > 0.0001) density += (BloomingHillsDensity(worldSpace, chunkSpace) * interp.values[7]);
+  if(interp.values[8]  > 0.0001) density += (UnderwaterTundraDensity(worldSpace, chunkSpace) * interp.values[8]);
+  if(interp.values[9]  > 0.0001) density += (TropicalIslandsDensity(worldSpace, chunkSpace) * interp.values[9]);
+  if(interp.values[10] > 0.0001) density += (DeadlandsDensity(worldSpace, chunkSpace) * interp.values[10]);
+  if(interp.values[11] > 0.0001) density += (StoneValleyDensity(worldSpace, chunkSpace) * interp.values[11]);
+  if(interp.values[12] > 0.0001) density += (AcidPlateauDensity(worldSpace, chunkSpace) * interp.values[12]);
+  if(interp.values[13] > 0.0001) density += (DarkDeepsDensity(worldSpace, chunkSpace) * interp.values[13]);
+  if(interp.values[14] > 0.0001) density += (NowhereDensity(worldSpace, chunkSpace) * interp.values[14]);
+  if(interp.values[15] > 0.0001) density += (ScarletVeilDensity(worldSpace, chunkSpace) * interp.values[15]);
 
   // // density = -chunkSpace.y;
   // for (uint i = 0; i < 16; i++){

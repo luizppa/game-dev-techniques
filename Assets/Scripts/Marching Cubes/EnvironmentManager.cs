@@ -153,13 +153,54 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
           values[rightIndex] = (1.0f - leftT) * t;
         }
       }
+      // Debug.Log(string.Join(", ", values));
     }
+
+    Debug.Log(string.Join(", ", features));
+    // Debug.Log(string.Join(", ", values));
 
     return values;
   }
 
   void UpdateBiomeFog(){
-    float[] biomeValues = ResolveBiomeValues();
+    GPUChunk currentChunk = SurfaceManager.Instance.GetPlayerChunk();
+    if(currentChunk == null) return;
+    int chunkSize = SurfaceManager.Instance.GetChunkSize();
+    playerChunk = currentChunk;
+    Texture2D biomeValues1 = new Texture2D(chunkSize, chunkSize);
+    Texture2D biomeValues2 = new Texture2D(chunkSize, chunkSize);
+    Texture2D biomeValues3 = new Texture2D(chunkSize, chunkSize);
+    Texture2D biomeValues4 = new Texture2D(chunkSize, chunkSize);
+    
+    RenderTexture.active = playerChunk.biomeOutput1;
+    biomeValues1.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues1.Apply();
+    RenderTexture.active = playerChunk.biomeOutput2;
+    biomeValues2.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues2.Apply();
+    RenderTexture.active = playerChunk.biomeOutput3;
+    biomeValues3.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues3.Apply();
+    RenderTexture.active = playerChunk.biomeOutput4;
+    biomeValues4.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues4.Apply();
+    RenderTexture.active = null;
+
+    Color[] biomeTextures = {
+      biomeValues1.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+      biomeValues2.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+      biomeValues3.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+      biomeValues4.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z)
+    };
+    float[] biomeValues = {
+      biomeTextures[0].r, biomeTextures[0].g, biomeTextures[0].b, biomeTextures[0].a,
+      biomeTextures[1].r, biomeTextures[1].g, biomeTextures[1].b, biomeTextures[1].a,
+      biomeTextures[2].r, biomeTextures[2].g, biomeTextures[2].b, biomeTextures[2].a,
+      biomeTextures[3].r, biomeTextures[3].g, biomeTextures[3].b, biomeTextures[3].a
+    };
+    // Debug.Log(string.Join(", ", biomeValues));
+
+    // float[] biomeValues = ResolveBiomeValues();
 
     biome = biomeData.GetBiome(biomeValues);
   }

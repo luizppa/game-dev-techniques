@@ -8469,6 +8469,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2800000, guid: 1c894536ed446e447a54e3270f098ae3, type: 3}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].name
+      value: Scarlet Veil
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[2].deepColor.b
       value: 0.5
       objectReference: {fileID: 0}
@@ -8602,11 +8606,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].deepColor.b
-      value: 0.2924528
+      value: 0.009433985
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].deepColor.g
-      value: 0.057531703
+      value: 0.0018867974
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].deepColor.r
@@ -8623,6 +8627,18 @@ PrefabInstance:
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].deepColor.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].deepColor.b
+      value: 0.40784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].deepColor.g
+      value: 0.38431373
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].deepColor.r
+      value: 0.6509804
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[0].endFogDensity
@@ -8766,11 +8782,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].endFogColor.b
-      value: 0.29411766
+      value: 0.007843138
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].endFogColor.g
-      value: 0.05882353
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].endFogColor.r
@@ -8778,7 +8794,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].endFogDensity
-      value: 0.03
+      value: 0.2
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].endFogColor.b
@@ -8791,6 +8807,22 @@ PrefabInstance:
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].endFogColor.r
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogColor.b
+      value: 0.08235294
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogColor.g
+      value: 0.03529412
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogColor.r
+      value: 0.5568628
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogDensity
+      value: 0.08
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[1].shallowColor.b
@@ -8942,15 +8974,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].shallowColor.b
-      value: 1
+      value: 0.4811321
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].shallowColor.g
-      value: 0.7849057
+      value: 0.1040285
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].shallowColor.r
-      value: 0.7311321
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].shallowColor.b
@@ -8963,6 +8995,18 @@ PrefabInstance:
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].shallowColor.r
       value: 0.49056602
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].shallowColor.b
+      value: 0.40791318
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].shallowColor.g
+      value: 0.38381097
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].shallowColor.r
+      value: 0.6509434
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[1].startFogColor.b
@@ -9110,15 +9154,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].startFogColor.b
-      value: 1
+      value: 0.48235294
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].startFogColor.g
-      value: 0.78431374
+      value: 0.105882354
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[13].startFogColor.r
-      value: 0.7294118
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].startFogColor.b
@@ -9131,6 +9175,18 @@ PrefabInstance:
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: biomeData.biomes.Array.data[14].startFogColor.r
       value: 0.49019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].startFogColor.b
+      value: 0.40784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].startFogColor.g
+      value: 0.38431373
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].startFogColor.r
+      value: 0.6509804
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}

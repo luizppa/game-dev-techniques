@@ -86,78 +86,163 @@ Shader "Custom/OceanBed"
 
         float4 rockyMeadowsSurface(Input IN){
           float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
 
-          float3 color = float3(angle * 0.9, .2, 1 - (angle * angle * 0.7));
           if(angle > 0.93){
-              color = float3(angle * 0.75, angle * 0.68, angle * 0.2);
+              return float4(angle * 0.75, angle * 0.68, angle * 0.2, 1.0);
           }
-          return float4(color.rgb, 1);
+          else{
+            return float4(angle * 0.9, .2, 1 - (angle2 * 0.9), 1.0);
+          }
         }
 
         float4 deepSeaSurface(Input IN){
-          return float4(0.0, 0.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float3 color = float3(angle * 0.9, .2, 1 - (angle * angle * 0.7));
+          return float4(color.rgb, 1);
         }
 
         float4 cavernsSurface(Input IN){
-          return float4(0.0, 0.0, 1.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(0.2, angle2 * 0.1, 0.0, 1.0);
+          }
+          else{
+            return float4(angle * 0.7, angle * 0.1, angle * 0.8, 1.0);
+          }
         }
 
         float4 serenityFieldsSurface(Input IN){
-          return float4(0.0, 1.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          return float4(angle2 * 0.3, angle * 0.5, angle2 * 0.2, 1.0);
         }
 
         float4 canyonsSurface(Input IN){
-          return float4(0.0, 1.0, 1.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(angle * 0.8, angle * 0.4, 0.1, 1.0);
+          }
+          else{
+            return float4(angle * 0.8, angle * 0.7, angle2 * 0.4, 1.0);
+          }
         }
 
         float4 steamingValleySurface(Input IN){
-          return float4(1.0, 0.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(angle * 0.4, angle * 0.4, 0.6, 1.0);
+          }
+          else{
+            return float4(angle * 0.1, angle * 0.1, angle * 0.1, 1.0);
+          }
         }
 
         float4 wastelandSurface(Input IN){
-          return float4(1.0, 0.0, 1.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(angle * 0.8, angle * 0.4, 0.1, 1.0);
+          }
+          else{
+            return float4(angle * 0.8, angle * 0.7, angle2 * 0.4, 1.0);
+          }
         }
 
         float4 bloomingHillsSurface(Input IN){
-          return float4(1.0, 1.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(angle * 0.8, angle * 0.4, 0.9, 1.0);
+          }
+          else{
+            return float4(angle2 * 0.4, angle2 * 0.5, angle2 * 0.9, 1.0);
+          }
         }
 
         float4 underwaterTundraSurface(Input IN){
-          return float4(1.0, 1.0, 1.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(angle2 * 0.6, angle2 * 0.7, angle2 * 0.9, 1.0);
+          }
+          else{
+            return float4(angle2 * 0.4, angle2 * 0.5, angle2 * 0.9, 1.0);
+          }
         }
 
         float4 tropicalIslandsSurface(Input IN){
-          return float4(0.0, 0.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.93){
+            return float4(angle2 * 0.3, angle * 0.65, angle2 * 0.2, 1.0);
+          }
+          else{
+            return float4(angle * 0.6, angle * 0.6, angle2 * 0.3, 1.0);
+          }
         }
 
         float4 deadlandsSurface(Input IN){
-          return float4(0.0, 0.0, 1.0, 1);
+          return float4(0.1, 0.0, 0.0, 1);
         }
 
         float4 stoneValleySurface(Input IN){
           float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
 
-          float3 color = float3(angle * 0.2, angle * 0.2, angle * 0.2);
           if(angle > 0.8){
-              color = float3(angle * 0.1, (angle * angle * 0.9), .2);
+            return float4(angle * 0.1, angle2 * 0.9, 0.2, 1.0);
           }
-          return float4(color.rgb, 1);
+          else{
+            return float4(angle * 0.2, angle * 0.2, angle * 0.2, 1.0);
+          }
         }
 
         float4 acidPlateauSurface(Input IN){
-          return float4(0.0, 1.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.8){
+            return float4(angle * 0.1, angle2 * 0.7, 0.2, 1.0);
+          }
+          else{
+            return float4(angle * 0.3, angle * 0.3, angle * 0.3, 1.0);
+          }
         }
 
         float4 darkDeepsSurface(Input IN){
-          return float4(0.0, 1.0, 1.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+          return float4(angle2 * 0.1, angle2 * 0.1, angle2 * 0.1, 1);
         }
 
         float4 nowhereSurface(Input IN){
-          return float4(1.0, 0.0, 0.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+          return float4(angle2 * 0.1, angle2 * 0.1, angle2 * 0.1, 1);
         }
 
         float4 scarletVeilSurface(Input IN){
-          return float4(1.0, 0.0, 1.0, 1);
+          float angle = (dot(float3(0, 1, 0), IN.normal) + 1) / 2;
+          float angle2 = angle * angle;
+
+          if(angle > 0.8){
+            return float4(angle * 1.0, angle2 * 0.2, angle * 0.2, 1.0);
+          }
+          else{
+            return float4(angle * 0.7, angle2 * 0.2, angle2 * 0.2, 1.0);
+          }
         }
 
         void surf (Input IN, inout SurfaceOutputStandard o)
@@ -167,45 +252,29 @@ Shader "Custom/OceanBed"
               tex2D(_BiomeMap2, IN.wPos.xz),
               tex2D(_BiomeMap3, IN.wPos.xz),
               tex2D(_BiomeMap4, IN.wPos.xz)
-                // (tex2D(_BiomeMap1, uint2(floor(IN.wPos.x), floor(IN.wPos.z))) + tex2D(_BiomeMap1, uint2(ceil(IN.wPos.x), ceil(IN.wPos.z)))) / 2,
-                // (tex2D(_BiomeMap2, uint2(floor(IN.wPos.x), floor(IN.wPos.z))) + tex2D(_BiomeMap2, uint2(ceil(IN.wPos.x), ceil(IN.wPos.z)))) / 2,
-                // (tex2D(_BiomeMap3, uint2(floor(IN.wPos.x), floor(IN.wPos.z))) + tex2D(_BiomeMap3, uint2(ceil(IN.wPos.x), ceil(IN.wPos.z)))) / 2,
-                // (tex2D(_BiomeMap4, uint2(floor(IN.wPos.x), floor(IN.wPos.z))) + tex2D(_BiomeMap4, uint2(ceil(IN.wPos.x), ceil(IN.wPos.z)))) / 2
             };
-            // float biome = 0.0;
-            float4 color = float4(0.2, 0.8, 0.2, 1);
+            float4 color = float4(0.0, 0.0, 0.0, 1);
 
-            // if(biome < 0.46){
-            //     color = rockyMeadowsSurface(IN);
-            // }
-            // else if(biome > 0.54){
-            //     color = stoneValleySurface(IN);
-            // }
-            // else{
-            //     float t = invLerp(0.46, 0.54, biome);
-            //     color = ((1 - t) * rockyMeadowsSurface(IN)) + (t * stoneValleySurface(IN));
-            // }
+            color += (rockyMeadowsSurface(IN) * biomeValues[0].r);
+            color += (deepSeaSurface(IN) * biomeValues[0].g);
+            color += (cavernsSurface(IN) * biomeValues[0].b);
+            color += (serenityFieldsSurface(IN) * biomeValues[0].a);
 
-            // color += (rockyMeadowsSurface(IN) * biomeValues[0].r);
-            // color += (deepSeaSurface(IN) * biomeValues[0].g);
-            // color += (cavernsSurface(IN) * biomeValues[0].b);
-            // color += (serenityFieldsSurface(IN) * biomeValues[0].a);
+            color += (canyonsSurface(IN) * biomeValues[1].r);
+            color += (steamingValleySurface(IN) * biomeValues[1].g);
+            color += (wastelandSurface(IN) * biomeValues[1].b);
+            color += (bloomingHillsSurface(IN) * biomeValues[1].a);
 
-            // color += (canyonsSurface(IN) * biomeValues[1].r);
-            // color += (steamingValleySurface(IN) * biomeValues[1].g);
-            // color += (wastelandSurface(IN) * biomeValues[1].b);
-            // color += (bloomingHillsSurface(IN) * biomeValues[1].a);
+            color += (underwaterTundraSurface(IN) * biomeValues[2].r);
+            color += (tropicalIslandsSurface(IN) * biomeValues[2].g);
+            color += (deadlandsSurface(IN) * biomeValues[2].b);
+            color += (stoneValleySurface(IN) * biomeValues[2].a);
 
-            // color += (underwaterTundraSurface(IN) * biomeValues[2].r);
-            // color += (tropicalIslandsSurface(IN) * biomeValues[2].g);
-            // color += (deadlandsSurface(IN) * biomeValues[2].b);
-            // color += (stoneValleySurface(IN) * biomeValues[2].a);
-
-            // color += (acidPlateauSurface(IN) * biomeValues[3].r);
-            // color += (darkDeepsSurface(IN) * biomeValues[3].g);
-            // color += (nowhereSurface(IN) * biomeValues[3].b);
-            // color += (rockyMeadowsSurface(IN) * biomeValues[3].a);
-            color = (biomeValues[0] + biomeValues[1] + biomeValues[2] + biomeValues[3]) / 4;
+            color += (acidPlateauSurface(IN) * biomeValues[3].r);
+            color += (darkDeepsSurface(IN) * biomeValues[3].g);
+            color += (nowhereSurface(IN) * biomeValues[3].b);
+            color += (scarletVeilSurface(IN) * biomeValues[3].a);
+            // color = (biomeValues[0] + biomeValues[1] + biomeValues[2] + biomeValues[3]) / 4;
 
             color = tex2D (_MainTex, IN.uv_MainTex) * color;
 
