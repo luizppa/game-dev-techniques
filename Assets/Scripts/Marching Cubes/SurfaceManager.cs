@@ -74,10 +74,9 @@ public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
 
   void GenerateNoiseMaps()
   {
-    noiseMaps.Clear();
-    for (int i = 0; i < noiseLevels; i++)
+    while (noiseMaps.Count < noiseLevels)
     {
-      float scale = Mathf.Pow(10f, i + 1);
+      float scale = Mathf.Pow(10f, noiseMaps.Count + 1);
       Texture2D noiseMap = NoiseUtils.GenerateNoiseMap(noiseResolution, scale, seed);
       noiseMaps.Add(noiseMap);
     }
@@ -313,6 +312,14 @@ public class SurfaceManager : SingletonMonoBehaviour<SurfaceManager>
       }
     }
     return chunksInRadius;
+  }
+
+  public GPUChunk GetPlayerChunk(){
+    RaycastHit hit;
+    if(Physics.Raycast(playerPosition.position, Vector3.down, out hit, LayerMask.GetMask("Terrain"))){
+      return hit.collider.GetComponent<GPUChunk>();
+    }
+    return null;
   }
 
   public GameObject GetGPUChunkPrefab()

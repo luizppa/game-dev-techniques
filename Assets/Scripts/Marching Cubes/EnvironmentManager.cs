@@ -42,37 +42,34 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
 
 
   [Header("Biome Settings")]
-  [SerializeField] Texture2D biomeMap = null;
+  [SerializeField] List<string> biomeFeatures = new List<string>{
+    "Temperature",
+    "Seismic Activity",
+    "Erosion",
+    "Precipitation"
+  };
+  [SerializeField] List<Texture2D> biomeMaps = new List<Texture2D>();
   [SerializeField] int biomesSeed = 0;
   [SerializeField] float biomesScale = 1f;
   [SerializeField] int biomesSize = 256;
-  [SerializeField] List<Biome> biomes = new List<Biome>{
-    new Biome {
-      name = "Warped Meadows",
-      startFogColor = new Color(0.168f, 0.325f, 0.952f, 1f),
-      startFogDensity = 0.03f,
-      endFogColor = new Color(0.015f, 0.063f, 0.254f, 1f),
-      endFogDensity = 0.05f
-    },
-    new Biome {
-      name = "Stone Fields",
-      startFogColor = new Color(0.168f, 0.325f, 0.952f, 1f),
-      startFogDensity = 0.06f,
-      endFogColor = new Color(0.015f, 0.063f, 0.254f, 1f),
-      endFogDensity = 0.15f
-    }
-  };
+  [SerializeField] BiomeData biomeData = new BiomeData();
+
+  [SerializeField][Range(0f, 1f)] float lowFeatureThreshold = .40f;
+  [SerializeField][Range(0f, 1f)] float highFeatureThreshold = .60f;
+  [SerializeField] float biomeStep = 0.0002f;
 
   private Camera gameCamera = null;
   private Material waterMaterial = null;
+  private GPUChunk playerChunk = null;
+  private Biome biome = BiomeData.placeholderBiome;
 
   override protected void Awake()
   {
     base.Awake();
-    if(!biomeMap)
+
+    while(biomeMaps.Count < biomeFeatures.Count)
     {
-      biomeMap = NoiseUtils.GenerateNoiseMap(new Vector2Int(biomesSize, biomesSize), biomesScale, biomesSeed);
-      // biomeMap = Texture2D.redTexture;
+      biomeMaps.Add(NoiseUtils.GenerateNoiseMap(new Vector2Int(biomesSize, biomesSize), biomesScale, biomesSeed));
     }
     if(!reflectionMap)
     {
@@ -108,6 +105,7 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     {
       DayNightCycle();
     }
+    UpdateBiomeFog();
     SetFog();
   }
 
@@ -123,30 +121,114 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     RenderSettings.ambientLight = sun.color;
     RenderSettings.ambientIntensity = sun.intensity;
   }
+  
+  float[] ResolveBiomeValues(){
+    int biomeCount = (int)Mathf.Pow(biomeMaps.Count, 2);
+    float[] values = new float[biomeCount];
+    float[] features = new float[biomeMaps.Count];
+    values[0] = 1.0f;
+
+    for(int i = 0; i < biomeMaps.Count; i++){
+      features[i] = biomeMaps[i].GetPixelBilinear(playerPosition.position.x * biomeStep, playerPosition.position.z * biomeStep).r;
+    }
+
+    for (int depth = 0; depth < biomeMaps.Count; depth++){
+      for(int index = 0; index < biomeCount; index = (int)(index + biomeCount / Mathf.Pow(2, depth))){
+        float t = values[index];
+
+        int slice = (int)(biomeCount / Mathf.Pow(2, depth));
+        int leftIndex = index;
+        int rightIndex = index + (slice / 2); 
+
+        float feature = features[depth];
+        if (feature <= lowFeatureThreshold){
+          values[leftIndex] = 1.0f * t;
+          values[rightIndex] = 0.0f;
+        } else if (feature >= highFeatureThreshold){
+          values[leftIndex] = 0.0f;
+          values[rightIndex] = 1.0f * t;
+        } else {
+          float leftT = Mathf.InverseLerp(highFeatureThreshold, lowFeatureThreshold, feature);
+          values[leftIndex] = leftT * t;
+          values[rightIndex] = (1.0f - leftT) * t;
+        }
+      }
+      // Debug.Log(string.Join(", ", values));
+    }
+
+    Debug.Log(string.Join(", ", features));
+    // Debug.Log(string.Join(", ", values));
+
+    return values;
+  }
+
+  void UpdateBiomeFog(){
+    GPUChunk currentChunk = SurfaceManager.Instance.GetPlayerChunk();
+    if(currentChunk == null) return;
+    int chunkSize = SurfaceManager.Instance.GetChunkSize();
+    playerChunk = currentChunk;
+    Texture2D biomeValues1 = new Texture2D(chunkSize, chunkSize);
+    Texture2D biomeValues2 = new Texture2D(chunkSize, chunkSize);
+    Texture2D biomeValues3 = new Texture2D(chunkSize, chunkSize);
+    Texture2D biomeValues4 = new Texture2D(chunkSize, chunkSize);
+    
+    RenderTexture.active = playerChunk.biomeOutput1;
+    biomeValues1.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues1.Apply();
+    RenderTexture.active = playerChunk.biomeOutput2;
+    biomeValues2.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues2.Apply();
+    RenderTexture.active = playerChunk.biomeOutput3;
+    biomeValues3.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues3.Apply();
+    RenderTexture.active = playerChunk.biomeOutput4;
+    biomeValues4.ReadPixels(new Rect(0, 0, chunkSize, chunkSize), 0, 0);
+    biomeValues4.Apply();
+    RenderTexture.active = null;
+
+    Color[] biomeTextures = {
+      biomeValues1.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+      biomeValues2.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+      biomeValues3.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z),
+      biomeValues4.GetPixelBilinear(playerPosition.position.x, playerPosition.position.z)
+    };
+    float[] biomeValues = {
+      biomeTextures[0].r, biomeTextures[0].g, biomeTextures[0].b, biomeTextures[0].a,
+      biomeTextures[1].r, biomeTextures[1].g, biomeTextures[1].b, biomeTextures[1].a,
+      biomeTextures[2].r, biomeTextures[2].g, biomeTextures[2].b, biomeTextures[2].a,
+      biomeTextures[3].r, biomeTextures[3].g, biomeTextures[3].b, biomeTextures[3].a
+    };
+    // Debug.Log(string.Join(", ", biomeValues));
+
+    // float[] biomeValues = ResolveBiomeValues();
+
+    biome = biomeData.GetBiome(biomeValues);
+  }
 
   void SetFog()
   {
-    if (playerPosition)
+    if (playerPosition == null)
     {
-      Biome biome = GetBiomeAtPosition(playerPosition.position);
-      if (gameCamera.transform.position.y - waterLevel <= 0.2)
-      {
-        float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
-        Color fogColor = Color.Lerp(biome.startFogColor, biome.endFogColor, fogHeight) * sun.intensity;
-        RenderSettings.fogColor = fogColor;
-        RenderSettings.fogDensity = Mathf.Lerp(biome.startFogDensity, biome.endFogDensity, fogHeight);
-        RenderSettings.fogMode = FogMode.ExponentialSquared;
-      }
-      else
-      {
-        RenderSettings.fogColor = dryLandFogColor;
-        RenderSettings.skybox.SetColor("_EquatorColor", biome.deepColor);
-        RenderSettings.skybox.SetColor("_GroundColor", biome.deepColor);
-        RenderSettings.fogDensity = dryLandFogDensity;
-        RenderSettings.fogMode = FogMode.ExponentialSquared;
-        waterMaterial.SetColor("_ShallowColor", biome.shallowColor);
-        waterMaterial.SetColor("_DeepColor", biome.deepColor);
-      }
+      return;
+    }
+    // Biome biome = GetBiomeAtPosition(playerPosition.position);
+    if (gameCamera.transform.position.y - waterLevel <= 0.2)
+    {
+      float fogHeight = Mathf.InverseLerp(startFogHeight, endFogHeight, playerPosition.position.y);
+      Color fogColor = Color.Lerp(biome.startFogColor, biome.endFogColor, fogHeight) * sun.intensity;
+      RenderSettings.fogColor = fogColor;
+      RenderSettings.fogDensity = Mathf.Lerp(biome.startFogDensity, biome.endFogDensity, fogHeight);
+      RenderSettings.fogMode = FogMode.ExponentialSquared;
+    }
+    else
+    {
+      RenderSettings.fogColor = dryLandFogColor;
+      RenderSettings.skybox.SetColor("_EquatorColor", biome.deepColor);
+      RenderSettings.skybox.SetColor("_GroundColor", biome.deepColor);
+      RenderSettings.fogDensity = dryLandFogDensity;
+      RenderSettings.fogMode = FogMode.ExponentialSquared;
+      waterMaterial.SetColor("_ShallowColor", biome.shallowColor);
+      waterMaterial.SetColor("_DeepColor", biome.deepColor);
     }
   }
 
@@ -161,29 +243,19 @@ public class EnvironmentManager : SingletonMonoBehaviour<EnvironmentManager>
     return waterLevel;
   }
 
-  public Texture2D GetBiomeMap(){
-    return biomeMap;
+  public Texture2D GetBiomeMap(string feature = "Temperature"){
+    return biomeMaps[biomeFeatures.IndexOf(feature)];
   }
 
-  public Biome GetBiomeAtPosition(Vector3 position){
-    float biomeValue = biomeMap.GetPixelBilinear(position.x * 0.0005f, position.z * 0.0005f).r;
-    if(biomeValue < 0.46f){
-      return biomes[0];
-    }
-    else if(biomeValue > 0.54f){
-      return biomes[1];
-    }
-    else{
-      Biome transitionBiome = new Biome{
-        name = "Transition Biome",
-        startFogColor = Color.Lerp(biomes[0].startFogColor, biomes[1].startFogColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        startFogDensity = Mathf.Lerp(biomes[0].startFogDensity, biomes[1].startFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        endFogColor = Color.Lerp(biomes[0].endFogColor, biomes[1].endFogColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        endFogDensity = Mathf.Lerp(biomes[0].endFogDensity, biomes[1].endFogDensity, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        shallowColor = Color.Lerp(biomes[0].shallowColor, biomes[1].shallowColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue)),
-        deepColor = Color.Lerp(biomes[0].deepColor, biomes[1].deepColor, Mathf.InverseLerp(0.46f, 0.54f, biomeValue))
-      };
-      return transitionBiome;
-    }
+  public float GetLowFeatureThreshold(){
+    return lowFeatureThreshold;
+  }
+
+  public float GetHighFeatureThreshold(){
+    return highFeatureThreshold;
+  }
+
+  public float GetBiomeStep(){
+    return biomeStep;
   }
 }

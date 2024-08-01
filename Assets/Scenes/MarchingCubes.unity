@@ -475,7 +475,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 486869165}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -440, y: 28, z: 176}
+  m_LocalPosition: {x: 100, y: 28, z: 100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -702,7 +702,7 @@ MonoBehaviour:
   mode: -1
   terraformRange: 20
   terraformRadius: 5
-  terraformStrength: 1
+  terraformStrength: 5
   terraformInterval: 0.1
   terraformLayer:
     serializedVersion: 2
@@ -1301,7 +1301,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
   m_LocalRotation: {x: 0.05832255, y: -0.7046975, z: 0.05832255, w: 0.70469743}
-  m_LocalPosition: {x: -434, y: 29, z: 176}
+  m_LocalPosition: {x: 106, y: 29, z: 100}
   m_LocalScale: {x: 1, y: 1.0000006, z: 1.0000006}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1876,16 +1876,32 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: chunksPerDirection
-      value: 3
+      value: 5
       objectReference: {fileID: 0}
     - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: generationTechnology
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
+      propertyPath: noiseMaps.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: noiseComplexityIncrease
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
+      propertyPath: noiseMaps.Array.data[0]
+      value: 
+      objectReference: {fileID: 2800000, guid: 2968d6179f88a4945a31de62eabf829c, type: 3}
+    - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
+      propertyPath: noiseMaps.Array.data[1]
+      value: 
+      objectReference: {fileID: 2800000, guid: 6117cd5d992e4664581876be7ebc949f, type: 3}
+    - target: {fileID: 187988308634348394, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
+      propertyPath: noiseMaps.Array.data[2]
+      value: 
+      objectReference: {fileID: 2800000, guid: da3b267b24113b74a9cf7fee07d573dc, type: 3}
     - target: {fileID: 187988308634348395, guid: 3692c31847eae0c4eb04601b177957c8, type: 3}
       propertyPath: m_Name
       value: Surface Manager
@@ -8425,320 +8441,752 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 705507994}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomeSeed
-      value: 1236
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomeSize
-      value: 1024
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomeScale
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomesSeed
-      value: 1236
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomesSize
-      value: 1024
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: waterLevel
-      value: 29
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomesScale
-      value: 8
+      propertyPath: biomeStep
+      value: 0.0005
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: waterSurface
       value: 
       objectReference: {fileID: 1257507349}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: endFogColor.g
-      value: 0.044207197
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: endFogColor.r
-      value: 0.0030704818
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: endFogDensity
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: reflectionMap
-      value: 
-      objectReference: {fileID: 2800000, guid: 58b71616d3a50634c89f620d49584bfe, type: 3}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
       propertyPath: playerPosition
       value: 
       objectReference: {fileID: 486869166}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: startFogColor.b
-      value: 0.8490566
+      propertyPath: biomeMaps.Array.data[0]
+      value: 
+      objectReference: {fileID: 2800000, guid: b500e18aa3089ec42b875788980e4151, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[1]
+      value: 
+      objectReference: {fileID: 2800000, guid: 8f862b388e6d68b489a68ad224cce6c1, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[2]
+      value: 
+      objectReference: {fileID: 2800000, guid: f5373dbd28d212444ab0ea0744988c82, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeMaps.Array.data[3]
+      value: 
+      objectReference: {fileID: 2800000, guid: 1c894536ed446e447a54e3270f098ae3, type: 3}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].name
+      value: Scarlet Veil
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: startFogColor.g
-      value: 0.1668666
+      propertyPath: biomeData.biomes.Array.data[2].deepColor.b
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: startFogColor.r
+      propertyPath: biomeData.biomes.Array.data[2].deepColor.g
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: startFogDensity
+      propertyPath: biomeData.biomes.Array.data[2].deepColor.r
+      value: 0.24221611
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].deepColor.b
+      value: 0.5052037
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].deepColor.g
+      value: 0.54901963
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].deepColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[4].deepColor.b
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[4].deepColor.g
+      value: 0.43263927
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[4].deepColor.r
+      value: 0.6698113
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[5].deepColor.b
+      value: 0.2924528
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[5].deepColor.g
+      value: 0.1472893
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[5].deepColor.r
+      value: 0.111739054
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].deepColor.b
+      value: 0.09500711
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].deepColor.g
+      value: 0.56812507
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].deepColor.r
+      value: 0.5754717
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].deepColor.b
+      value: 0.754717
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].deepColor.g
+      value: 0.05339978
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].deepColor.r
+      value: 0.47151273
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].deepColor.b
+      value: 0.6603774
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].deepColor.g
+      value: 0.49797317
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].deepColor.r
+      value: 0.16509435
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].deepColor.b
+      value: 0.9339623
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].deepColor.g
+      value: 0.2297351
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].deepColor.r
+      value: 0.057271298
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].deepColor.b
+      value: 0.46772593
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].deepColor.g
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].deepColor.r
+      value: 0.3466981
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].deepColor.b
+      value: 0.3584906
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].deepColor.g
+      value: 0.24031511
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].deepColor.r
+      value: 0.21137416
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].deepColor.b
+      value: 0.08842775
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].deepColor.g
+      value: 0.6981132
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].deepColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].deepColor.b
+      value: 0.009433985
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].deepColor.g
+      value: 0.0018867974
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].deepColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].deepColor.b
+      value: 0.1981132
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].deepColor.g
+      value: 0.03897309
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].deepColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].deepColor.b
+      value: 0.40784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].deepColor.g
+      value: 0.38431373
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].deepColor.r
+      value: 0.6509804
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[0].endFogDensity
       value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime1
-      value: 11796
+      propertyPath: biomeData.biomes.Array.data[1].endFogDensity
+      value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime2
-      value: 20971
+      propertyPath: biomeData.biomes.Array.data[2].endFogColor.b
+      value: 0.5019608
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime3
-      value: 32768
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime4
-      value: 35659
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime5
-      value: 63029
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime6
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.ctime7
-      value: 65535
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key0.b
-      value: 0.49411762
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key0.g
-      value: 0.8502477
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key0.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key1.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key1.g
-      value: 0.93333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key1.r
-      value: 0.8392157
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key2.b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key2.g
-      value: 0.93333334
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key2.r
-      value: 0.8392157
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key3.b
-      value: 0.49411765
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key3.g
-      value: 0.8509804
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key3.r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key4.b
+      propertyPath: biomeData.biomes.Array.data[2].endFogColor.g
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key4.g
+      propertyPath: biomeData.biomes.Array.data[2].endFogColor.r
+      value: 0.24313726
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].endFogColor.b
+      value: 0.5058824
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].endFogColor.g
+      value: 0.54901963
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].endFogColor.r
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key4.r
+      propertyPath: biomeData.biomes.Array.data[4].endFogColor.b
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key5.b
-      value: 0
+      propertyPath: biomeData.biomes.Array.data[4].endFogColor.g
+      value: 0.43137255
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key5.g
-      value: 0
+      propertyPath: biomeData.biomes.Array.data[4].endFogColor.r
+      value: 0.67058825
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key5.r
-      value: 0
+      propertyPath: biomeData.biomes.Array.data[5].endFogColor.b
+      value: 0.29411766
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key6.b
-      value: 0.49411765
+      propertyPath: biomeData.biomes.Array.data[5].endFogColor.g
+      value: 0.14901961
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key6.g
-      value: 0.8509804
+      propertyPath: biomeData.biomes.Array.data[5].endFogColor.r
+      value: 0.10980392
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key6.r
-      value: 1
+      propertyPath: biomeData.biomes.Array.data[6].endFogColor.b
+      value: 0.09411765
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key7.b
-      value: 0.49411765
+      propertyPath: biomeData.biomes.Array.data[6].endFogColor.g
+      value: 0.5686275
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key7.g
-      value: 0.8509804
+      propertyPath: biomeData.biomes.Array.data[6].endFogColor.r
+      value: 0.5764706
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.key7.r
-      value: 1
+      propertyPath: biomeData.biomes.Array.data[7].endFogColor.b
+      value: 0.7529412
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.m_Mode
-      value: 0
+      propertyPath: biomeData.biomes.Array.data[7].endFogColor.g
+      value: 0.05490196
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: dryLandFogColor.b
-      value: 0.90588236
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: dryLandFogColor.g
+      propertyPath: biomeData.biomes.Array.data[7].endFogColor.r
       value: 0.47058824
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: dryLandFogColor.r
-      value: 0.28235295
+      propertyPath: biomeData.biomes.Array.data[8].endFogColor.b
+      value: 0.65882355
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: dryLandFogDensity
-      value: 0.013
+      propertyPath: biomeData.biomes.Array.data[8].endFogColor.g
+      value: 0.49803922
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: dayNightCycleSpeed
-      value: 0.25
+      propertyPath: biomeData.biomes.Array.data[8].endFogColor.r
+      value: 0.16470589
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: sunColor.m_NumColorKeys
-      value: 7
+      propertyPath: biomeData.biomes.Array.data[9].endFogColor.b
+      value: 0.93333334
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].name
-      value: Stone Fields
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].deepColor.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].deepColor.b
-      value: 0.5568628
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].deepColor.g
+      propertyPath: biomeData.biomes.Array.data[9].endFogColor.g
       value: 0.23137255
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].deepColor.a
+      propertyPath: biomeData.biomes.Array.data[9].endFogColor.r
+      value: 0.05882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].endFogColor.b
+      value: 0.46666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].endFogColor.g
+      value: 0.5019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].endFogColor.r
+      value: 0.34509805
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].endFogColor.b
+      value: 0.35686275
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].endFogColor.g
+      value: 0.23921569
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].endFogColor.r
+      value: 0.21176471
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].endFogColor.b
+      value: 0.09019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].endFogColor.g
+      value: 0.69803923
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].endFogColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].endFogColor.b
+      value: 0.007843138
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].endFogColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].endFogColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].endFogDensity
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].endFogColor.b
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].endFogColor.g
+      value: 0.039215688
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].endFogColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogColor.b
+      value: 0.08235294
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogColor.g
+      value: 0.03529412
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogColor.r
+      value: 0.5568628
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].endFogDensity
+      value: 0.08
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[1].shallowColor.b
+      value: 0.6509434
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[1].shallowColor.g
+      value: 0.1301887
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[1].shallowColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[2].shallowColor.b
+      value: 0.8584906
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[2].shallowColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[2].shallowColor.r
+      value: 0.45081407
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].shallowColor.b
+      value: 0.76733255
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].shallowColor.g
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].deepColor.b
-      value: 0.3191772
+      propertyPath: biomeData.biomes.Array.data[3].shallowColor.r
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].deepColor.g
-      value: 0.4056604
+      propertyPath: biomeData.biomes.Array.data[4].shallowColor.b
+      value: 0.4481132
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].deepColor.r
-      value: 0.009567461
+      propertyPath: biomeData.biomes.Array.data[4].shallowColor.g
+      value: 0.8476151
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].endFogDensity
-      value: 0.05
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].endFogColor.b
-      value: 0.2126302
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].endFogColor.g
-      value: 0.25490198
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].endFogColor.r
-      value: 0.015686274
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].endFogDensity
-      value: 0.04
-      objectReference: {fileID: 0}
-    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].shallowColor.a
+      propertyPath: biomeData.biomes.Array.data[4].shallowColor.r
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].shallowColor.b
-      value: 0.7019608
+      propertyPath: biomeData.biomes.Array.data[5].shallowColor.b
+      value: 0.6698113
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].shallowColor.g
-      value: 0.8980392
+      propertyPath: biomeData.biomes.Array.data[5].shallowColor.g
+      value: 0.43474546
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].shallowColor.a
+      propertyPath: biomeData.biomes.Array.data[5].shallowColor.r
+      value: 0.37597898
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].shallowColor.b
+      value: 0.5896226
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].shallowColor.g
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].shallowColor.b
-      value: 0.7019608
+      propertyPath: biomeData.biomes.Array.data[6].shallowColor.r
+      value: 0.9834878
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].shallowColor.g
-      value: 0.8980392
+      propertyPath: biomeData.biomes.Array.data[7].shallowColor.b
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[0].startFogDensity
+      propertyPath: biomeData.biomes.Array.data[7].shallowColor.g
+      value: 0.4198113
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].shallowColor.r
+      value: 0.79427344
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].shallowColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].shallowColor.g
+      value: 0.82169807
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].shallowColor.r
+      value: 0.504717
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].shallowColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].shallowColor.g
+      value: 0.42264155
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].shallowColor.r
+      value: 0.2783019
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[0].startFogDensity
       value: 0.03
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].startFogColor.b
-      value: 0.5165585
+      propertyPath: biomeData.biomes.Array.data[10].shallowColor.b
+      value: 0.80352706
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].startFogColor.g
-      value: 0.9529412
+      propertyPath: biomeData.biomes.Array.data[10].shallowColor.g
+      value: 0.8490566
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].startFogColor.r
-      value: 0.16862747
+      propertyPath: biomeData.biomes.Array.data[10].shallowColor.r
+      value: 0.6287825
       objectReference: {fileID: 0}
     - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
-      propertyPath: biomes.Array.data[1].startFogDensity
-      value: 0.02
+      propertyPath: biomeData.biomes.Array.data[11].shallowColor.b
+      value: 0.8584906
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].shallowColor.g
+      value: 0.6284799
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].shallowColor.r
+      value: 0.5709772
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].shallowColor.b
+      value: 0.48598897
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].shallowColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].shallowColor.r
+      value: 0.41037738
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].shallowColor.b
+      value: 0.4811321
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].shallowColor.g
+      value: 0.1040285
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].shallowColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].shallowColor.b
+      value: 0.49056602
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].shallowColor.g
+      value: 0.49056602
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].shallowColor.r
+      value: 0.49056602
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].shallowColor.b
+      value: 0.40791318
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].shallowColor.g
+      value: 0.38381097
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].shallowColor.r
+      value: 0.6509434
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[1].startFogColor.b
+      value: 0.6509804
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[1].startFogColor.g
+      value: 0.12941177
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[1].startFogColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[2].startFogColor.b
+      value: 0.85882354
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[2].startFogColor.g
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[2].startFogColor.r
+      value: 0.4509804
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].startFogColor.b
+      value: 0.76862746
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].startFogColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[3].startFogColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[4].startFogColor.b
+      value: 0.44705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[4].startFogColor.g
+      value: 0.84705883
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[4].startFogColor.r
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[5].startFogColor.b
+      value: 0.67058825
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[5].startFogColor.g
+      value: 0.43529412
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[5].startFogColor.r
+      value: 0.3764706
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].startFogColor.b
+      value: 0.5882353
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].startFogColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[6].startFogColor.r
+      value: 0.9843137
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].startFogColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].startFogColor.g
+      value: 0.41960785
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[7].startFogColor.r
+      value: 0.79607844
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].startFogColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].startFogColor.g
+      value: 0.8235294
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[8].startFogColor.r
+      value: 0.5058824
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].startFogColor.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].startFogColor.g
+      value: 0.42352942
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[9].startFogColor.r
+      value: 0.2784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].startFogColor.b
+      value: 0.8039216
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].startFogColor.g
+      value: 0.8509804
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[10].startFogColor.r
+      value: 0.627451
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].startFogColor.b
+      value: 0.85882354
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].startFogColor.g
+      value: 0.627451
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[11].startFogColor.r
+      value: 0.57254905
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].startFogColor.b
+      value: 0.4862745
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].startFogColor.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[12].startFogColor.r
+      value: 0.4117647
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].startFogColor.b
+      value: 0.48235294
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].startFogColor.g
+      value: 0.105882354
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[13].startFogColor.r
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].startFogColor.b
+      value: 0.49019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].startFogColor.g
+      value: 0.49019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[14].startFogColor.r
+      value: 0.49019608
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].startFogColor.b
+      value: 0.40784314
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].startFogColor.g
+      value: 0.38431373
+      objectReference: {fileID: 0}
+    - target: {fileID: 6980323957687489613, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}
+      propertyPath: biomeData.biomes.Array.data[15].startFogColor.r
+      value: 0.6509804
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3a7ca60ebc056b146a3b7da1eb1700de, type: 3}

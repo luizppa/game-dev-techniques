@@ -45,9 +45,169 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerPosition: {fileID: 0}
+  sun: {fileID: 0}
+  sunColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 0.8502477, b: 0.49411762, a: 1}
+    key1: {r: 0.8392157, g: 0.93333334, b: 1, a: 1}
+    key2: {r: 0.8392157, g: 0.93333334, b: 1, a: 0}
+    key3: {r: 1, g: 0.8509804, b: 0.49411765, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 1, g: 0.8509804, b: 0.49411765, a: 0}
+    key7: {r: 1, g: 0.8509804, b: 0.49411765, a: 0}
+    ctime0: 0
+    ctime1: 11796
+    ctime2: 20971
+    ctime3: 32768
+    ctime4: 35659
+    ctime5: 63029
+    ctime6: 65535
+    ctime7: 65535
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_NumColorKeys: 7
+    m_NumAlphaKeys: 2
+  sunIntensity: 1
+  dayNightCycleSpeed: 0.25
+  waterLevel: 29
+  waterSurface: {fileID: 0}
+  reflectionMap: {fileID: 2800000, guid: 58b71616d3a50634c89f620d49584bfe, type: 3}
+  dryLandFogDensity: 0.013
+  dryLandFogColor: {r: 0.28235295, g: 0.47058824, b: 0.90588236, a: 1}
   startFogHeight: 35
-  startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
-  startFogDensity: 0.03
   endFogHeight: 0
-  endFogColor: {r: 0.011258455, g: 0.051728487, b: 0.21698111, a: 1}
-  endFogDensity: 0.06
+  biomeFeatures:
+  - Erosion
+  - Temperature
+  - Precipitation
+  - Seismic Activity
+  biomeMaps:
+  - {fileID: 2800000, guid: a2079b5cdca798e4aa1d71d9b76f0972, type: 3}
+  - {fileID: 2800000, guid: 6cae99ec6da5b554dbef8ecf57429253, type: 3}
+  - {fileID: 2800000, guid: f5373dbd28d212444ab0ea0744988c82, type: 3}
+  - {fileID: 2800000, guid: cfd40d7abb72e5a42a258aeaa7e87c58, type: 3}
+  biomesSeed: 1236
+  biomesScale: 8
+  biomesSize: 1024
+  biomeData:
+    matrix:
+    - name: Deep Sea
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Placeholder
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Placeholder
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Caverns
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Placeholder
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Rocky Meadows
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.06
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.15
+    - name: Serenity Fields
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Canyons
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Placeholder
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Placeholder
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Steaming Valley
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Wasteland
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Blooming Hills
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Underwater Tundra
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
+    - name: Tropical Islands
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.05
+    - name: Dead Lands
+      shallowColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      deepColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      startFogColor: {r: 0.168, g: 0.325, b: 0.952, a: 1}
+      startFogDensity: 0.03
+      endFogColor: {r: 0.015, g: 0.063, b: 0.254, a: 1}
+      endFogDensity: 0.03
